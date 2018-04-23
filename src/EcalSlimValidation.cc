@@ -330,7 +330,6 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
       for(TString key : eta_keys["EB"]){
         //std::cout << key << "  " << itr->energy() << std::endl;
         if( mycell.eta() >= eta_edges["EB"][key].first && mycell.eta() < eta_edges["EB"][key].second){
-          //std::cout << "Filling " << std::endl;
           h_recHits_energy_etaBinned["EB"][key]->Fill(itr -> energy());
           h_recHits_et_etaBinned["EB"][key]->Fill(et); 
           break; // when you found it, exit
