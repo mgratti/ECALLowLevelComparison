@@ -5,7 +5,8 @@
 # must be done for barrel, EEM, EEP
 
 import sys
-#sys.path.append('~/plotting/myplotting')
+import os
+sys.path.append('{user}/plotting/myplotting'.format(user=os.environ['HOME']))
 from spares import *
 
 
