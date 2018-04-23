@@ -1,11 +1,3 @@
 file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/9C320B26-C000-E811-977C-0CC47A7C351E.root
 file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/6E0EE381-C000-E811-9E72-0CC47A4D75EC.root
 file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/06C1C4EC-C400-E811-8062-0CC47A78A456.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/F4C99894-C000-E811-82E1-0CC47A4C8E7E.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/50929D04-C300-E811-84D0-0CC47A4D7690.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/3C080BA6-C000-E811-95DC-0CC47A7C34D0.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/9AE4ABF3-C400-E811-9F6C-0CC47A4C8EE2.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/16C9E6F3-C400-E811-9FAE-0CC47A4C8F26.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/DA8EE545-C200-E811-B46F-0CC47A7C360E.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/3A57F240-C400-E811-A4BE-0CC47A4D76D2.root
-file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_0_0/RelValZEE_13/GEN-SIM-DIGI-RAW-RECO/PU25ns_100X_upgrade2018_realistic_v7_HS-v1/10000/30507E1A-C500-E811-8674-0CC47A7C35F8.root

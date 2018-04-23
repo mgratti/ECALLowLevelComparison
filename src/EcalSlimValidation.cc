@@ -253,6 +253,8 @@ EcalSlimValidation::EcalSlimValidation(const edm::ParameterSet& ps)
       //h_recHits_EB_energy_etaBinned[key] = new (TH1F*)
       TString histo_name = "h_RecHits_" + region + "_energy_" + key;
       h_recHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,10);
+      histo_name = "h_RecHits_" + region + "_et_" + key;
+      h_recHits_et_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
 TH1::StatOverflows(kTRUE);
@@ -331,6 +333,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
         //std::cout << key << "  " << itr->energy() << std::endl;
         if( mycell.eta() >= eta_edges["EB"][key].first && mycell.eta() < eta_edges["EB"][key].second){
           h_recHits_energy_etaBinned["EB"][key]->Fill(itr -> energy());
+          Double_t et = itr -> energy() *  TMath::Sin(2*TMath::ATan(TMath::Exp(-mycell.eta())));
           h_recHits_et_etaBinned["EB"][key]->Fill(et); 
           break; // when you found it, exit
         }
@@ -407,16 +410,16 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
 	  h_recHits_EEP_eta           -> Fill( mycell.eta() );
 	  h_recHits_eta               -> Fill( mycell.eta() );
 
-    for(TString key : eta_keys["EEP"]){
-    //std::cout << key << "  " << itr->energy() << std::endl;
-      if( mycell.eta() >= eta_edges["EEP"][key].first && mycell.eta() < eta_edges["EEP"][key].second){
-        //std::cout << "Filling " << std::endl;
-        h_recHits_energy_etaBinned["EEP"][key]->Fill(itr -> energy());
-        break; // when you found it, exit
-      }
-    }
-
-
+          for(TString key : eta_keys["EEP"]){
+            //std::cout << key << "  " << itr->energy() << std::endl;
+            if( mycell.eta() >= eta_edges["EEP"][key].first && mycell.eta() < eta_edges["EEP"][key].second){
+              //std::cout << "Filling " << std::endl;
+              h_recHits_energy_etaBinned["EEP"][key]->Fill(itr -> energy());
+              Double_t et = itr -> energy() *  TMath::Sin(2*TMath::ATan(TMath::Exp(-mycell.eta())));
+              h_recHits_et_etaBinned["EEP"][key]->Fill(et);
+              break; // when you found it, exit
+            }
+          }
 	}
       }
 
@@ -445,15 +448,16 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
 	  h_recHits_EEM_eta           -> Fill( mycell.eta() );
 	  h_recHits_eta               -> Fill( mycell.eta() );
 
-    for(TString key : eta_keys["EEM"]){
-    //std::cout << key << "  " << itr->energy() << std::endl;
-      if( mycell.eta() >= eta_edges["EEM"][key].first && mycell.eta() < eta_edges["EEM"][key].second){
-        //std::cout << "Filling " << std::endl;
-        h_recHits_energy_etaBinned["EEM"][key]->Fill(itr -> energy());
-        break; // when you found it, exit
-      }
-    }
-
+          for(TString key : eta_keys["EEM"]){
+            //std::cout << key << "  " << itr->energy() << std::endl;
+            if( mycell.eta() >= eta_edges["EEM"][key].first && mycell.eta() < eta_edges["EEM"][key].second){
+              //std::cout << "Filling " << std::endl;
+              h_recHits_energy_etaBinned["EEM"][key]->Fill(itr -> energy());
+              Double_t et = itr -> energy() *  TMath::Sin(2*TMath::ATan(TMath::Exp(-mycell.eta())));
+              h_recHits_et_etaBinned["EEM"][key]->Fill(et);
+              break; // when you found it, exit
+            }
+          }
 	}
       }
     } // end loop over EE rec hits

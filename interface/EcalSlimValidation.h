@@ -77,6 +77,7 @@ class EcalSlimValidation : public edm::EDAnalyzer {
    // Rechits vs eta
    std::vector<TString> regions={"EB", "EEM", "EEP"};
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
+   std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
 
