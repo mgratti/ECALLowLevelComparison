@@ -139,6 +139,7 @@ EcalSlimValidation::EcalSlimValidation(const edm::ParameterSet& ps)
   h_recHits_EEP_iXoccupancy   = fs->make<TH1D>("h_recHits_EEP_iXoccupancy","h_recHits_EEP_iXoccupancy",100,0.,100.);
   h_recHits_EEP_iYoccupancy   = fs->make<TH1D>("h_recHits_EEP_iYoccupancy","h_recHits_EEP_iYoccupancy",100,0.,100.);
   h_recHits_EEP_occupancy     = fs->make<TH2D>("h_recHits_EEP_occupancy","h_recHits_EEP_occupancy",100,0.,100.,100,0.,100. );
+  h_recHits_EEP_occupancy_etaphi = fs->make<TH2D>("h_recHits_EEP_occupancy_etaphi","h_recHits_EEP_occupancy_etaphi",40,1.0,3.0,100,-3.2,3.2 );
   h_recHits_EEP_occupancy_gt10 = fs->make<TH2D>("h_recHits_EEP_occupancy_gt10","h_recHits_EEP_occupancy_gt10",100,0.,100.,100,0.,100. );
   h_recHits_EEP_occupancy_lt10 = fs->make<TH2D>("h_recHits_EEP_occupancy_lt10","h_recHits_EEP_occupancy_lt10",100,0.,100.,100,0.,100. );
 
@@ -161,7 +162,11 @@ EcalSlimValidation::EcalSlimValidation(const edm::ParameterSet& ps)
   // full eta distributions
   h_recHits_eta = fs->make<TH1D>("h_recHits_eta","h_recHits_eta",300,-3.,3.);
 
-
+  // energy of neighbours for maximal energy deposit in given eta bin
+  h_recHits_EEP_neighbourEnergy_eta20 = fs->make<TH2D>("h_recHits_EEP_neighbourEnergy_eta20","h_recHits_EEP_neighbourEnergy_eta20",20,-10.,10.,20,-10.,10. );
+  h_recHits_EEP_neighbourEnergy_eta24 = fs->make<TH2D>("h_recHits_EEP_neighbourEnergy_eta24","h_recHits_EEP_neighbourEnergy_eta24",20,-10.,10.,20,-10.,10. );
+  h_recHits_EEP_sumNeighbourEnergy_eta20 = fs->make<TH1D>("h_recHits_EEP_sumNeighbourEnergy_eta20","h_recHits_EEP_sumNeighbourEnergy_eta20",100,0.,10. );
+  h_recHits_EEP_sumNeighbourEnergy_eta24 = fs->make<TH1D>("h_recHits_EEP_sumNeighbourEnergy_eta24","h_recHits_EEP_sumNeighbourEnergy_eta24",100,0.,10. );
 
   // Basic Clusters ----------------------------------------------
 
@@ -334,7 +339,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
         if( mycell.eta() >= eta_edges["EB"][key].first && mycell.eta() < eta_edges["EB"][key].second){
           h_recHits_energy_etaBinned["EB"][key]->Fill(itr -> energy());
           Double_t et = itr -> energy() *  TMath::Sin(2*TMath::ATan(TMath::Exp(-mycell.eta())));
-          h_recHits_et_etaBinned["EB"][key]->Fill(et); 
+          h_recHits_et_etaBinned["EB"][key]->Fill(et);
           break; // when you found it, exit
         }
       }
@@ -380,6 +385,13 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   float maxERecHitEEP_eta = -999.;
   float maxERecHitEEM_eta = -999.;
 
+  float maxERecHit20_ene = -999;
+  float maxERecHit20_ix = -999;
+  float maxERecHit20_iy = -999;
+  float maxERecHit24_ene = -999;
+  float maxERecHit24_ix = -999;
+  float maxERecHit24_iy = -999;
+
   for ( EcalRecHitCollection::const_iterator itr = theEndcapEcalRecHits->begin (); itr != theEndcapEcalRecHits->end () ; ++itr) {
 
       EEDetId eeid( itr -> id() );
@@ -396,6 +408,18 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
 	  maxERecHitEEP_eta = mycell.eta();
 	}
 
+  // max energy rec hit in eta 2.0-2.1
+  if (itr->energy()>maxERecHit20_ene and mycell.eta()>=2.0 and  mycell.eta()<2.1 ){
+    maxERecHit20_ene = itr->energy();
+    maxERecHit20_ix = eeid.ix();
+    maxERecHit20_iy = eeid.iy();
+  } // max energy rec hit in eta 2.4-2.5
+  if (itr->energy()>maxERecHit24_ene and mycell.eta()>=2.4 and  mycell.eta()<2.5 ){
+    maxERecHit24_ene = itr->energy();
+    maxERecHit24_ix = eeid.ix();
+    maxERecHit24_iy = eeid.iy();
+  }
+
 	// distributions for all RH above energy thresholds
 	if ( itr -> energy() > ethrEE_ ){
 	  h_recHits_EEP_energy        -> Fill( itr -> energy() );
@@ -403,6 +427,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
 	  h_recHits_EEP_time          -> Fill( itr -> time() );
 	  h_recHits_EEP_Chi2          -> Fill( itr -> chi2() );
 	  h_recHits_EEP_occupancy     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
+    h_recHits_EEP_occupancy_etaphi -> Fill (mycell.eta(), mycell.phi());
 	  if (itr->energy() >10) h_recHits_EEP_occupancy_gt10     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
 	  if (itr->energy() <10) h_recHits_EEP_occupancy_lt10     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
 	  h_recHits_EEP_iXoccupancy   -> Fill( eeid.ix() - 0.5 );
@@ -420,8 +445,8 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
               break; // when you found it, exit
             }
           }
-	}
-      }
+	  }
+  }
 
       // EE-
       if ( eeid.zside() < 0 ){
@@ -462,6 +487,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
       }
     } // end loop over EE rec hits
 
+
   // size
   h_recHits_EE_size    -> Fill( recHitsEE->size() );
   h_recHits_EEP_size   -> Fill( nHitsEEP );
@@ -473,7 +499,37 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   h_recHits_EEM_maxEneEta -> Fill(maxERecHitEEM_eta);
 
 
+  // make another loop over rechits and have a look at the ones in the vicinity
+  float sumEnergy_20=0;
+  float sumEnergy_24=0;
 
+  for ( EcalRecHitCollection::const_iterator itr = theEndcapEcalRecHits->begin (); itr != theEndcapEcalRecHits->end () ; ++itr) {
+    EEDetId eeid( itr -> id() );
+    GlobalPoint mycell = geometry->getPosition(itr->detid());
+
+    float delta20_ix = maxERecHit20_ix - eeid.ix();
+    float delta20_iy = maxERecHit20_iy - eeid.iy();
+
+    float delta24_ix = maxERecHit24_ix - eeid.ix();
+    float delta24_iy = maxERecHit24_iy - eeid.iy();
+
+    if(fabs(delta20_ix)<=10 && fabs(delta20_iy)<=10){
+      if(mycell.eta()>=2.0 and mycell.eta()<2.1){
+        h_recHits_EEP_neighbourEnergy_eta20->Fill(delta20_ix, delta20_iy, itr->energy());
+        sumEnergy_20 += itr->energy();
+      }
+    }
+    if(fabs(delta24_ix)<=10 && fabs(delta24_iy)<=10){
+      if(mycell.eta()>=2.4 and mycell.eta()<2.5){
+        h_recHits_EEP_neighbourEnergy_eta24->Fill(delta24_ix, delta24_iy, itr->energy());
+        sumEnergy_24 += itr->energy();
+      }
+    } // end condition of vicinity
+
+  } // end loop over rechits
+
+  h_recHits_EEP_sumNeighbourEnergy_eta20->Fill(sumEnergy_20);
+  h_recHits_EEP_sumNeighbourEnergy_eta24->Fill(sumEnergy_24);
 
 
 

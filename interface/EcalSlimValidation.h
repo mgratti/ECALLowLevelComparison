@@ -120,6 +120,7 @@ class EcalSlimValidation : public edm::EDAnalyzer {
          TH1D *h_recHits_EEP_iXoccupancy;
          TH1D *h_recHits_EEP_iYoccupancy;
 	 TH2D *h_recHits_EEP_occupancy;
+   TH2D *h_recHits_EEP_occupancy_etaphi;
 	 TH2D *h_recHits_EEP_occupancy_gt10;
 	 TH2D *h_recHits_EEP_occupancy_lt10;
 
@@ -140,6 +141,11 @@ class EcalSlimValidation : public edm::EDAnalyzer {
 	 TH2D *h_recHits_EEM_occupancy_lt10;
 
          TH1D *h_recHits_eta;  // all
+
+   TH2D *h_recHits_EEP_neighbourEnergy_eta20;
+   TH2D *h_recHits_EEP_neighbourEnergy_eta24;
+   TH1D *h_recHits_EEP_sumNeighbourEnergy_eta20;
+   TH1D *h_recHits_EEP_sumNeighbourEnergy_eta24;
 
 
 	 // Basic Clusters ----------------------------------------------
