@@ -50,14 +50,17 @@ process.ecalslimvalidation = cms.EDAnalyzer("EcalSlimValidation",
     PVTag                     = cms.InputTag("offlinePrimaryVertices"),
     vertex                    = cms.InputTag("offlinePrimaryVertices"),
 
+    recHitCollection_EE       = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    recHitCollection_EB       = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    beamSpot                  = cms.InputTag("offlineBeamSpot"),
+
+    PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL:Cleaned"),
+
+
     superClusterCollection_EB = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
     superClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"),
     basicClusterCollection_EB = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALBarrel"),
     basicClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALEndcap"),
-
-    recHitCollection_EE       = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    recHitCollection_EB       = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    beamSpot                  = cms.InputTag("offlineBeamSpot"),
 
     ethrEB = cms.double(0.0),
     ethrEE = cms.double(0.0),
@@ -68,4 +71,3 @@ process.ecalslimvalidation = cms.EDAnalyzer("EcalSlimValidation",
 process.p = cms.Path(
     process.ecalslimvalidation
     )
-

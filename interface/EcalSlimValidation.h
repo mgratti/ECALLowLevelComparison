@@ -54,8 +54,9 @@ class EcalSlimValidation : public edm::EDAnalyzer {
 
 	 // ----------member data ---------------------------
 	 edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-	 edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
+   edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
 	 edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EE_;
+   edm::EDGetTokenT<reco::PFRecHitCollection>                    PFrecHitCollection_;
 	 edm::EDGetTokenT<reco::BasicClusterCollection>            basicClusterCollection_EB_;//reco::BasicClusterCollection
 	 edm::EDGetTokenT<reco::BasicClusterCollection>            basicClusterCollection_EE_;
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EB_;//reco::SuperClusterCollection
@@ -69,15 +70,23 @@ class EcalSlimValidation : public edm::EDAnalyzer {
 	 double scEtThrEB_;
 	 double scEtThrEE_;
 
+   // tree
+   //TTree *outTree;
+
 	 // ------------- HISTOGRAMS ------------------------------------
 	 int naiveId_;
 	 TH1D *h_nPVs;
 	 TH1D *h_numberOfEvents;
 
-   // Rechits vs eta
+   // Rechits and PfRechit vs eta
    std::vector<TString> regions={"EB", "EEM", "EEP"};
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;
+   std::map<TString, std::map<TString, TH1F*>> h_PFrecHits_energy_etaBinned;
+
+   std::vector<TH2D*> h_recHits_EEP_energy_ixiy;
+   int iEvent=-1;
+
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
 
@@ -86,18 +95,24 @@ class EcalSlimValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EB_eta;
 	 TH1D *h_recHits_EB_maxEneEta;
 	 TH1D *h_recHits_EB_energy;
-         TH1D *h_recHits_EB_energyMax;
+   TH1D *h_recHits_EB_energyMax;
 	 TH1D *h_recHits_EB_time;
 	 TH1D *h_recHits_EB_Chi2;
 	 TH1D *h_recHits_EB_OutOfTimeChi2;
 	 TH1D *h_recHits_EB_E1oE4;
-         TH1D *h_recHits_EB_iPhiOccupancy;
-         TH1D *h_recHits_EB_iEtaOccupancy;
+   TH1D *h_recHits_EB_iPhiOccupancy;
+   TH1D *h_recHits_EB_iEtaOccupancy;
 	 TH2D *h_recHits_EB_occupancy;
 	 TH2D *h_recHits_EB_occupancy_gt10;
 	 TH2D *h_recHits_EB_occupancy_lt10;
 	 TH1D *h_recHits_EB_energy_spike;
-         TH2D *h_recHits_EB_eneVSieta      ;
+   TH2D *h_recHits_EB_eneVSieta;
+
+   TH1D *h_PFrecHits_EB_eta;
+   TH1D *h_PFrecHits_EB_energy;
+   TH1D *h_PFrecHits_EB_time;
+   TH2D *h_PFrecHits_EB_occupancy;
+   TH2D *h_PFrecHits_EB_eneVSieta;
 
 	 //... barrel ( with spike cleaning )
 	 TH1D *h_recHits_EB_size_cleaned;
@@ -117,12 +132,19 @@ class EcalSlimValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EEP_Chi2;
 	 TH1D *h_recHits_EEP_OutOfTimeChi2;
 	 TH1D *h_recHits_EEP_E1oE4;
-         TH1D *h_recHits_EEP_iXoccupancy;
-         TH1D *h_recHits_EEP_iYoccupancy;
+   TH1D *h_recHits_EEP_iXoccupancy;
+   TH1D *h_recHits_EEP_iYoccupancy;
 	 TH2D *h_recHits_EEP_occupancy;
    TH2D *h_recHits_EEP_occupancy_etaphi;
 	 TH2D *h_recHits_EEP_occupancy_gt10;
 	 TH2D *h_recHits_EEP_occupancy_lt10;
+
+   TH1D *h_PFrecHits_EEP_eta;
+   TH1D *h_PFrecHits_EEP_energy;
+   TH1D *h_PFrecHits_EEP_time;
+   TH2D *h_PFrecHits_EEP_occupancy;
+   TH2D *h_PFrecHits_EEP_eneVSieta;
+
 
 	 TH1D *h_recHits_EEM_size;
 	 TH1D *h_recHits_EEM_eta;
@@ -134,18 +156,24 @@ class EcalSlimValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EEM_Chi2;
 	 TH1D *h_recHits_EEM_OutOfTimeChi2;
 	 TH1D *h_recHits_EEM_E1oE4;
-         TH1D *h_recHits_EEM_iXoccupancy;
-         TH1D *h_recHits_EEM_iYoccupancy;
+   TH1D *h_recHits_EEM_iXoccupancy;
+   TH1D *h_recHits_EEM_iYoccupancy;
 	 TH2D *h_recHits_EEM_occupancy;
 	 TH2D *h_recHits_EEM_occupancy_gt10;
 	 TH2D *h_recHits_EEM_occupancy_lt10;
 
-         TH1D *h_recHits_eta;  // all
+   TH1D *h_PFrecHits_EEM_eta;
+   TH1D *h_PFrecHits_EEM_energy;
+   TH1D *h_PFrecHits_EEM_time;
+   TH2D *h_PFrecHits_EEM_occupancy;
+   TH2D *h_PFrecHits_EEM_eneVSieta;
 
-   TH2D *h_recHits_EEP_neighbourEnergy_eta20;
-   TH2D *h_recHits_EEP_neighbourEnergy_eta24;
-   TH1D *h_recHits_EEP_sumNeighbourEnergy_eta20;
-   TH1D *h_recHits_EEP_sumNeighbourEnergy_eta24;
+   TH1D *h_recHits_eta;  // all
+
+   TH2D *h_recHits_EEP_neighbourEt_eta20;
+   TH2D *h_recHits_EEP_neighbourEt_eta24;
+   TH1D *h_recHits_EEP_sumneighbourEt_eta20;
+   TH1D *h_recHits_EEP_sumneighbourEt_eta24;
 
 
 	 // Basic Clusters ----------------------------------------------
