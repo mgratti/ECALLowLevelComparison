@@ -1,7 +1,7 @@
 
-# ECALLowLevelComparison
+# ECALNoiseStudy
 
-### Description: a slim version of M.Bharti's Validation/EcalValidation code, cloned from C.Rovelli  
+### Description: started from a slim version of M.Bharti's Validation/EcalValidation code, cloned from C.Rovelli  
 
 ### Installation 
 (...)
