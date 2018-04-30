@@ -27,10 +27,8 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-// TODO pf rechit
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-//
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -99,7 +97,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   naiveId_ = 0;
 
-  // configurations
+  // configurations for plots in delta eta bins
   std::map<TString, Double_t> start_eta;
   start_eta["EB"]=-1.5;
   start_eta["EEM"]=-3.0;
@@ -208,13 +206,6 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_recHits_EEP_sumneighbourEt_eta24 = fs->make<TH1D>("h_recHits_EEP_sumneighbourEt_eta24","h_recHits_EEP_sumneighbourEt_eta24",100,0.,10. );
 
 
-  // histograms event by event
-  //for (int i=0; i<100; i++){
-  //  TString histo_name = "h_recHits_EEP_energy_ixiy" + TString::Format("_%d", i);
-  //  h_recHits_EEP_energy_ixiy.push_back(fs->make<TH2D>(histo_name, histo_name, 100,0.,100.,100,0.,100.));
-    //histo_name = "h_recHits_EEP_energy_irphi" + TString::Format("_%d", i);
-    //h_recHits_EEP_energy_irphi.push_back(fs->make<TH2D>(histo_name, histo_name, 100,0.,150.,100,0.,100.));
- // }
 
   // --------- PF rechits
   h_PFrecHits_EB_eta           = fs->make<TH1D>("h_PFrecHits_EB_eta","h_PFrecHits_EB_eta",150,-1.5,1.5);
@@ -307,7 +298,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   for (TString region : regions){
     for (TString key : eta_keys[region]){
       TString histo_name = "h_PfRecHits_" + region + "_energy_" + key;
-      h_PFrecHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,10);
+      h_PFrecHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,50);
     }
   }
 
@@ -326,7 +317,6 @@ ECALNoiseStudy::~ECALNoiseStudy() {}
 // ------------ method called to for each event  ------------
 void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 {
-  iEvent++;
   // Get vertices
   edm::Handle<reco::VertexCollection> vtx_h;
   ev.getByToken(vertexToken_, vtx_h);
@@ -456,9 +446,6 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     if ( eeid.zside() > 0 ){
 
 	    nHitsEEP++;
-
-      // ieta iphi maps
-      //h_recHits_EEP_energy_ixiy.at(iEvent)->Fill(eeid.ix(), eeid.iy(), itr->energy());
 
 	    // max energy rec hit
 	    if (itr -> energy() > maxERecHitEEP_ene){
