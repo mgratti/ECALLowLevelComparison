@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
   inputfile = '../test/outputfiles/test_relValZee_v2_numEvent1000.root'
   #inputfile = '../test/outputfiles/test_nuGun_v2_numEvent1000.root'
-  inputdir = 'ecalslimvalidation'
+  inputdir = 'ecalnoisestudy'
 
 
   whats = ['mean', 0.5, 0.7]

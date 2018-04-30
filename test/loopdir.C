@@ -1,7 +1,7 @@
 // script to print to pdf file all histograms of one ROOT directory
-// example usage: root -l -b "loopdir.C(\"outputfiles/test_nuGun_v7_numEvent1000.root\", \"ecalslimvalidation\")"
+// example usage: root -l -b "loopdir.C(\"outputfiles/test_nuGun_v7_numEvent1000.root\", \"ecalnoisestudy\")"
 
-void loopdir(TString filename="test_nuGun_v7_numEvent1000.root", TString dirname="ecalslimvalidation") {
+void loopdir(TString filename="test_nuGun_v7_numEvent1000.root", TString dirname="ecalnoisestudy") {
    
    TFile *f = TFile::Open(filename);
    TDirectory *d = (TDirectory*)f->Get(dirname);

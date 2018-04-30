@@ -1,5 +1,5 @@
-#ifndef EcalSlimValidation_h
-#define EcalSlimValidation_h
+#ifndef ECALNoiseStudy_h
+#define ECALNoiseStudy_h
 
 // system include files
 #include <memory>
@@ -41,11 +41,11 @@ public:
 };
 
 
-class EcalSlimValidation : public edm::EDAnalyzer {
+class ECALNoiseStudy : public edm::EDAnalyzer {
 
       public:
-         explicit EcalSlimValidation(const edm::ParameterSet&);
-	 ~EcalSlimValidation();
+         explicit ECALNoiseStudy(const edm::ParameterSet&);
+	 ~ECALNoiseStudy();
 
       private:
 	 virtual void beginJob() ;
