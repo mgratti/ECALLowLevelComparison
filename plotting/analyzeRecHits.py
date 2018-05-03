@@ -72,6 +72,7 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
   for i,histoname in enumerate(histonames):
     c=TCanvas('c', 'c', 600,600)
     f=TFile(inputfile, 'READ')
+    print inputfile
     print histoname
     histo=f.Get('{}/{}'.format(inputdir,histoname))
     if rebin>0: histo.Rebin(rebin)
@@ -80,10 +81,15 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
     histo.SetMarkerStyle(20)
     histo.GetXaxis().SetTitle('Energy (GeV)')
     histo.GetYaxis().SetTitle('Entries')
-    histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
+    # better to avoid setting the range, since the mean calculation changes
+    #histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
 
-    gStyle.SetOptStat('emMrRo')
-    histo.Draw('histPE')
+    gStyle.SetOptStat('emMrR')
+    #histo.Draw('histPE')
+
+    newh = getOverflowedHisto(histo)
+    newh.SetDirectory(0)
+    newh.Draw('histPE')
 
     defaultLabels([histolabels[i]], x=0.55, y=0.5, spacing = 0.04, size = 0.06, dx = 0.12)
     #c.SetLogy()
@@ -94,8 +100,8 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
 
     # info part
     histoinfo[binning.keys[i]]={}
-    histoinfo[binning.keys[i]]['mean']=histo.GetMean()
-    histoinfo[binning.keys[i]]['RMS']=histo.GetRMS()
+    histoinfo[binning.keys[i]]['mean']=newh.GetMean()
+    histoinfo[binning.keys[i]]['RMS']=newh.GetRMS()
     
     # quantiles
     # only line to change if you want to change quantiles
@@ -106,7 +112,7 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
     xq = array('d', xq_)
     yq = array('d', yq_)
 
-    histo.GetQuantiles(nq,yq,xq)
+    newh.GetQuantiles(nq,yq,xq)
     for k in range(0, nq): 
       histoinfo[binning.keys[i]][xq_[k]]=yq[k]
     
@@ -168,14 +174,15 @@ if __name__ == "__main__":
 
   gROOT.SetBatch(True)
 
-  inputfile = '../test/outputfiles/test_relValZee_v2_numEvent1000.root'
-  #inputfile = '../test/outputfiles/test_nuGun_v2_numEvent1000.root'
-  inputdir = 'ecalslimvalidation'
+  #inputfile = '../test/outputfiles/test_relValZee_v2_numEvent1000.root'
+  inputfile = '../test/outputfiles/test_nuGun_v10_numEvent10000.root'
+  inputdir = 'ecalnoisestudy'
 
 
   whats = ['mean', 0.5, 0.7]
   names = ['Mean', '0.5 quantile', '0.7 quantile']
 
+  ######## rechits
   inputhistoname_EB = 'h_RecHits_EB_energy_'
   range_EB = (0.,2.) # up to 1 GeV
   rebin_EB = 1
@@ -183,7 +190,6 @@ if __name__ == "__main__":
   binning_EBM = Binning(det='EB', start =0,   end=1.5, delta=0.1)
   histoinfo_EBP=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
   histoinfo_EBM=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBM, xrange=range_EB, rebin=rebin_EB)
-
 
   inputhistoname_EEP = 'h_RecHits_EEP_energy_'
   range_EEP = (0.,2.)
@@ -196,6 +202,20 @@ if __name__ == "__main__":
   rebin_EEM = 1
   binning_EEM = Binning(det='EEM', start=-3.0, end=-1.5, delta=0.1)
   histoinfo_EEM=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
+
+  ######### pfrechits
+  inputhistoname_EB = 'h_PfRecHits_EB_energy_'
+  inputhistoname_EEP = 'h_PfRecHits_EEP_energy_'
+  inputhistoname_EEM = 'h_PfRecHits_EEM_energy_'
+  range_EEP = (0.,40.)
+  range_EEM = (0.,40.)
+  range_EEB = (0.,10.)
+  rebin_EEP = 8;
+  rebin_EEM = 8;
+  rebin_EEB = 4;
+  makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
+  makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEP, binning=binning_EEP, xrange=range_EEP, rebin=rebin_EEP)
+  makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
 
 
   ############

@@ -45,7 +45,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2018_realistic_v7'
 
 
 # Load the algorithm and send configurable arguments to it
-process.ecalslimvalidation = cms.EDAnalyzer("EcalSlimValidation",
+process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
 
     PVTag                     = cms.InputTag("offlinePrimaryVertices"),
     vertex                    = cms.InputTag("offlinePrimaryVertices"),
@@ -69,5 +69,5 @@ process.ecalslimvalidation = cms.EDAnalyzer("EcalSlimValidation",
 )
 
 process.p = cms.Path(
-    process.ecalslimvalidation
+    process.ecalnoisestudy
     )

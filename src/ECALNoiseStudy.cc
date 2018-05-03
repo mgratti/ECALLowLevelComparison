@@ -27,10 +27,8 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-// TODO pf rechit
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-//
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -55,7 +53,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
-#include "/mnt/t3nfs01/data01/shome/mratti/cmssw_workarea/EcalDPG/CMSSW_10_0_0/src/ECAL/ECALLowLevelComparison/interface/EcalSlimValidation.h"
+#include "/mnt/t3nfs01/data01/shome/mratti/cmssw_workarea/EcalDPG/CMSSW_10_0_0/src/ECAL/ECALLowLevelComparison/interface/ECALNoiseStudy.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -74,7 +72,7 @@ using namespace reco;
 
 //
 // constructors and destructor
-EcalSlimValidation::EcalSlimValidation(const edm::ParameterSet& ps)
+ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 {
   // collections
   vertexToken_               = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVTag"));
@@ -99,7 +97,7 @@ EcalSlimValidation::EcalSlimValidation(const edm::ParameterSet& ps)
 
   naiveId_ = 0;
 
-  // configurations
+  // configurations for plots in delta eta bins
   std::map<TString, Double_t> start_eta;
   start_eta["EB"]=-1.5;
   start_eta["EEM"]=-3.0;
@@ -208,13 +206,6 @@ EcalSlimValidation::EcalSlimValidation(const edm::ParameterSet& ps)
   h_recHits_EEP_sumneighbourEt_eta24 = fs->make<TH1D>("h_recHits_EEP_sumneighbourEt_eta24","h_recHits_EEP_sumneighbourEt_eta24",100,0.,10. );
 
 
-  // histograms event by event
-  //for (int i=0; i<100; i++){
-  //  TString histo_name = "h_recHits_EEP_energy_ixiy" + TString::Format("_%d", i);
-  //  h_recHits_EEP_energy_ixiy.push_back(fs->make<TH2D>(histo_name, histo_name, 100,0.,100.,100,0.,100.));
-    //histo_name = "h_recHits_EEP_energy_irphi" + TString::Format("_%d", i);
-    //h_recHits_EEP_energy_irphi.push_back(fs->make<TH2D>(histo_name, histo_name, 100,0.,150.,100,0.,100.));
- // }
 
   // --------- PF rechits
   h_PFrecHits_EB_eta           = fs->make<TH1D>("h_PFrecHits_EB_eta","h_PFrecHits_EB_eta",150,-1.5,1.5);
@@ -307,7 +298,7 @@ EcalSlimValidation::EcalSlimValidation(const edm::ParameterSet& ps)
   for (TString region : regions){
     for (TString key : eta_keys[region]){
       TString histo_name = "h_PfRecHits_" + region + "_energy_" + key;
-      h_PFrecHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,10);
+      h_PFrecHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,50);
     }
   }
 
@@ -321,21 +312,20 @@ TH1::StatOverflows(kTRUE);
 
 
 
-EcalSlimValidation::~EcalSlimValidation() {}
+ECALNoiseStudy::~ECALNoiseStudy() {}
 
 // ------------ method called to for each event  ------------
-void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
+void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 {
-  iEvent++;
   // Get vertices
   edm::Handle<reco::VertexCollection> vtx_h;
   ev.getByToken(vertexToken_, vtx_h);
-  if ( ! vtx_h.isValid() ) std::cout << "EcalSlimValidation: vtx collection not found" << std::endl;
+  if ( ! vtx_h.isValid() ) std::cout << "ECALNoiseStudy: vtx collection not found" << std::endl;
 
   // Get the BS position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   ev.getByToken(beamSpot_,recoBeamSpotHandle);
-  if ( ! recoBeamSpotHandle.isValid() ) std::cout << "EcalSlimValidation: BS collection not found" << std::endl;
+  if ( ! recoBeamSpotHandle.isValid() ) std::cout << "ECALNoiseStudy: BS collection not found" << std::endl;
   const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position();
 
   naiveId_++;
@@ -357,7 +347,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   // --- REC HITS, barrel -------------------------------------------------------------------------------------
   edm::Handle<EcalRecHitCollection> recHitsEB;
   ev.getByToken( recHitCollection_EB_, recHitsEB );
-  if ( ! recHitsEB.isValid() ) std::cout << "EcalSlimValidation::analyze --> recHitsEB not found" << std::endl;
+  if ( ! recHitsEB.isValid() ) std::cout << "ECALNoiseStudy::analyze --> recHitsEB not found" << std::endl;
   const EcalRecHitCollection* theBarrelEcalRecHits = recHitsEB.product ();
 
   float maxERecHitEB_ene = -999.;
@@ -430,7 +420,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   // ... endcap
   edm::Handle<EcalRecHitCollection> recHitsEE;
   ev.getByToken( recHitCollection_EE_, recHitsEE );
-  if ( ! recHitsEE.isValid() ) std::cout << "EcalSlimValidation::analyze --> recHitsEE not found" << std::endl;
+  if ( ! recHitsEE.isValid() ) std::cout << "ECALNoiseStudy::analyze --> recHitsEE not found" << std::endl;
   const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
 
   int nHitsEEP = 0;
@@ -456,9 +446,6 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
     if ( eeid.zside() > 0 ){
 
 	    nHitsEEP++;
-
-      // ieta iphi maps
-      //h_recHits_EEP_energy_ixiy.at(iEvent)->Fill(eeid.ix(), eeid.iy(), itr->energy());
 
 	    // max energy rec hit
 	    if (itr -> energy() > maxERecHitEEP_ene){
@@ -601,7 +588,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   // --- PF rechits, barrel
   edm::Handle<reco::PFRecHitCollection> PFrecHits_handle;
   ev.getByToken( PFrecHitCollection_, PFrecHits_handle );
-  if ( ! PFrecHits_handle.isValid() ) std::cout << "EcalSlimValidation::analyze --> PFrecHits not found" << std::endl;
+  if ( ! PFrecHits_handle.isValid() ) std::cout << "ECALNoiseStudy::analyze --> PFrecHits not found" << std::endl;
   const reco::PFRecHitCollection* PFrecHits = PFrecHits_handle.product ();
 
   for (reco::PFRecHitCollection::const_iterator itr = PFrecHits->begin(); itr != PFrecHits->end(); itr++ ) {
@@ -677,7 +664,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   // EB
   edm::Handle<reco::BasicClusterCollection> basicClusters_EB_h;
   ev.getByToken( basicClusterCollection_EB_, basicClusters_EB_h );
-  if ( ! basicClusters_EB_h.isValid() ) std::cout << "EcalSlimValidation::analyze --> basicClusters_EB_h not found" << std::endl;
+  if ( ! basicClusters_EB_h.isValid() ) std::cout << "ECALNoiseStudy::analyze --> basicClusters_EB_h not found" << std::endl;
   const reco::BasicClusterCollection* theBarrelBasicClusters = basicClusters_EB_h.product () ;
 
   for (reco::BasicClusterCollection::const_iterator itBC = theBarrelBasicClusters->begin(); itBC != theBarrelBasicClusters->end(); ++itBC ) {
@@ -692,7 +679,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   // ... endcap
   edm::Handle<reco::BasicClusterCollection> basicClusters_EE_h;
   ev.getByToken( basicClusterCollection_EE_, basicClusters_EE_h );
-  if ( ! basicClusters_EE_h.isValid() ) std::cout << "EcalSlimValidation::analyze --> basicClusters_EE_h not found" << std::endl;
+  if ( ! basicClusters_EE_h.isValid() ) std::cout << "ECALNoiseStudy::analyze --> basicClusters_EE_h not found" << std::endl;
 
   int nBasicClustersEEP = 0;
   int nBasicClustersEEM = 0;
@@ -720,7 +707,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   // ... barrel
   edm::Handle<reco::SuperClusterCollection> superClusters_EB_h;
   ev.getByToken( superClusterCollection_EB_, superClusters_EB_h );
-  if ( ! superClusters_EB_h.isValid() ) std::cout << "EcalSlimValidation::analyze --> superClusters_EB_h not found" << std::endl;
+  if ( ! superClusters_EB_h.isValid() ) std::cout << "ECALNoiseStudy::analyze --> superClusters_EB_h not found" << std::endl;
   const reco::SuperClusterCollection* theBarrelSuperClusters = superClusters_EB_h.product () ;
 
   for (reco::SuperClusterCollection::const_iterator itSC = theBarrelSuperClusters->begin(); itSC != theBarrelSuperClusters->end(); ++itSC ) {
@@ -744,7 +731,7 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
   // ... endcap
   edm::Handle<reco::SuperClusterCollection> superClusters_EE_h;
   ev.getByToken( superClusterCollection_EE_, superClusters_EE_h );
-  if ( ! superClusters_EE_h.isValid() ) std::cout << "EcalSlimValidation::analyze --> superClusters_EE_h not found" << std::endl;
+  if ( ! superClusters_EE_h.isValid() ) std::cout << "ECALNoiseStudy::analyze --> superClusters_EE_h not found" << std::endl;
   const reco::SuperClusterCollection* theEndcapSuperClusters = superClusters_EE_h.product () ;
 
   int nSuperClustersEEP = 0;
@@ -785,13 +772,13 @@ void EcalSlimValidation::analyze(const edm::Event& ev, const edm::EventSetup& iS
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void  EcalSlimValidation::beginJob() {}
+void  ECALNoiseStudy::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void EcalSlimValidation::endJob() {
+void ECALNoiseStudy::endJob() {
 
   h_numberOfEvents ->Fill(0.,naiveId_);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(EcalSlimValidation);
+DEFINE_FWK_MODULE(ECALNoiseStudy);

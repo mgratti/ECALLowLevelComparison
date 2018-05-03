@@ -1,5 +1,5 @@
-#ifndef EcalSlimValidation_h
-#define EcalSlimValidation_h
+#ifndef ECALNoiseStudy_h
+#define ECALNoiseStudy_h
 
 // system include files
 #include <memory>
@@ -41,11 +41,11 @@ public:
 };
 
 
-class EcalSlimValidation : public edm::EDAnalyzer {
+class ECALNoiseStudy : public edm::EDAnalyzer {
 
       public:
-         explicit EcalSlimValidation(const edm::ParameterSet&);
-	 ~EcalSlimValidation();
+         explicit ECALNoiseStudy(const edm::ParameterSet&);
+	 ~ECALNoiseStudy();
 
       private:
 	 virtual void beginJob() ;
@@ -63,7 +63,7 @@ class EcalSlimValidation : public edm::EDAnalyzer {
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EE_;
 	 edm::EDGetTokenT<reco::BeamSpot>                      	  beamSpot_ ;//reco::BeamSpot
 
-         bool SaveSrFlag_;
+   bool SaveSrFlag_;
 
 	 double ethrEB_;
 	 double ethrEE_;
@@ -83,9 +83,6 @@ class EcalSlimValidation : public edm::EDAnalyzer {
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_PFrecHits_energy_etaBinned;
-
-   std::vector<TH2D*> h_recHits_EEP_energy_ixiy;
-   int iEvent=-1;
 
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
