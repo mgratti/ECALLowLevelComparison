@@ -81,7 +81,8 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
     histo.SetMarkerStyle(20)
     histo.GetXaxis().SetTitle('Energy (GeV)')
     histo.GetYaxis().SetTitle('Entries')
-    histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
+    # better to avoid setting the range, since the mean calculation changes
+    #histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
 
     gStyle.SetOptStat('emMrR')
     #histo.Draw('histPE')
@@ -174,7 +175,7 @@ if __name__ == "__main__":
   gROOT.SetBatch(True)
 
   #inputfile = '../test/outputfiles/test_relValZee_v2_numEvent1000.root'
-  inputfile = '../test/outputfiles/test_nuGun_v8_numEvent1000.root'
+  inputfile = '../test/outputfiles/test_nuGun_v10_numEvent10000.root'
   inputdir = 'ecalnoisestudy'
 
 
