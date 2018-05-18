@@ -232,8 +232,26 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_PFrecHits_EEM_time          = fs->make<TH1D>("h_PFrecHits_EEM_time","h_PFrecHits_EEM_time",400,-100,100);
   h_PFrecHits_EEM_occupancy     = fs->make<TH2D>("h_PFrecHits_EEM_occupancy","h_PFrecHits_EEM_occupancy",100,0.,100.,100,0.,100. );
 
+  // --------- PF clusters
+  h_PFclusters_EB_size    = fs->make<TH1D>("h_PFclusters_EB_size","h_PFclusters_EB_size",30,0.,30.);
+  h_PFclusters_EB_nXtals  = fs->make<TH1D>("h_PFclusters_EB_nXtals","h_PFclusters_EB_nXtals",50,0.,50.);
+  h_PFclusters_EB_energy  = fs->make<TH1D>("h_PFclusters_EB_energy","h_PFclusters_EB_energy",200,0.,10.);
+  h_PFclusters_EB_eta     = fs->make<TH1D>("h_PFclusters_EB_eta","h_PFclusters_EB_eta",148,-1.48,1.48);
+  h_PFclusters_EB_phi     = fs->make<TH1D>("h_PFclusters_EB_phi","h_PFclusters_EB_phi",100,-3.2,3.2);
 
+  h_PFclusters_EEP_size   = fs->make<TH1D>("h_PFclusters_EEP_size","h_PFclusters_EEP_size",30,0.,30.);
+  h_PFclusters_EEP_nXtals = fs->make<TH1D>("h_PFclusters_EEP_nXtals","h_PFclusters_EEP_nXtals",50,0.,50.);
+  h_PFclusters_EEP_energy = fs->make<TH1D>("h_PFclusters_EEP_energy","h_PFclusters_EEP_energy",200,0.,10.);
+  h_PFclusters_EEP_eta    = fs->make<TH1D>("h_PFclusters_EEP_eta","h_PFclusters_EEP_eta",300,-3.,3.);
+  h_PFclusters_EEP_phi    = fs->make<TH1D>("h_PFclusters_EEP_phi","h_PFclusters_EEP_phi",100,-3.2,3.2);
 
+  h_PFclusters_EEM_size   = fs->make<TH1D>("h_PFclusters_EEM_size","h_PFclusters_EEM_size",30,0.,30.);
+  h_PFclusters_EEM_nXtals = fs->make<TH1D>("h_PFclusters_EEM_nXtals","h_PFclusters_EEM_nXtals",50,0.,50.);
+  h_PFclusters_EEM_energy = fs->make<TH1D>("h_PFclusters_EEM_energy","h_PFclusters_EEM_energy",200,0.,10.);
+  h_PFclusters_EEM_eta    = fs->make<TH1D>("h_PFclusters_EEM_eta","h_PFclusters_EEM_eta",300,-3.,3.);
+  h_PFclusters_EEM_phi    = fs->make<TH1D>("h_PFclusters_EEM_phi","h_PFclusters_EEM_phi",100,-3.2,3.2);
+
+  h_PFclusters_eta        = fs->make<TH1D>("h_PFclusters_eta",   "h_PFclusters_eta",   300,-3.,3.);
 
   // Basic Clusters ----------------------------------------------
 
@@ -611,8 +629,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     if ( itr -> energy() > ethrEB_ ){
 
       // BARREL
-      // TODO: find condition based on itr->detId() > 872420480 - apparently this is not the right number!
-      if ( fabs(mycell.eta())<=1.50 ) {
+      if ( fabs(mycell.eta())<=1.48 ) {
         //std::cout << "found pfrechit in barrel" << std::endl;
 
         h_PFrecHits_EB_time          -> Fill( itr -> time() );
@@ -678,12 +695,44 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   if ( ! PFclusters_handle.isValid() ) std::cout << "ECALNoiseStudy::analyze --> PFclusters not found" << std::endl;
   const reco::PFClusterCollection* PFclusters = PFclusters_handle.product ();
 
+  int size_PFclusters_EB = 0;
+  int size_PFclusters_EEP = 0;
+  int size_PFclusters_EEM = 0;
+
   for (reco::PFClusterCollection::const_iterator itr = PFclusters->begin(); itr != PFclusters->end(); itr++ ) {
 
-    //GlobalPoint mycell = geometry -> getPosition(DetId(itr->detId()));
-    std::cout << "ciao" << std::endl;
+    h_PFclusters_eta -> Fill( itr->eta() );
+    // barrel
+    if (fabs(itr->eta()) < 1.48){
+      size_PFclusters_EB++;
+      h_PFclusters_EB_nXtals -> Fill( (*itr).hitsAndFractions().size() );
+      h_PFclusters_EB_energy -> Fill( itr->energy() );
+      h_PFclusters_EB_eta    -> Fill( itr->eta() );
+      h_PFclusters_EB_phi    -> Fill( itr->phi() );
+    }
+    // end-caps
+    else{
+      // EEP
+      if (fabs(itr->eta()) > 0){
+        size_PFclusters_EEP++;
+        h_PFclusters_EEP_nXtals -> Fill( (*itr).hitsAndFractions().size() );
+        h_PFclusters_EEP_energy -> Fill( itr->energy() );
+        h_PFclusters_EEP_eta    -> Fill( itr->eta() );
+        h_PFclusters_EEP_phi    -> Fill( itr->phi() );
+      }
+      // EEM
+      else {
+        size_PFclusters_EEM++;
+        h_PFclusters_EEM_nXtals -> Fill( (*itr).hitsAndFractions().size() );
+        h_PFclusters_EEM_energy -> Fill( itr->energy() );
+        h_PFclusters_EEM_eta    -> Fill( itr->eta() );
+        h_PFclusters_EEM_phi    -> Fill( itr->phi() );
+      }
+    } // end eta conditions
 
-
+    h_PFclusters_EB_size->Fill(size_PFclusters_EB);
+    h_PFclusters_EEP_size->Fill(size_PFclusters_EEP);
+    h_PFclusters_EEM_size->Fill(size_PFclusters_EEM);
   } // end loop on PFclusters
 
 

@@ -173,6 +173,26 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_recHits_EEP_sumneighbourEt_eta20;
    TH1D *h_recHits_EEP_sumneighbourEt_eta24;
 
+   // PF clusters ----------------------------------------------
+   TH1D *h_PFclusters_EB_size;
+   TH1D *h_PFclusters_EB_nXtals;
+   TH1D *h_PFclusters_EB_energy;
+   TH1D *h_PFclusters_EB_eta;
+   TH1D *h_PFclusters_EB_phi;
+
+   TH1D *h_PFclusters_EEP_size;
+   TH1D *h_PFclusters_EEP_nXtals;
+   TH1D *h_PFclusters_EEP_energy;
+   TH1D *h_PFclusters_EEP_eta;
+   TH1D *h_PFclusters_EEP_phi;
+
+   TH1D *h_PFclusters_EEM_size;
+   TH1D *h_PFclusters_EEM_nXtals;
+   TH1D *h_PFclusters_EEM_energy;
+   TH1D *h_PFclusters_EEM_eta;
+   TH1D *h_PFclusters_EEM_phi;
+
+   TH1D *h_PFclusters_eta;
 
 	 // Basic Clusters ----------------------------------------------
 
