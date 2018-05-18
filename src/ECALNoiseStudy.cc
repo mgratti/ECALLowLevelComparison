@@ -85,8 +85,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // collections
   vertexToken_               = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVTag"));
 
-  recHitCollection_EB_       = consumes<reco::EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EB"));
-  recHitCollection_EE_       = consumes<reco::EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EE"));
+  recHitCollection_EB_       = consumes<EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EB"));
+  recHitCollection_EE_       = consumes<EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EE"));
 
   PFrecHitCollection_        = consumes<reco::PFRecHitCollection> (ps.getParameter<edm::InputTag>("PFrecHitCollection"));
 
@@ -109,19 +109,19 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   // configurations for plots in delta eta bins
   std::map<TString, Double_t> start_eta;
-  start_eta["EB"]=-1.5;
+  start_eta["EB"]=-1.48;
   start_eta["EEM"]=-3.0;
-  start_eta["EEP"]=1.5;
+  start_eta["EEP"]=1.48;
 
   std::map<TString,Double_t> delta_eta;
-  delta_eta["EB"]=0.1; //  can be overwritten by job option
+  delta_eta["EB"]=0.1; //  should be possible to overwrite via job option
   delta_eta["EEM"]=0.1;
   delta_eta["EEP"]=0.1;
 
   std::map<TString, Int_t> nBins_eta;
-  nBins_eta["EB"]= (int) (3.0/delta_eta["EB"]);
-  nBins_eta["EEM"]= (int) (1.5/delta_eta["EEM"]);
-  nBins_eta["EEP"]= (int) (1.5/delta_eta["EEP"]);
+  nBins_eta["EB"]= (int) (2.96/delta_eta["EB"]);
+  nBins_eta["EEM"]= (int) (1.52/delta_eta["EEM"]);
+  nBins_eta["EEP"]= (int) (1.52/delta_eta["EEP"]);
 
 
   for (TString region : regions){
@@ -149,14 +149,14 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   // Rechits, barrel
   h_recHits_EB_size          = fs->make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 100, 500, 3500 );
-  h_recHits_EB_eta           = fs->make<TH1D>("h_recHits_EB_eta","h_recHits_EB_eta",150,-1.5,1.5);
-  h_recHits_EB_maxEneEta     = fs->make<TH1D>("h_recHits_EB_maxEneEta","h_recHits_EB_maxEneEta",150,-1.5,1.5);
+  h_recHits_EB_eta           = fs->make<TH1D>("h_recHits_EB_eta","h_recHits_EB_eta",148,-1.48,1.48);
+  h_recHits_EB_maxEneEta     = fs->make<TH1D>("h_recHits_EB_maxEneEta","h_recHits_EB_maxEneEta",148,-1.48,1.48);
   h_recHits_EB_energy        = fs->make<TH1D>("h_recHits_EB_energy","h_recHitsEB_energy",1000,0,20);
   h_recHits_EB_energyMax     = fs->make<TH1D>("h_recHits_EB_energyMax","h_recHitsEB_energyMax",100,0,20);
   h_recHits_EB_time          = fs->make<TH1D>("h_recHits_EB_time","h_recHits_EB_time",400,-100,100);
   h_recHits_EB_Chi2          = fs->make<TH1D>("h_recHits_EB_Chi2","h_recHits_EB_Chi2",500,0,50);
   h_recHits_EB_OutOfTimeChi2 = fs->make<TH1D>("h_recHits_EB_OutOfTimeChi2","h_recHits_EB_OutOfTimeChi2",1000,0,100);
-  h_recHits_EB_E1oE4         = fs->make<TH1D>("h_recHits_EB_E1oE4","h_recHitsEB_E1oE4",150, 0, 1.5);
+  h_recHits_EB_E1oE4         = fs->make<TH1D>("h_recHits_EB_E1oE4","h_recHitsEB_E1oE4",148, 0, 1.48);
   h_recHits_EB_iPhiOccupancy = fs->make<TH1D>("h_recHits_EB_iPhiOccupancy","h_recHits_EB_iPhiOccupancy",360,1.,361. );
   h_recHits_EB_iEtaOccupancy = fs->make<TH1D>("h_recHits_EB_iEtaOccupancy","h_recHits_EB_iEtaOccupancy",172,-86.,86.);
   h_recHits_EB_occupancy     = fs->make<TH2D>("h_recHits_EB_occupancy","h_recHits_EB_occupancy",360,1.,361.,172,-86.,86. );
@@ -174,8 +174,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // Rechits, endcap
   h_recHits_EE_size           = fs->make<TH1D>("h_recHits_EE_size","h_recHits_EE_size",100,0,1000);
   h_recHits_EEP_size          = fs->make<TH1D>("h_recHits_EEP_size","h_recHits_EEP_size",100,0,1000);
-  h_recHits_EEP_eta           = fs->make<TH1D>("h_recHits_EEP_eta","h_recHits_EEP_eta",75,1.5,3.);
-  h_recHits_EEP_maxEneEta     = fs->make<TH1D>("h_recHits_EEP_maxEneEta","h_recHits_EEP_maxEneEta",75,1.5,3.);
+  h_recHits_EEP_eta           = fs->make<TH1D>("h_recHits_EEP_eta","h_recHits_EEP_eta",74,1.48,3.);
+  h_recHits_EEP_maxEneEta     = fs->make<TH1D>("h_recHits_EEP_maxEneEta","h_recHits_EEP_maxEneEta",74,1.48,3.);
   h_recHits_EEP_energy        = fs->make<TH1D>("h_recHits_EEP_energy","h_recHits_EEP_energy",50,0,100);
   h_recHits_EEP_energy_gt25   = fs->make<TH1D>("h_recHits_EEP_energy_gt25","h_recHits_EEP_energy_gt25",50,0,100);
   h_recHits_EEP_energyMax     = fs->make<TH1D>("h_recHits_EEP_energyMax","h_recHitsEEP_energyMax",50,0,100);
@@ -191,8 +191,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_recHits_EEP_occupancy_lt10 = fs->make<TH2D>("h_recHits_EEP_occupancy_lt10","h_recHits_EEP_occupancy_lt10",100,0.,100.,100,0.,100. );
 
   h_recHits_EEM_size          = fs->make<TH1D>("h_recHits_EEM_size","h_recHits_EEM_size",100,0,1000);
-  h_recHits_EEM_eta           = fs->make<TH1D>("h_recHits_EEM_eta","h_recHits_EEM_eta",75,-3.,-1.5);
-  h_recHits_EEM_maxEneEta     = fs->make<TH1D>("h_recHits_EEM_maxEneEta","h_recHits_EEM_maxEneEta",75,-3.,-1.5);
+  h_recHits_EEM_eta           = fs->make<TH1D>("h_recHits_EEM_eta","h_recHits_EEM_eta",74,-3.,-1.48);
+  h_recHits_EEM_maxEneEta     = fs->make<TH1D>("h_recHits_EEM_maxEneEta","h_recHits_EEM_maxEneEta",74,-3.,-1.48);
   h_recHits_EEM_energy        = fs->make<TH1D>("h_recHits_EEM_energy","h_recHits_EEM_energy",50,0,100);
   h_recHits_EEM_energy_gt25   = fs->make<TH1D>("h_recHits_EEM_energy_gt25","h_recHits_EEM_energy_gt25",50,0,100);
   h_recHits_EEM_energyMax     = fs->make<TH1D>("h_recHits_EEM_energyMax","h_recHitsEEM_energyMax",50,0,100);
@@ -215,21 +215,19 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_recHits_EEP_sumneighbourEt_eta20 = fs->make<TH1D>("h_recHits_EEP_sumneighbourEt_eta20","h_recHits_EEP_sumneighbourEt_eta20",100,0.,10. );
   h_recHits_EEP_sumneighbourEt_eta24 = fs->make<TH1D>("h_recHits_EEP_sumneighbourEt_eta24","h_recHits_EEP_sumneighbourEt_eta24",100,0.,10. );
 
-
-
   // --------- PF rechits
-  h_PFrecHits_EB_eta           = fs->make<TH1D>("h_PFrecHits_EB_eta","h_PFrecHits_EB_eta",150,-1.5,1.5);
+  h_PFrecHits_EB_eta           = fs->make<TH1D>("h_PFrecHits_EB_eta","h_PFrecHits_EB_eta",148,-1.48,1.48);
   h_PFrecHits_EB_energy        = fs->make<TH1D>("h_PFrecHits_EB_energy","h_PFrecHitsEB_energy",100,0,20);
   h_PFrecHits_EB_time          = fs->make<TH1D>("h_PFrecHits_EB_time","h_PFrecHits_EB_time",400,-100,100);
   h_PFrecHits_EB_occupancy     = fs->make<TH2D>("h_PFrecHits_EB_occupancy","h_PFrecHits_EB_occupancy",360,1.,361.,172,-86.,86. );
   h_PFrecHits_EB_eneVSieta     = fs->make<TH2D>("h_PFrecHits_EB_eneVSieta", "h_PFrecHits_EB_eneVSieta", 100,0,20, 172,-86.,86.);
 
-  h_PFrecHits_EEP_eta           = fs->make<TH1D>("h_PFrecHits_EEP_eta","h_PFrecHits_EEP_eta",75,1.5,3);
+  h_PFrecHits_EEP_eta           = fs->make<TH1D>("h_PFrecHits_EEP_eta","h_PFrecHits_EEP_eta",74,1.48,3);
   h_PFrecHits_EEP_energy        = fs->make<TH1D>("h_PFrecHits_EEP_energy","h_PFrecHits_EEP_energy",50,0,100);
   h_PFrecHits_EEP_time          = fs->make<TH1D>("h_PFrecHits_EEP_time","h_PFrecHits_EEP_time",400,-100,100);
   h_PFrecHits_EEP_occupancy     = fs->make<TH2D>("h_PFrecHits_EEP_occupancy","h_PFrecHits_EEP_occupancy",100,0.,100.,100,0.,100. );
 
-  h_PFrecHits_EEM_eta           = fs->make<TH1D>("h_PFrecHits_EEM_eta","h_PFrecHits_EEM_eta",75,-3.,-1.5);
+  h_PFrecHits_EEM_eta           = fs->make<TH1D>("h_PFrecHits_EEM_eta","h_PFrecHits_EEM_eta",74,-3.,-1.48);
   h_PFrecHits_EEM_energy        = fs->make<TH1D>("h_PFrecHits_EEM_energy","h_PFrecHits_EEM_energy",50,0,100);
   h_PFrecHits_EEM_time          = fs->make<TH1D>("h_PFrecHits_EEM_time","h_PFrecHits_EEM_time",400,-100,100);
   h_PFrecHits_EEM_occupancy     = fs->make<TH2D>("h_PFrecHits_EEM_occupancy","h_PFrecHits_EEM_occupancy",100,0.,100.,100,0.,100. );
@@ -252,7 +250,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_basicClusters_EEM_energy = fs->make<TH1D>("h_basicClusters_EEM_energy","h_basicClusters_EEM_energy",400,0.,100.);
 
   h_basicClusters_eta        = fs->make<TH1D>("h_basicClusters_eta",   "h_basicClusters_eta",   300,-3.,3.);
-  h_basicClusters_EB_eta     = fs->make<TH1D>("h_basicClusters_EB_eta","h_basicClusters_EB_eta",150,-1.5,1.5);
+  h_basicClusters_EB_eta     = fs->make<TH1D>("h_basicClusters_EB_eta","h_basicClusters_EB_eta",148,-1.48,1.48);
   h_basicClusters_EE_eta     = fs->make<TH1D>("h_basicClusters_EE_eta","h_basicClusters_EE_eta",300,-3.,3.);
 
 
@@ -281,7 +279,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_superClusters_EEM_et     = fs->make<TH1D>("h_superClusters_EEM_et","h_superClusters_EEM_et",50,0.,200.);
 
   h_superClusters_eta        = fs->make<TH1D>("h_superClusters_eta","h_superClusters_eta",      300,-3.,3.);
-  h_superClusters_EB_eta     = fs->make<TH1D>("h_superClusters_EB_eta","h_superClusters_EB_eta",150,-1.5,1.5);
+  h_superClusters_EB_eta     = fs->make<TH1D>("h_superClusters_EB_eta","h_superClusters_EB_eta",148,-1.48,1.48);
   h_superClusters_EE_eta     = fs->make<TH1D>("h_superClusters_EE_eta","h_superClusters_EE_eta",300,-3.,3.);
 
   // check golden fraction
@@ -683,7 +681,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   for (reco::PFClusterCollection::const_iterator itr = PFclusters->begin(); itr != PFclusters->end(); itr++ ) {
 
     //GlobalPoint mycell = geometry -> getPosition(DetId(itr->detId()));
-    std::cout << itr->
+    std::cout << "ciao" << std::endl;
 
 
   } // end loop on PFclusters

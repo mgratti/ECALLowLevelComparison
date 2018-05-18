@@ -54,8 +54,8 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 
 	 // ----------member data ---------------------------
 	 edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-   edm::EDGetTokenT<reco::EcalRecHitCollection>                    recHitCollection_EB_;
-	 edm::EDGetTokenT<reco::EcalRecHitCollection>                    recHitCollection_EE_;
+   edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
+	 edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EE_;
    edm::EDGetTokenT<reco::PFRecHitCollection>                PFrecHitCollection_;
    edm::EDGetTokenT<reco::PFClusterCollection>                         PFclusterCollection_;
 	 edm::EDGetTokenT<reco::BasicClusterCollection>            basicClusterCollection_EB_;//reco::BasicClusterCollection
