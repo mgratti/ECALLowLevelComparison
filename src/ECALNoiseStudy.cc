@@ -31,6 +31,12 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+
+// pfclusters
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+//
+
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -79,10 +85,12 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // collections
   vertexToken_               = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVTag"));
 
-  recHitCollection_EB_       = consumes<EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EB"));
-  recHitCollection_EE_       = consumes<EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EE"));
+  recHitCollection_EB_       = consumes<reco::EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EB"));
+  recHitCollection_EE_       = consumes<reco::EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EE"));
 
-  PFrecHitCollection_       = consumes<reco::PFRecHitCollection> (ps.getParameter<edm::InputTag>("PFrecHitCollection"));
+  PFrecHitCollection_        = consumes<reco::PFRecHitCollection> (ps.getParameter<edm::InputTag>("PFrecHitCollection"));
+
+  PFclusterCollection_       = consumes<reco::PFClusterCollection> (ps.getParameter<edm::InputTag>("PFclusterCollection"));
 
   basicClusterCollection_EB_ = consumes<reco::BasicClusterCollection> (ps.getParameter<edm::InputTag>("basicClusterCollection_EB"));
   basicClusterCollection_EE_ = consumes<reco::BasicClusterCollection> (ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
@@ -589,7 +597,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   h_recHits_EEP_sumneighbourEt_eta24->Fill(sumEnergy_24);
 
   // -------------------------------------------------------------------------
-  // --- PF rechits, barrel
+  // --- PF rechits ---
   edm::Handle<reco::PFRecHitCollection> PFrecHits_handle;
   ev.getByToken( PFrecHitCollection_, PFrecHits_handle );
   if ( ! PFrecHits_handle.isValid() ) std::cout << "ECALNoiseStudy::analyze --> PFrecHits not found" << std::endl;
@@ -664,6 +672,22 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       } // end end-caps
     } // end if threshold
   } // end loop over pfrechits
+
+  // -------------------------------------------------------------------------
+  // --- PF CLUSTERS ---
+  edm::Handle<reco::PFClusterCollection> PFclusters_handle;
+  ev.getByToken( PFclusterCollection_, PFclusters_handle );
+  if ( ! PFclusters_handle.isValid() ) std::cout << "ECALNoiseStudy::analyze --> PFclusters not found" << std::endl;
+  const reco::PFClusterCollection* PFclusters = PFclusters_handle.product ();
+
+  for (reco::PFClusterCollection::const_iterator itr = PFclusters->begin(); itr != PFclusters->end(); itr++ ) {
+
+    //GlobalPoint mycell = geometry -> getPosition(DetId(itr->detId()));
+    std::cout << itr->
+
+
+  } // end loop on PFclusters
+
 
 
   // -------------------------------------------------------------------------

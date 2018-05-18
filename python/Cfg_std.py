@@ -58,7 +58,7 @@ process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
     #PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL:Cleaned"),
     PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL"),
 
-    #PFclusterCollection = cms.InputTag("particleFlowClusterECAL"),
+    PFclusterCollection = cms.InputTag("particleFlowClusterECAL"),
 
     superClusterCollection_EB = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
     superClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"),
