@@ -10,8 +10,8 @@ sys.path.append('{user}/plotting/myplotting'.format(user=os.environ['HOME']))
 from spares import *
 from array import *
 
-from ROOT import TH1F, TGraph, TGraph2D, TCanvas, TLegend, TFile, TTree, gROOT, TF1, TLatex, gStyle, TH2D, gPad, TColor,TMultiGraph
-from ROOT import kRed, kBlue, kGray, kGreen, kPink, kYellow, kBlack, kWhite, kPink, kMagenta
+from ROOT import TH1F, TGraph, TGraph2D, TCanvas, TLegend, TFile, TTree, gROOT, TF1, TLatex, gStyle, TH2D, gPad, TColor,TMultiGraph, TH1
+from ROOT import kRed, kBlue, kGray, kGreen, kPink, kYellow, kBlack, kWhite, kPink, kMagenta, kTRUE, kFALSE
 import glob
 from array import *
 import re
@@ -82,14 +82,14 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
     histo.GetXaxis().SetTitle('Energy (GeV)')
     histo.GetYaxis().SetTitle('Entries')
     # better to avoid setting the range, since the mean calculation changes
-    #histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
+    histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
 
-    gStyle.SetOptStat('emMrR')
-    #histo.Draw('histPE')
+    gStyle.SetOptStat('emMrRo')
+    histo.Draw('histPE')
 
-    newh = getOverflowedHisto(histo)
-    newh.SetDirectory(0)
-    newh.Draw('histPE')
+    #newh = getOverflowedHisto(histo)
+    #newh.SetDirectory(0)
+    #newh.Draw('histPE')
 
     defaultLabels([histolabels[i]], x=0.55, y=0.5, spacing = 0.04, size = 0.06, dx = 0.12)
     #c.SetLogy()
@@ -100,8 +100,8 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
 
     # info part
     histoinfo[binning.keys[i]]={}
-    histoinfo[binning.keys[i]]['mean']=newh.GetMean()
-    histoinfo[binning.keys[i]]['RMS']=newh.GetRMS()
+    histoinfo[binning.keys[i]]['mean']=histo.GetMean()
+    histoinfo[binning.keys[i]]['RMS']=histo.GetRMS()
     
     # quantiles
     # only line to change if you want to change quantiles
@@ -112,7 +112,7 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
     xq = array('d', xq_)
     yq = array('d', yq_)
 
-    newh.GetQuantiles(nq,yq,xq)
+    histo.GetQuantiles(nq,yq,xq)
     for k in range(0, nq): 
       histoinfo[binning.keys[i]][xq_[k]]=yq[k]
     
@@ -138,7 +138,6 @@ def makeNoiseVsEtaGraph(histoinfo,binning,region, marker, color, whats):
      
   return g
 
-  #makeNoiseVsEtaPlot(allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_energy', whats_to_plot=['mean'], names_to_plot=['Mean'] )
 
 def makeNoiseVsEtaPlot(allgraphs, groups_to_plot, namegroups_to_plot, suffix, whats_to_plot, names_to_plot):
 
@@ -173,9 +172,12 @@ def makeNoiseVsEtaPlot(allgraphs, groups_to_plot, namegroups_to_plot, suffix, wh
 if __name__ == "__main__":
 
   gROOT.SetBatch(True)
-
+  TH1.StatOverflows(kTRUE)
   #inputfile = '../test/outputfiles/test_relValZee_v2_numEvent1000.root'
-  inputfile = '../test/outputfiles/test_nuGun_v10_numEvent10000.root'
+  #inputfile = '../test/outputfiles/test_nuGun_v10_numEvent10000.root'
+  #inputfile = '../test/outputfiles/test_nuGun_v8_numEvent1000.root'
+  #inputfile = '../test/outputfiles/test_nuGun_fullReadout_v1_numEvent1000.root'
+  inputfile = '../test/outputfiles/test_nuGun_MOD_numEvent1000.root'
   inputdir = 'ecalnoisestudy'
 
 
@@ -184,7 +186,7 @@ if __name__ == "__main__":
 
   ######## rechits
   inputhistoname_EB = 'h_RecHits_EB_energy_'
-  range_EB = (0.,2.) # up to 1 GeV
+  range_EB = (0.,5.) # up to 1 GeV
   rebin_EB = 1
   binning_EBP = Binning(det='EB', start=-1.5, end=0, delta=0.1)
   binning_EBM = Binning(det='EB', start =0,   end=1.5, delta=0.1)
@@ -192,14 +194,14 @@ if __name__ == "__main__":
   histoinfo_EBM=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBM, xrange=range_EB, rebin=rebin_EB)
 
   inputhistoname_EEP = 'h_RecHits_EEP_energy_'
-  range_EEP = (0.,2.)
-  rebin_EEP = 1
+  range_EEP = (0.,10.)
+  rebin_EEP = 4
   binning_EEP = Binning(det='EEP', start=1.5, end=3.0, delta=0.1)
   histoinfo_EEP=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEP, binning=binning_EEP, xrange=range_EEP, rebin=rebin_EEP)
 
   inputhistoname_EEM = 'h_RecHits_EEM_energy_'
-  range_EEM = (0.,2.)
-  rebin_EEM = 1
+  range_EEM = (0.,10.)
+  rebin_EEM = 4
   binning_EEM = Binning(det='EEM', start=-3.0, end=-1.5, delta=0.1)
   histoinfo_EEM=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
 
@@ -207,12 +209,12 @@ if __name__ == "__main__":
   inputhistoname_EB = 'h_PfRecHits_EB_energy_'
   inputhistoname_EEP = 'h_PfRecHits_EEP_energy_'
   inputhistoname_EEM = 'h_PfRecHits_EEM_energy_'
-  range_EEP = (0.,40.)
-  range_EEM = (0.,40.)
-  range_EEB = (0.,10.)
-  rebin_EEP = 8;
-  rebin_EEM = 8;
-  rebin_EEB = 4;
+  #range_EEP = (0.,10.)
+  #range_EEM = (0.,10.)
+  #range_EEB = (0.,10.)
+  #rebin_EEP = 1;
+  #rebin_EEM = 1;
+  #rebin_EEB = 1;
   makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
   makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEP, binning=binning_EEP, xrange=range_EEP, rebin=rebin_EEP)
   makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)

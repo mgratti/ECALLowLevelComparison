@@ -54,8 +54,11 @@ process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
     recHitCollection_EB       = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     beamSpot                  = cms.InputTag("offlineBeamSpot"),
 
-    PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL:Cleaned"),
+    #despite the name "Cleaned", this collection contains dirty PFRechits, those which do not pass the cleaning
+    #PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL:Cleaned"),
+    PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL"),
 
+    #PFclusterCollection = cms.InputTag("particleFlowClusterECAL"),
 
     superClusterCollection_EB = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
     superClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"),

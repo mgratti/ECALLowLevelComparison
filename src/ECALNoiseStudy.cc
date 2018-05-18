@@ -1,3 +1,5 @@
+// TO DO: put exact ranges for BARREL END-CAPS instead of approximate ranges
+
 #include <memory>
 
 // user include files
@@ -298,7 +300,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   for (TString region : regions){
     for (TString key : eta_keys[region]){
       TString histo_name = "h_PfRecHits_" + region + "_energy_" + key;
-      h_PFrecHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,50);
+      h_PFrecHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,10);
+      TH1::StatOverflows(kTRUE);
     }
   }
 
@@ -307,7 +310,6 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
 
 
-TH1::StatOverflows(kTRUE);
 }
 
 
@@ -317,6 +319,8 @@ ECALNoiseStudy::~ECALNoiseStudy() {}
 // ------------ method called to for each event  ------------
 void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 {
+  TH1::StatOverflows(kTRUE);
+
   // Get vertices
   edm::Handle<reco::VertexCollection> vtx_h;
   ev.getByToken(vertexToken_, vtx_h);
@@ -597,65 +601,68 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
     //std::cout << "id=" << itr->detId() << " eta="  << mycell.eta() << " energy=" << itr->energy() <<  " ishigher=" << (itr->detId()> 872420480) << " isbarrel=" << (fabs(mycell.eta())<1.45)<< std::endl;
     EBDetId ebid( itr -> detId() );
-    // BARREL
-    // TODO: find condition based on itr->detId() > 872420480 - apparently this is not the right number!
-    if ( fabs(mycell.eta())<=1.48 ) {
-      //std::cout << "found pfrechit in barrel" << std::endl;
 
-      h_PFrecHits_EB_time          -> Fill( itr -> time() );
-      h_PFrecHits_EB_eneVSieta     -> Fill( itr->energy() , ebid.ieta() );
-      h_PFrecHits_EB_occupancy     -> Fill( ebid.iphi() , ebid.ieta() );
-      h_PFrecHits_EB_eta           -> Fill( mycell.eta() );
-      h_PFrecHits_EB_energy        -> Fill( itr->energy() );
+    if ( itr -> energy() > ethrEB_ ){
 
-      for(TString key : eta_keys["EB"]){
-        if( mycell.eta() >= eta_edges["EB"][key].first && mycell.eta() < eta_edges["EB"][key].second){
-          h_PFrecHits_energy_etaBinned["EB"][key]->Fill(itr -> energy());
-          //std::cout << "found pf rechit in barrel with energy=" << itr -> energy() << std::endl;
-          break; // when you found it, exit
-        }
-      }
-    }
+      // BARREL
+      // TODO: find condition based on itr->detId() > 872420480 - apparently this is not the right number!
+      if ( fabs(mycell.eta())<=1.50 ) {
+        //std::cout << "found pfrechit in barrel" << std::endl;
 
-    // End-caps
-    else{
-      //std::cout << "found pfrechit in endcap" << std::endl;
-      EEDetId eeid( itr -> detId() );
-      // TODO make sure that this is correct !
-      // EEP
-      if (mycell.eta() > 0){
+        h_PFrecHits_EB_time          -> Fill( itr -> time() );
+        h_PFrecHits_EB_eneVSieta     -> Fill( itr->energy() , ebid.ieta() );
+        h_PFrecHits_EB_occupancy     -> Fill( ebid.iphi() , ebid.ieta() );
+        h_PFrecHits_EB_eta           -> Fill( mycell.eta() );
+        h_PFrecHits_EB_energy        -> Fill( itr->energy() );
 
-        h_PFrecHits_EEP_time          -> Fill( itr -> time() );
-        h_PFrecHits_EEP_occupancy     -> Fill( eeid.ix()- 0.5, eeid.iy() - 0.5 );
-        h_PFrecHits_EEP_eta           -> Fill( mycell.eta() );
-        h_PFrecHits_EEP_energy        -> Fill( itr->energy() );
-
-        for(TString key : eta_keys["EEP"]){
-          if( mycell.eta() >= eta_edges["EEP"][key].first && mycell.eta() < eta_edges["EEP"][key].second){
-            h_PFrecHits_energy_etaBinned["EEP"][key]->Fill(itr -> energy());
-            //std::cout << "found pf rechit in end-cap with energy="  << itr -> energy()<< std::endl;
+        for(TString key : eta_keys["EB"]){
+          if( mycell.eta() >= eta_edges["EB"][key].first && mycell.eta() < eta_edges["EB"][key].second){
+            h_PFrecHits_energy_etaBinned["EB"][key]->Fill(itr -> energy());
+            //std::cout << "found pf rechit in barrel with energy=" << itr -> energy() << std::endl;
             break; // when you found it, exit
           }
         }
       }
-      // EEM
-      else {
 
-        h_PFrecHits_EEM_time          -> Fill( itr -> time() );
-        h_PFrecHits_EEM_occupancy     -> Fill( eeid.ix()- 0.5, eeid.iy() - 0.5 );
-        h_PFrecHits_EEM_eta           -> Fill( mycell.eta() );
-        h_PFrecHits_EEM_energy        -> Fill( itr->energy() );
+      // End-caps
+      else{
+        //std::cout << "found pfrechit in endcap" << std::endl;
+        EEDetId eeid( itr -> detId() );
+        // TODO make sure that this is correct !
+        // EEP
+        if (mycell.eta() > 0){
 
-        for(TString key : eta_keys["EEM"]){
-          //std::cout << key << "  " << itr->energy() << std::endl;
-          if( mycell.eta() >= eta_edges["EEM"][key].first && mycell.eta() < eta_edges["EEM"][key].second){
-            h_PFrecHits_energy_etaBinned["EEM"][key]->Fill(itr -> energy());
-            break; // when you found it, exit
+          h_PFrecHits_EEP_time          -> Fill( itr -> time() );
+          h_PFrecHits_EEP_occupancy     -> Fill( eeid.ix()- 0.5, eeid.iy() - 0.5 );
+          h_PFrecHits_EEP_eta           -> Fill( mycell.eta() );
+          h_PFrecHits_EEP_energy        -> Fill( itr->energy() );
+
+          for(TString key : eta_keys["EEP"]){
+            if( mycell.eta() >= eta_edges["EEP"][key].first && mycell.eta() < eta_edges["EEP"][key].second){
+              h_PFrecHits_energy_etaBinned["EEP"][key]->Fill(itr -> energy());
+              //std::cout << "found pf rechit in end-cap with energy="  << itr -> energy()<< std::endl;
+              break; // when you found it, exit
+            }
           }
         }
-      }
-    } // end end-caps
+        // EEM
+        else {
 
+          h_PFrecHits_EEM_time          -> Fill( itr -> time() );
+          h_PFrecHits_EEM_occupancy     -> Fill( eeid.ix()- 0.5, eeid.iy() - 0.5 );
+          h_PFrecHits_EEM_eta           -> Fill( mycell.eta() );
+          h_PFrecHits_EEM_energy        -> Fill( itr->energy() );
+
+          for(TString key : eta_keys["EEM"]){
+            //std::cout << key << "  " << itr->energy() << std::endl;
+            if( mycell.eta() >= eta_edges["EEM"][key].first && mycell.eta() < eta_edges["EEM"][key].second){
+              h_PFrecHits_energy_etaBinned["EEM"][key]->Fill(itr -> energy());
+              break; // when you found it, exit
+            }
+          }
+        }
+      } // end end-caps
+    } // end if threshold
   } // end loop over pfrechits
 
 
