@@ -18,17 +18,7 @@ import re
 import os
 import math
 
-class DetPart(object):
-  def __init__(self, name='EBP', leg='EB+', rangeE=(0.,2.), rebinE=1):
-    self.name = name
-    self.leg = leg
-    self.rangeE = rangeE
-    self.rebinE = rebinE
 
-class Quantile(object):
-  def __init__(self, x=0.5, leg='50%' ):
-    self.x=x
-    self.leg=leg
 
 
 class Binning(object):
@@ -102,7 +92,7 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
     histoinfo[binning.keys[i]]={}
     histoinfo[binning.keys[i]]['mean']=histo.GetMean()
     histoinfo[binning.keys[i]]['RMS']=histo.GetRMS()
-    
+
     # quantiles
     # only line to change if you want to change quantiles
     xq_ = [0.1, 0.5, 0.7, 0.8, 1.0]
@@ -113,9 +103,52 @@ def makeHistoDiagnosis(inputfile, inputdir, inputhistoname, binning, xrange, reb
     yq = array('d', yq_)
 
     histo.GetQuantiles(nq,yq,xq)
-    for k in range(0, nq): 
+    for k in range(0, nq):
       histoinfo[binning.keys[i]][xq_[k]]=yq[k]
-    
+
+  return histoinfo
+
+def makeEoverEtrueDiagnosis(inputfile, inputdir, inputhistoname, binning): #, xrange, rebin=0):
+# make the histogram plots and fit
+
+  gROOT.ProcessLine('.L ~/CMS_style/tdrstyle.C')
+  gROOT.ProcessLine('setTDRStyle()')
+  histonames = [inputhistoname+'{}'.format(binning.keys[i])  for i in range(0,binning.nbins) ]
+  histolabels = ['{} <= #eta < {}'.format(binning.nicekeys[i].split('_')[0], binning.nicekeys[i].split('_')[1]) for i in range(0,binning.nbins)]
+
+  histoinfo={}
+
+  for i,histoname in enumerate(histonames):
+    c=TCanvas('c', 'c', 600,600)
+    f=TFile(inputfile, 'READ')
+    print inputfile
+    print histoname
+    histo=f.Get('{}/{}'.format(inputdir,histoname))
+    #if rebin>0: histo.Rebin(rebin)
+
+    #histo.SetLineWidth()
+    histo.SetMarkerStyle(20)
+    histo.GetXaxis().SetTitle('E_{reco PF cluster} / E_{true} (GeV)')
+    histo.GetYaxis().SetTitle('Entries')
+    # better to avoid setting the range, since the mean calculation changes
+    #histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
+
+    gStyle.SetOptStat('emMrRo')
+    histo.Draw('histPE')
+
+    # fitting part here
+
+
+    ###
+
+
+    defaultLabels([histolabels[i]], x=0.55, y=0.5, spacing = 0.04, size = 0.06, dx = 0.12)
+    #c.SetLogy()
+    c.SaveAs('plots/{}.png'.format(histoname))
+    c.SaveAs('plots/{}.pdf'.format(histoname))
+    c.SaveAs('plots/{}.C'.format(histoname))
+    c.SaveAs('plots/{}.root'.format(histoname))
+
   return histoinfo
 
 def makeNoiseVsEtaGraph(histoinfo,binning,region, marker, color, whats):
@@ -132,10 +165,7 @@ def makeNoiseVsEtaGraph(histoinfo,binning,region, marker, color, whats):
       x = abs(binning.lowedges[i]+binning.upedges[i])/2
       g[what].SetPoint(i,x, histoinfo[key][what])
 
-  #if i == 0:
-  #g[what].SetLineWidth(3)
-   
-     
+
   return g
 
 
@@ -145,8 +175,8 @@ def makeNoiseVsEtaPlot(allgraphs, groups_to_plot, namegroups_to_plot, suffix, wh
   gROOT.ProcessLine('setTDRStyle()')
 
   c1=TCanvas('c1', 'c1', 600,600)
-  
-  leg=defaultLegend(x1=0.35,y1=0.6,x2=0.5,y2=0.90)  
+
+  leg=defaultLegend(x1=0.35,y1=0.6,x2=0.5,y2=0.90)
   mg=TMultiGraph()
 
   for k,group in enumerate(groups_to_plot):
@@ -161,7 +191,7 @@ def makeNoiseVsEtaPlot(allgraphs, groups_to_plot, namegroups_to_plot, suffix, wh
   mg.GetXaxis().SetTitle('#eta')
   if 'EB' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0.15, 0.3)
   elif 'EE' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 7)
- 
+
   leg.Draw('same')
   #c1.SetLogy()
   c1.SaveAs('plots/NoiseVsEta_{}{}.pdf'.format(groups_to_plot[0][:2],suffix))
@@ -177,7 +207,8 @@ if __name__ == "__main__":
   #inputfile = '../test/outputfiles/test_nuGun_v10_numEvent10000.root'
   #inputfile = '../test/outputfiles/test_nuGun_v8_numEvent1000.root'
   #inputfile = '../test/outputfiles/test_nuGun_fullReadout_v1_numEvent1000.root'
-  inputfile = '../test/outputfiles/test_nuGun_MOD_numEvent1000.root'
+  #inputfile = '../test/outputfiles/test_nuGun_MOD_numEvent1000.root'
+  inputfile = '../test/outputfiles/test_photonGun_v3_numEvent1000.root'
   inputdir = 'ecalnoisestudy'
 
 
@@ -220,62 +251,21 @@ if __name__ == "__main__":
   makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
 
 
-  ############
+  ############ noise vs eta
   graphs={}
   graphs['EBP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
   graphs['EBM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
   graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
   graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
 
-  print graphs
-#  detParts = [DetPart()]
-#  groups = {
-#   'name':'EBP', 'leg':
-#  }
   makeNoiseVsEtaPlot(allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_energy', whats_to_plot=whats, names_to_plot=names )
-
   makeNoiseVsEtaPlot(allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_energy', whats_to_plot=whats, names_to_plot=names )
-  
 
-  #makeNoiseVsEtaPlot(graphs, gr1='EBP', name1='EB+', gr2='EBM', name2='EB-', suffix='_energy', whats=whats, names=names)
-  #makeNoiseVsEtaPlot(graphs, gr1='EEP', name1='EE+', gr2='EEM', name2='EE-', suffix='_energy', whats=whats, names=names)
-  #makeNoiseVsEtaPlot(graphs['EEP'], graphs['EEM'])
-
-#  #################################################################
-#  #################################################################
-#  # repeat everything but with et instead of energy
-#  # this is ugly but fast :)
-#  inputhistoname_EB = 'h_RecHits_EB_et_'
-#  range_EB = (0.,2.) # up to 1 GeV
-#  rebin_EB = 2
-#  binning_EBP = Binning(det='EB', start=-1.5, end=0, delta=0.1)
-#  binning_EBM = Binning(det='EB', start =0,   end=1.5, delta=0.1)
-#  histoinfo_EBP=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
-#  histoinfo_EBM=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBM, xrange=range_EB, rebin=rebin_EB)
-#
-#
-#  inputhistoname_EEP = 'h_RecHits_EEP_et_'
-#  range_EEP = (0.,10.)
-#  rebin_EEP = 4
-#  binning_EEP = Binning(det='EEP', start=1.5, end=3.0, delta=0.1)
-#  histoinfo_EEP=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEP, binning=binning_EEP, xrange=range_EEP, rebin=rebin_EEP)
-#
-#  inputhistoname_EEM = 'h_RecHits_EEM_et_'
-#  range_EEM = (0.,10.)
-#  rebin_EEM = 4
-#  binning_EEM = Binning(det='EEM', start=-3.0, end=-1.5, delta=0.1)
-#  histoinfo_EEM=makeHistoDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
-#
-#
-#  ############
-#  graphs={}
-#  graphs['EBP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBP,binning=binning_EBP, region='EBP', marker=24, color=kBlue, whats=whats)
-#  graphs['EBM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBM,binning=binning_EBM, region='EBM', marker=23, color=kMagenta, whats=whats)
-#  graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=24, color=kBlue, whats=whats)
-#  graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=23, color=kMagenta, whats=whats)
-#
-#  makeNoiseVsEtaPlot(graphs, gr1='EBP', name1='EB+', gr2='EBM', name2='EB-', suffix='_et', whats=whats, names=names)
-#  makeNoiseVsEtaPlot(graphs, gr1='EEP', name1='EE+', gr2='EEM', name2='EE-', suffix='_et', whats=whats, names=names)
-
-
-
+  ############ diagnosis of E over Etrue
+  inputhistoname_EB="h_PFclusters_EB_eOverEtrue_"
+  inputhistoname_EEP="h_PFclusters_EEP_eOverEtrue_"
+  inputhistoname_EEM="h_PFclusters_EEM_eOverEtrue_"
+  makeEoverEtrueDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBP)
+  makeEoverEtrueDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBM)
+  makeEoverEtrueDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEP, binning=binning_EEP)
+  makeEoverEtrueDiagnosis(inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM)

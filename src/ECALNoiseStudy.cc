@@ -31,16 +31,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-
-// pfclusters
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-//
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -60,6 +54,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "/mnt/t3nfs01/data01/shome/mratti/cmssw_workarea/EcalDPG/CMSSW_10_0_0/src/ECAL/ECALLowLevelComparison/interface/ECALNoiseStudy.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -85,6 +80,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // collections
   vertexToken_               = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVTag"));
 
+  genParticleCollection_     = consumes<reco::GenParticleCollection>(ps.getParameter<edm::InputTag>("genParticleCollection"));
+
   recHitCollection_EB_       = consumes<EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EB"));
   recHitCollection_EE_       = consumes<EcalRecHitCollection> (ps.getParameter<edm::InputTag>("recHitCollection_EE"));
 
@@ -92,8 +89,6 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   PFclusterCollection_       = consumes<reco::PFClusterCollection> (ps.getParameter<edm::InputTag>("PFclusterCollection"));
 
-  basicClusterCollection_EB_ = consumes<reco::BasicClusterCollection> (ps.getParameter<edm::InputTag>("basicClusterCollection_EB"));
-  basicClusterCollection_EE_ = consumes<reco::BasicClusterCollection> (ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
   superClusterCollection_EB_ = consumes<reco::SuperClusterCollection> (ps.getParameter<edm::InputTag>("superClusterCollection_EB"));
   superClusterCollection_EE_ = consumes<reco::SuperClusterCollection> (ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
 
@@ -109,19 +104,19 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   // configurations for plots in delta eta bins
   std::map<TString, Double_t> start_eta;
-  start_eta["EB"]=-1.48;
+  start_eta["EB"]=-1.5;
   start_eta["EEM"]=-3.0;
-  start_eta["EEP"]=1.48;
+  start_eta["EEP"]=1.5;
 
   std::map<TString,Double_t> delta_eta;
-  delta_eta["EB"]=0.1; //  should be possible to overwrite via job option
+  delta_eta["EB"]=0.1; //  can be overwritten by job option
   delta_eta["EEM"]=0.1;
   delta_eta["EEP"]=0.1;
 
   std::map<TString, Int_t> nBins_eta;
-  nBins_eta["EB"]= (int) (2.96/delta_eta["EB"]);
-  nBins_eta["EEM"]= (int) (1.52/delta_eta["EEM"]);
-  nBins_eta["EEP"]= (int) (1.52/delta_eta["EEP"]);
+  nBins_eta["EB"]= (int) (3.0/delta_eta["EB"]);
+  nBins_eta["EEM"]= (int) (1.5/delta_eta["EEM"]);
+  nBins_eta["EEP"]= (int) (1.5/delta_eta["EEP"]);
 
 
   for (TString region : regions){
@@ -146,6 +141,13 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // Vertices
   h_numberOfEvents = fs->make<TH1D>("h_numberOfEvents","h_numberOfEvents",10,0,10);
   h_nPVs = fs->make<TH1D>("h_nPVs","h_nPVs",80,0,80);
+
+  // gen particles
+  h_genP_pt                 = fs->make<TH1D>("h_genP_pt", "h_genP_pt", 1000, 0., 100. );
+  h_genP_eta                = fs->make<TH1D>("h_genP_eta", "h_genP_eta", 120, -3., 3. );
+  h_genP_phi                = fs->make<TH1D>("h_genP_phi", "h_genP_phi", 128, -3.2, 3.2);
+  h_genP_status             = fs->make<TH1D>("h_genP_status", "h_genP_status", 10, 0., 10.);
+  h_genP_pdgid              = fs->make<TH1D>("h_genP_pdgid", "h_genP_pdgid", 40, 0., 40.);
 
   // Rechits, barrel
   h_recHits_EB_size          = fs->make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 100, 500, 3500 );
@@ -233,43 +235,29 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_PFrecHits_EEM_occupancy     = fs->make<TH2D>("h_PFrecHits_EEM_occupancy","h_PFrecHits_EEM_occupancy",100,0.,100.,100,0.,100. );
 
   // --------- PF clusters
-  h_PFclusters_EB_size    = fs->make<TH1D>("h_PFclusters_EB_size","h_PFclusters_EB_size",30,0.,30.);
+  h_PFclusters_EB_size    = fs->make<TH1D>("h_PFclusters_EB_size","h_PFclusters_EB_size",100,0.,100.);
   h_PFclusters_EB_nXtals  = fs->make<TH1D>("h_PFclusters_EB_nXtals","h_PFclusters_EB_nXtals",50,0.,50.);
   h_PFclusters_EB_energy  = fs->make<TH1D>("h_PFclusters_EB_energy","h_PFclusters_EB_energy",200,0.,10.);
   h_PFclusters_EB_eta     = fs->make<TH1D>("h_PFclusters_EB_eta","h_PFclusters_EB_eta",148,-1.48,1.48);
-  h_PFclusters_EB_phi     = fs->make<TH1D>("h_PFclusters_EB_phi","h_PFclusters_EB_phi",100,-3.2,3.2);
+  h_PFclusters_EB_phi     = fs->make<TH1D>("h_PFclusters_EB_phi","h_PFclusters_EB_phi",128,-3.2,3.2);
+  h_PFclusters_EB_eOverEtrue = fs->make<TH1D>("h_PFclusters_EB_eOverEtrue","h_PFclusters_EB_eOverEtrue",100,0.,2.);
 
-  h_PFclusters_EEP_size   = fs->make<TH1D>("h_PFclusters_EEP_size","h_PFclusters_EEP_size",30,0.,30.);
+  h_PFclusters_EEP_size   = fs->make<TH1D>("h_PFclusters_EEP_size","h_PFclusters_EEP_size",100,0.,100.);
   h_PFclusters_EEP_nXtals = fs->make<TH1D>("h_PFclusters_EEP_nXtals","h_PFclusters_EEP_nXtals",50,0.,50.);
   h_PFclusters_EEP_energy = fs->make<TH1D>("h_PFclusters_EEP_energy","h_PFclusters_EEP_energy",200,0.,10.);
   h_PFclusters_EEP_eta    = fs->make<TH1D>("h_PFclusters_EEP_eta","h_PFclusters_EEP_eta",300,-3.,3.);
-  h_PFclusters_EEP_phi    = fs->make<TH1D>("h_PFclusters_EEP_phi","h_PFclusters_EEP_phi",100,-3.2,3.2);
+  h_PFclusters_EEP_phi    = fs->make<TH1D>("h_PFclusters_EEP_phi","h_PFclusters_EEP_phi",128,-3.2,3.2);
+  h_PFclusters_EEP_eOverEtrue = fs->make<TH1D>("h_PFclusters_EEP_eOverEtrue","h_PFclusters_EEP_eOverEtrue",100,0.,2.);
 
-  h_PFclusters_EEM_size   = fs->make<TH1D>("h_PFclusters_EEM_size","h_PFclusters_EEM_size",30,0.,30.);
+  h_PFclusters_EEM_size   = fs->make<TH1D>("h_PFclusters_EEM_size","h_PFclusters_EEM_size",100,0.,100.);
   h_PFclusters_EEM_nXtals = fs->make<TH1D>("h_PFclusters_EEM_nXtals","h_PFclusters_EEM_nXtals",50,0.,50.);
   h_PFclusters_EEM_energy = fs->make<TH1D>("h_PFclusters_EEM_energy","h_PFclusters_EEM_energy",200,0.,10.);
   h_PFclusters_EEM_eta    = fs->make<TH1D>("h_PFclusters_EEM_eta","h_PFclusters_EEM_eta",300,-3.,3.);
-  h_PFclusters_EEM_phi    = fs->make<TH1D>("h_PFclusters_EEM_phi","h_PFclusters_EEM_phi",100,-3.2,3.2);
+  h_PFclusters_EEM_phi    = fs->make<TH1D>("h_PFclusters_EEM_phi","h_PFclusters_EEM_phi",128,-3.2,3.2);
+  h_PFclusters_EEM_eOverEtrue = fs->make<TH1D>("h_PFclusters_EEM_eOverEtrue","h_PFclusters_EEM_eOverEtrue",100,0.,2.);
 
   h_PFclusters_eta        = fs->make<TH1D>("h_PFclusters_eta",   "h_PFclusters_eta",   300,-3.,3.);
-
-  // Basic Clusters ----------------------------------------------
-
-  h_basicClusters_EB_size    = fs->make<TH1D>("h_basicClusters_EB_size","h_basicClusters_EB_size",30,0.,30.);
-  h_basicClusters_EB_nXtals  = fs->make<TH1D>("h_basicClusters_EB_nXtals","h_basicClusters_EB_nXtals",50,0.,50.);
-  h_basicClusters_EB_energy  = fs->make<TH1D>("h_basicClusters_EB_energy","h_basicClusters_EB_energy",200,0.,50.);
-
-  h_basicClusters_EEP_size   = fs->make<TH1D>("h_basicClusters_EEP_size","h_basicClusters_EEP_size",30,0.,30.);
-  h_basicClusters_EEP_nXtals = fs->make<TH1D>("h_basicClusters_EEP_nXtals","h_basicClusters_EEP_nXtals",50,0.,50.);
-  h_basicClusters_EEP_energy = fs->make<TH1D>("h_basicClusters_EEP_energy","h_basicClusters_EEP_energy",400,0.,100.);
-
-  h_basicClusters_EEM_size   = fs->make<TH1D>("h_basicClusters_EEM_size","h_basicClusters_EEM_size",30,0.,30.);
-  h_basicClusters_EEM_nXtals = fs->make<TH1D>("h_basicClusters_EEM_nXtals","h_basicClusters_EEM_nXtals",50,0.,50.);
-  h_basicClusters_EEM_energy = fs->make<TH1D>("h_basicClusters_EEM_energy","h_basicClusters_EEM_energy",400,0.,100.);
-
-  h_basicClusters_eta        = fs->make<TH1D>("h_basicClusters_eta",   "h_basicClusters_eta",   300,-3.,3.);
-  h_basicClusters_EB_eta     = fs->make<TH1D>("h_basicClusters_EB_eta","h_basicClusters_EB_eta",148,-1.48,1.48);
-  h_basicClusters_EE_eta     = fs->make<TH1D>("h_basicClusters_EE_eta","h_basicClusters_EE_eta",300,-3.,3.);
+  h_PFclusters_genMatched_size = fs->make<TH1D>("h_PFclusters_genMatched_size","h_PFclusters_genMatched_size",10,0.,10.);
 
 
   // Super Clusters ----------------------------------------------
@@ -325,13 +313,27 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
     for (TString key : eta_keys[region]){
       TString histo_name = "h_PfRecHits_" + region + "_energy_" + key;
       h_PFrecHits_energy_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,1000,0,10);
-      TH1::StatOverflows(kTRUE);
+    }
+  }
+
+  // --------- E (PF clusters) over E true
+  for (TString region : regions){
+    for (TString key : eta_keys[region]){
+      TString histo_name = "h_PFclusters_" + region + "_eOverEtrue_" + key;
+      h_PFclusters_eOverEtrue_etaBinned[region][key] = fs->make<TH1F>(histo_name,histo_name,100,0.,2.);
     }
   }
 
 
-
-
+  // --------- event by event diagnostic plots
+  for (int i=0; i<100; i++){
+    TString histo_name = "h_PFclusters_etaVsPhi_" + TString::Format("%d", i);
+    h_PFclusters_etaVsPhi.push_back(fs->make<TH2D>(histo_name,  histo_name, 60,-3.0,3.0, 64,-3.2,3.2 ));
+    histo_name = "h_RecHits_etaVsPhi_" + TString::Format("%d", i);
+    h_recHits_etaVsPhi.push_back(fs->make<TH2D>(histo_name,  histo_name, 60,-3.0,3.0, 64,-3.2,3.2 ));
+    histo_name = "h_genP_etaVsPhi_"  + TString::Format("%d", i);
+    h_genP_etaVsPhi.push_back(fs->make<TH2D>(histo_name,  histo_name, 60,-3.0,3.0, 64,-3.2,3.2 ));
+  }
 
 
 }
@@ -356,8 +358,6 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   if ( ! recoBeamSpotHandle.isValid() ) std::cout << "ECALNoiseStudy: BS collection not found" << std::endl;
   const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position();
 
-  naiveId_++;
-
   int nvertices(0);
   for(reco::VertexCollection::const_iterator it = vtx_h->begin(); it !=vtx_h->end() ; ++it){
     if(it->isValid() && it->ndof() > 4. && it->position().Rho() < 2. && fabs(it->position().Z() - BSPosition.z()) < 24){
@@ -365,6 +365,22 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     }
   }
   h_nPVs->Fill(nvertices);
+
+  // Truth particles
+  edm::Handle<reco::GenParticleCollection> genParticles_handle;
+  ev.getByToken( genParticleCollection_, genParticles_handle );
+  if ( ! genParticles_handle.isValid() ) std::cout << "ECALNoiseStudy::analyze --> genParticles not found" << std::endl;
+  const reco::GenParticleCollection* genParticles = genParticles_handle.product ();
+
+  for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin (); genParticle != genParticles->end () ;++genParticle) {
+    //std::cout << naiveId_ << " pdgid=" << genParticle->pdgId() << " status=" <<  genParticle->status() << " pt=" << genParticle->pt() << std::endl;
+    h_genP_pt->Fill(genParticle->pt());
+    h_genP_eta->Fill(genParticle->eta());
+    h_genP_phi->Fill(genParticle->phi());
+    h_genP_status->Fill(genParticle->status());
+    h_genP_pdgid->Fill(genParticle->pdgId());
+    if(naiveId_<100) h_genP_etaVsPhi.at(naiveId_)->Fill(genParticle->eta(), genParticle->phi());
+  }
 
   // calo geometry
   edm::ESHandle<CaloGeometry> pGeometry;
@@ -406,6 +422,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_recHits_EB_iEtaOccupancy -> Fill( ebid.ieta() );
       h_recHits_EB_eta           -> Fill( mycell.eta() );
       h_recHits_eta              -> Fill( mycell.eta() );
+      if (naiveId_<100) h_recHits_etaVsPhi.at(naiveId_)-> Fill( mycell.eta(), mycell.phi() );
 
       for(TString key : eta_keys["EB"]){
         //std::cout << key << "  " << itr->energy() << std::endl;
@@ -507,6 +524,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     	  h_recHits_EEP_iYoccupancy   -> Fill( eeid.iy() - 0.5 );
     	  h_recHits_EEP_eta           -> Fill( mycell.eta() );
     	  h_recHits_eta               -> Fill( mycell.eta() );
+        if (naiveId_<100) h_recHits_etaVsPhi.at(naiveId_)-> Fill( mycell.eta(), mycell.phi() );
 
         for(TString key : eta_keys["EEP"]){
           //std::cout << key << "  " << itr->energy() << std::endl;
@@ -545,6 +563,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         h_recHits_EEM_iYoccupancy   -> Fill( eeid.iy() - 0.5 );
         h_recHits_EEM_eta           -> Fill( mycell.eta() );
         h_recHits_eta               -> Fill( mycell.eta() );
+        if (naiveId_<100) h_recHits_etaVsPhi.at(naiveId_)-> Fill( mycell.eta(), mycell.phi() );
 
         for(TString key : eta_keys["EEM"]){
           //std::cout << key << "  " << itr->energy() << std::endl;
@@ -570,6 +589,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   h_recHits_EEM_energyMax -> Fill(maxERecHitEEM_ene);
   h_recHits_EEP_maxEneEta -> Fill(maxERecHitEEP_eta);
   h_recHits_EEM_maxEneEta -> Fill(maxERecHitEEM_eta);
+
 
 
   // make another loop over rechits and have a look at the ones in the vicinity of the rechit with maximal energy
@@ -641,7 +661,6 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         for(TString key : eta_keys["EB"]){
           if( mycell.eta() >= eta_edges["EB"][key].first && mycell.eta() < eta_edges["EB"][key].second){
             h_PFrecHits_energy_etaBinned["EB"][key]->Fill(itr -> energy());
-            //std::cout << "found pf rechit in barrel with energy=" << itr -> energy() << std::endl;
             break; // when you found it, exit
           }
         }
@@ -663,7 +682,6 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
           for(TString key : eta_keys["EEP"]){
             if( mycell.eta() >= eta_edges["EEP"][key].first && mycell.eta() < eta_edges["EEP"][key].second){
               h_PFrecHits_energy_etaBinned["EEP"][key]->Fill(itr -> energy());
-              //std::cout << "found pf rechit in end-cap with energy="  << itr -> energy()<< std::endl;
               break; // when you found it, exit
             }
           }
@@ -695,13 +713,15 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   if ( ! PFclusters_handle.isValid() ) std::cout << "ECALNoiseStudy::analyze --> PFclusters not found" << std::endl;
   const reco::PFClusterCollection* PFclusters = PFclusters_handle.product ();
 
-  int size_PFclusters_EB = 0;
-  int size_PFclusters_EEP = 0;
-  int size_PFclusters_EEM = 0;
+  int size_PFclusters_EB = 0; // how many pf clusters in EB in the event
+  int size_PFclusters_EEP = 0; // ""
+  int size_PFclusters_EEM = 0; // ""
+  int size_PFclusters_genMatched = 0;
 
   for (reco::PFClusterCollection::const_iterator itr = PFclusters->begin(); itr != PFclusters->end(); itr++ ) {
 
     h_PFclusters_eta -> Fill( itr->eta() );
+
     // barrel
     if (fabs(itr->eta()) < 1.48){
       size_PFclusters_EB++;
@@ -713,7 +733,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     // end-caps
     else{
       // EEP
-      if (fabs(itr->eta()) > 0){
+      if (itr->eta() > 0){
         size_PFclusters_EEP++;
         h_PFclusters_EEP_nXtals -> Fill( (*itr).hitsAndFractions().size() );
         h_PFclusters_EEP_energy -> Fill( itr->energy() );
@@ -730,57 +750,60 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       }
     } // end eta conditions
 
-    h_PFclusters_EB_size->Fill(size_PFclusters_EB);
-    h_PFclusters_EEP_size->Fill(size_PFclusters_EEP);
-    h_PFclusters_EEM_size->Fill(size_PFclusters_EEM);
+    // cluster matching with gen particle
+    // delta R
+    for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin (); genParticle != genParticles->end () ;++genParticle) {
+
+      // matchin only with photons of status 1
+      if(genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
+
+      double deltaPhi = TVector2::Phi_mpi_pi( genParticle->phi() - itr->phi());
+      double deltaEta = genParticle->eta() - itr->eta();
+      double deltaR = TMath::Sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+      if(deltaR<0.4) { // tryring with threshold
+        size_PFclusters_genMatched++;
+
+        if(fabs(itr->eta()) < 1.48) {
+          h_PFclusters_EB_eOverEtrue->Fill(itr->energy()/genParticle->energy());
+          for(TString key : eta_keys["EB"]){
+            if( itr->eta() >= eta_edges["EB"][key].first && itr->eta() < eta_edges["EB"][key].second){
+              h_PFclusters_eOverEtrue_etaBinned["EB"][key]->Fill(itr -> energy());
+              break; // when you found it, exit
+            }
+          }
+        }
+        else if(itr->eta()  > 1.48) {
+          h_PFclusters_EEP_eOverEtrue->Fill(itr->energy()/genParticle->energy());
+          for(TString key : eta_keys["EEP"]){
+            if( itr->eta() >= eta_edges["EEP"][key].first && itr->eta() < eta_edges["EEP"][key].second){
+              h_PFclusters_eOverEtrue_etaBinned["EEP"][key]->Fill(itr -> energy());
+              break; // when you found it, exit
+            }
+          }
+        }
+        else if(itr->eta()  < -1.48) {
+          h_PFclusters_EEM_eOverEtrue->Fill(itr->energy()/genParticle->energy());
+          for(TString key : eta_keys["EEM"]){
+            if( itr->eta() >= eta_edges["EEM"][key].first && itr->eta() < eta_edges["EEM"][key].second){
+              h_PFclusters_eOverEtrue_etaBinned["EEM"][key]->Fill(itr -> energy());
+              break; // when you found it, exit
+            }
+          }
+        }
+      } // end if matching
+    } // end loop over gen particles
+
+  if(naiveId_<100) h_PFclusters_etaVsPhi.at(naiveId_)->Fill(itr->eta(),itr->phi(), itr->energy() );
+
+
   } // end loop on PFclusters
 
+  h_PFclusters_EB_size->Fill(size_PFclusters_EB);
+  h_PFclusters_EEP_size->Fill(size_PFclusters_EEP);
+  h_PFclusters_EEM_size->Fill(size_PFclusters_EEM);
+  h_PFclusters_genMatched_size->Fill(size_PFclusters_genMatched);
 
 
-  // -------------------------------------------------------------------------
-  //--- BASIC CLUSTERS ---
-  // EB
-  edm::Handle<reco::BasicClusterCollection> basicClusters_EB_h;
-  ev.getByToken( basicClusterCollection_EB_, basicClusters_EB_h );
-  if ( ! basicClusters_EB_h.isValid() ) std::cout << "ECALNoiseStudy::analyze --> basicClusters_EB_h not found" << std::endl;
-  const reco::BasicClusterCollection* theBarrelBasicClusters = basicClusters_EB_h.product () ;
-
-  for (reco::BasicClusterCollection::const_iterator itBC = theBarrelBasicClusters->begin(); itBC != theBarrelBasicClusters->end(); ++itBC ) {
-
-    h_basicClusters_EB_nXtals -> Fill( (*itBC).hitsAndFractions().size() );
-    h_basicClusters_EB_energy -> Fill( itBC->energy() );
-    h_basicClusters_EB_eta    -> Fill( itBC->eta() );
-    h_basicClusters_eta       -> Fill( itBC->eta() );
-  }
-  h_basicClusters_EB_size         -> Fill( basicClusters_EB_h->size() );
-
-  // ... endcap
-  edm::Handle<reco::BasicClusterCollection> basicClusters_EE_h;
-  ev.getByToken( basicClusterCollection_EE_, basicClusters_EE_h );
-  if ( ! basicClusters_EE_h.isValid() ) std::cout << "ECALNoiseStudy::analyze --> basicClusters_EE_h not found" << std::endl;
-
-  int nBasicClustersEEP = 0;
-  int nBasicClustersEEM = 0;
-  for (unsigned int icl = 0; icl < basicClusters_EE_h->size(); ++icl) {
-
-    h_basicClusters_eta       -> Fill( (*basicClusters_EE_h)[icl].eta() );
-    h_basicClusters_EE_eta    -> Fill( (*basicClusters_EE_h)[icl].eta() );
-
-    if ((*basicClusters_EE_h)[icl].z() > 0){
-      h_basicClusters_EEP_nXtals -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
-      h_basicClusters_EEP_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
-      nBasicClustersEEP++;
-    }
-    if ((*basicClusters_EE_h)[icl].z() < 0){
-      h_basicClusters_EEM_nXtals -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
-      h_basicClusters_EEM_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
-      nBasicClustersEEM++;
-    }
-  }
-  h_basicClusters_EEP_size->Fill( nBasicClustersEEP );
-  h_basicClusters_EEM_size->Fill( nBasicClustersEEM );
-
-  // -------------------------------------------------------------------------
   // ---- Super Clusters ---------
   // ... barrel
   edm::Handle<reco::SuperClusterCollection> superClusters_EB_h;
@@ -846,6 +869,9 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
   h_superClusters_EEP_size->Fill( nSuperClustersEEP );
   h_superClusters_EEM_size->Fill( nSuperClustersEEM );
+
+  naiveId_++;
+
 }
 
 

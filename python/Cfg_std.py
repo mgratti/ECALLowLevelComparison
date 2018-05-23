@@ -50,6 +50,8 @@ process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
     PVTag                     = cms.InputTag("offlinePrimaryVertices"),
     vertex                    = cms.InputTag("offlinePrimaryVertices"),
 
+    genParticleCollection     = cms.InputTag("genParticles"),
+
     recHitCollection_EE       = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     recHitCollection_EB       = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     beamSpot                  = cms.InputTag("offlineBeamSpot"),
@@ -62,8 +64,6 @@ process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
 
     superClusterCollection_EB = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
     superClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"),
-    basicClusterCollection_EB = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALBarrel"),
-    basicClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALEndcap"),
 
     ethrEB = cms.double(0.0),
     ethrEE = cms.double(0.0),

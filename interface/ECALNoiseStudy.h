@@ -53,13 +53,12 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 	 virtual void endJob() ;
 
 	 // ----------member data ---------------------------
-	 edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+   edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
    edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
 	 edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EE_;
    edm::EDGetTokenT<reco::PFRecHitCollection>                PFrecHitCollection_;
    edm::EDGetTokenT<reco::PFClusterCollection>                         PFclusterCollection_;
-	 edm::EDGetTokenT<reco::BasicClusterCollection>            basicClusterCollection_EB_;//reco::BasicClusterCollection
-	 edm::EDGetTokenT<reco::BasicClusterCollection>            basicClusterCollection_EE_;
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EB_;//reco::SuperClusterCollection
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EE_;
 	 edm::EDGetTokenT<reco::BeamSpot>                      	  beamSpot_ ;//reco::BeamSpot
@@ -79,11 +78,23 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 	 TH1D *h_nPVs;
 	 TH1D *h_numberOfEvents;
 
+   // gen particles
+   TH1D *h_genP_pt;
+   TH1D *h_genP_eta;
+   TH1D *h_genP_phi;
+   TH1D *h_genP_status;
+   TH1D *h_genP_pdgid;
+
+   std::vector<TH2D*> h_PFclusters_etaVsPhi;
+   std::vector<TH2D*> h_recHits_etaVsPhi;
+   std::vector<TH2D*> h_genP_etaVsPhi;
+
    // Rechits and PfRechit vs eta
    std::vector<TString> regions={"EB", "EEM", "EEP"};
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_PFrecHits_energy_etaBinned;
+   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_eOverEtrue_etaBinned;
 
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
@@ -179,40 +190,26 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFclusters_EB_energy;
    TH1D *h_PFclusters_EB_eta;
    TH1D *h_PFclusters_EB_phi;
+   TH1D *h_PFclusters_EB_eOverEtrue;
 
    TH1D *h_PFclusters_EEP_size;
    TH1D *h_PFclusters_EEP_nXtals;
    TH1D *h_PFclusters_EEP_energy;
    TH1D *h_PFclusters_EEP_eta;
    TH1D *h_PFclusters_EEP_phi;
+   TH1D *h_PFclusters_EEP_eOverEtrue;
 
    TH1D *h_PFclusters_EEM_size;
    TH1D *h_PFclusters_EEM_nXtals;
    TH1D *h_PFclusters_EEM_energy;
    TH1D *h_PFclusters_EEM_eta;
    TH1D *h_PFclusters_EEM_phi;
+   TH1D *h_PFclusters_EEM_eOverEtrue;
 
    TH1D *h_PFclusters_eta;
+   TH1D *h_PFclusters_genMatched_size;
 
-	 // Basic Clusters ----------------------------------------------
 
-	 // ... barrel
-	 TH1D *h_basicClusters_EB_size;
-	 TH1D *h_basicClusters_EB_nXtals;
-	 TH1D *h_basicClusters_EB_energy;
-
-	 // ... endcap
-	 TH1D *h_basicClusters_EEP_size;
-	 TH1D *h_basicClusters_EEP_nXtals;
-	 TH1D *h_basicClusters_EEP_energy;
-
-	 TH1D *h_basicClusters_EEM_size;
-	 TH1D *h_basicClusters_EEM_nXtals;
-	 TH1D *h_basicClusters_EEM_energy;
-
-	 TH1D *h_basicClusters_eta;
-	 TH1D *h_basicClusters_EB_eta;
-	 TH1D *h_basicClusters_EE_eta;
 
 	 // Super Clusters ----------------------------------------------
 	 // ... barrel
