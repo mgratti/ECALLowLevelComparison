@@ -86,6 +86,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_genP_pdgid;
 
    std::vector<TH2D*> h_PFclusters_etaVsPhi;
+   std::vector<TH2D*> h_PFclusters_genMatched_etaVsPhi;
    std::vector<TH2D*> h_recHits_etaVsPhi;
    std::vector<TH2D*> h_genP_etaVsPhi;
 
@@ -94,7 +95,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_PFrecHits_energy_etaBinned;
-   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_eOverEtrue_etaBinned;
+   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_etaBinned;
 
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
@@ -188,26 +189,50 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFclusters_EB_size;
    TH1D *h_PFclusters_EB_nXtals;
    TH1D *h_PFclusters_EB_energy;
+   TH1D *h_PFclusters_EB_et;
    TH1D *h_PFclusters_EB_eta;
    TH1D *h_PFclusters_EB_phi;
-   TH1D *h_PFclusters_EB_eOverEtrue;
 
    TH1D *h_PFclusters_EEP_size;
    TH1D *h_PFclusters_EEP_nXtals;
    TH1D *h_PFclusters_EEP_energy;
+   TH1D *h_PFclusters_EEP_et;
    TH1D *h_PFclusters_EEP_eta;
    TH1D *h_PFclusters_EEP_phi;
-   TH1D *h_PFclusters_EEP_eOverEtrue;
 
    TH1D *h_PFclusters_EEM_size;
    TH1D *h_PFclusters_EEM_nXtals;
    TH1D *h_PFclusters_EEM_energy;
+   TH1D *h_PFclusters_EEM_et;
    TH1D *h_PFclusters_EEM_eta;
    TH1D *h_PFclusters_EEM_phi;
-   TH1D *h_PFclusters_EEM_eOverEtrue;
 
    TH1D *h_PFclusters_eta;
-   TH1D *h_PFclusters_genMatched_size;
+   TH1D *h_PFclusters_deltaR_gen;
+  
+   TH1D *h_PFclusters_genMatched_EB_size;
+   TH1D *h_PFclusters_genMatched_EB_nXtals;
+   TH1D *h_PFclusters_genMatched_EB_energy;
+   TH1D *h_PFclusters_genMatched_EB_et;
+   TH1D *h_PFclusters_genMatched_EB_eta;
+   TH1D *h_PFclusters_genMatched_EB_phi;
+   TH1D *h_PFclusters_genMatched_EB_eOverEtrue;
+
+   TH1D *h_PFclusters_genMatched_EEP_size;
+   TH1D *h_PFclusters_genMatched_EEP_nXtals;
+   TH1D *h_PFclusters_genMatched_EEP_energy;
+   TH1D *h_PFclusters_genMatched_EEP_et;
+   TH1D *h_PFclusters_genMatched_EEP_eta;
+   TH1D *h_PFclusters_genMatched_EEP_phi;
+   TH1D *h_PFclusters_genMatched_EEP_eOverEtrue;
+
+   TH1D *h_PFclusters_genMatched_EEM_size;
+   TH1D *h_PFclusters_genMatched_EEM_nXtals;
+   TH1D *h_PFclusters_genMatched_EEM_energy;
+   TH1D *h_PFclusters_genMatched_EEM_et;
+   TH1D *h_PFclusters_genMatched_EEM_eta;
+   TH1D *h_PFclusters_genMatched_EEM_phi;
+   TH1D *h_PFclusters_genMatched_EEM_eOverEtrue;
 
 
 
