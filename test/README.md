@@ -25,24 +25,29 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_nuGun_MOD.root inputFile
 ## PFClusters
 
 ### double photon 
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_v4.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/temp_doublePhoton/test_1000evts/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=1000
-
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_v5.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3_mod/src/test_generation/doublePhoton_10000evts/sgejob-2266125/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_std.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3_mod/src/test_generation/doublePhoton_10000evts/sgejob-2295886/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=1000
 
 ### double photon with changed seeding and gathering thresholds
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seedingGathering_v0.root  inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_varied.root  inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=1000
 
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed0.5_GATHER0.5_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed0.5_GATHER0.5/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed0.5_GATHER1.0_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed0.5_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed0.5_GATHER2.0_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed0.5_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed1.0_GATHER0.5_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER0.5/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed1.0_GATHER1.0_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed1.0_GATHER2.0_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER0.5_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER0.5/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER1.0_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER2.0_v2.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed0.5_GATHER0.5_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed0.5_GATHER0.5/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed0.5_GATHER1.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed0.5_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed0.5_GATHER2.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed0.5_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed1.0_GATHER0.5_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER0.5/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed1.0_GATHER1.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed1.0_GATHER2.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed1.0_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER0.5_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER0.5/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER1.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER2.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
 
-
+### more thresholds requires for loops :)
+for iSEED in 0.1 0.2 0.5 1.0 2.0 5.0 10.0
+do 
+  for iGATHER in 0.1 0.2 0.5 1.0 2.0 5.0 10.0
+  do
+    cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed$iSEED_gather$iGATHER_v$VERSION.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v1/NEVTS10000_seed$iSEED_GATHER$iGATHER/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+  done
+done
 
 ## Basic plotting / monitoring of output 
 root -l -b -q "loopdir.C(\"outputfiles/test_relValZee_v3_numEvent1000.root\", \"ecalnoisestudy\")"
