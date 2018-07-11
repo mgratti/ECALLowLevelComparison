@@ -7,79 +7,111 @@ import sys
 import os
 sys.path.append('{user}/plotting/myplotting'.format(user=os.environ['HOME']))
 from spares import *
+import graphUtils as gU
 
-def makeEoverEtrueAnalysis(inputfile, iseeding, igathering, nevts, outfile, fitoutfile):
+
+class EoverEtrueAnalysisResult(object):
+  def __init__(self, det=0, eff=0, sigma=0, rms=0, iseeding=0, igathering=0):
+    self.det = det
+    self.eff = eff
+    self.sigma = sigma
+    self.rms = rms
+    self.iseeding = iseeding
+    self.igathering = igathering
 
 
-  inputfile = inputfile.format(s=iseeding, g=igathering, n=inevts, v=version)
-  for det in ['EB', 'EEP', 'EEM']:
+def makeEoverEtrueAnalysis(inputfile, det, iseeding, igathering, nevts, outputdir, outfile, fitoutfile):
 
-    histoname = 'h_PFclusters_genMatched_{det}_eOverEtrue'.format(det=det)
-    inputdir = 'ecalnoisestudy'
-    subdir = 'PFClusters'
-    print inputfile
-    f=TFile(inputfile, 'READ')
-    histo=f.Get('{}/{}/{}'.format(inputdir,subdir,histoname))
+  result = EoverEtrueAnalysisResult()
+  if not os.path.isfile(inputfile):
+    return False,result
 
-    histo.SetMarkerStyle(20)
-    histo.GetXaxis().SetTitle('E_{{PFcluster}} / E_{{True}}, {det} (GeV)'.format(det=det))
-    histo.GetYaxis().SetTitle('Entries')
-    histo.GetXaxis().SetRangeUser(0, 2)
-    histo.GetYaxis().SetRangeUser(0., 1600)
-    if 'EE' in det:
-      histo.GetYaxis().SetRangeUser(0., 600)
 
-    # better to avoid setting the range, since the mean calculation changes
-    #histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
 
-    # fit
-    f1 = TF1('f1','crystalball',0.4, 2.)
-    f1.SetParameters(60, 1, 0.1, 0.7, 10) # my guess: constant= 60, mean = 1, sigma = 0.1, alpha = 0.7, N = 0.5
-    f1.SetLineColor(kRed)
+  ###################
+  # READ
+  ##################
+  histoname = 'h_PFclusters_genMatched_{det}_eOverEtrue'.format(det=det)
+  inputdir = 'ecalnoisestudy'
+  subdir = 'PFClusters'
+  print inputfile
+  f=TFile(inputfile, 'READ')
+  histo=f.Get('{}/{}/{}'.format(inputdir,subdir,histoname))
+  if not histo: return False,result
 
-    c = TCanvas()
-    histo.Draw('PE')
-    #fitresult = histo.Fit(f1, 'RS')
-    fitresult = histo.Fit(f1, 'R') # L for loglikelihood ,
-    f1.Draw('same')
-    suffix = 'seed{s}_gather{g}'.format(s=iseeding,g=igathering)
-    # save later
+  histo.SetMarkerStyle(20)
+  histo.GetXaxis().SetTitle('E_{{PFcluster}} / E_{{True}}, {det} (GeV)'.format(det=det))
+  histo.GetYaxis().SetTitle('Entries')
+  histo.GetXaxis().SetRangeUser(0, 2)
+  #histo.GetYaxis().SetRangeUser(0., 1600)
+  #if 'EE' in det:
+  #  histo.GetYaxis().SetRangeUser(0., 600)
 
-    #fo.cd()
-    #fitresult.Write()
-    #fo.Close()
+  # better to avoid setting the range, since the mean calculation changes
+  #histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
 
-    # Get the fitted function parameters and write them to txt file
-    fit_params = [ ('Param {}'.format(i),'{:.2f}'.format(f1.GetParameter(i)), '{:.2f}'.format(f1.GetParError(i)) ) for i in range(0,5)]
-    ffitout = open(det + '_' + fitoutfile , 'a')
-    ffitout.write('\n\nFit results for seeding={} gathering={} subdet={}:\n'.format(iseeding, igathering, det))
-    ffitout.write('\nChi2/Ndf=' + str(f1.GetChisquare()) + '/' + str(f1.GetNDF()) + '\n')
-    par_string = '\n'.join("%s: val=%s  err=%s" % tup for tup in fit_params)
-    ffitout.write(par_string)
+  ###################
+  # FIT
+  ##################
+  f1 = TF1('f1','crystalball',0.4, 2.)
+  f1.SetParameters(20, 1, 0.1, 0.5, 1) # my guess: constant (normalization)=integral, mean = 1, sigma = 0.1, alpha (quanto lontano dal picco si innesta la coda) = 0.7, N = 0.5 (lunghezza della coda(?)
+  f1.SetLineColor(kRed)
 
-    # efficiency stuff
-    hpass = TH1F('hpass', 'hpass', 1, 0., 1.)
-    Npass = histo.GetEntries()
-    for i in range(0,int(Npass)):
-      hpass.Fill(0.5)
+  c = TCanvas()
+  histo.Draw('PE')
+  #fitresult = histo.Fit(f1, 'RS')
+  fitresult = histo.Fit(f1, 'R') # L for loglikelihood ,
+  f1.Draw('same')
+  suffix = 'seed{s}_gather{g}'.format(s=iseeding,g=igathering)
+  # save later
 
-    htot = f.Get('{}/{}/{}'.format(inputdir,'general', 'h_genP_n{d}'.format(d=det)))
-    #print 'bin contents', hpass.GetBinContent(1), htot.GetBinContent(1),
-    fout = open(det + '_' + outfile, 'a')
-    if TEfficiency.CheckConsistency(hpass, htot):
-      pEff = TEfficiency(hpass, htot) # default stat option is clopper pearson
-      eff=pEff.GetEfficiency(1)
-      erru=pEff.GetEfficiencyErrorUp(1)
-      errd=pEff.GetEfficiencyErrorLow(1)
-      eff_label = '{:.3f}+{:.3f}-{:.3f}'.format(eff,erru,errd)
-      fout.write('Total efficiency for seeding={} gathering={}:  {} \n'.format(iseeding,igathering,eff_label))
-    fout.close()
+  #fo.cd()
+  #fitresult.Write()
+  #fo.Close()
 
-    eff_label = 'Eff={}'.format(eff_label)
-    defaultLabels([eff_label], x=0.62, y=0.65, spacing = 0.04, size = 0.06, dx = 0.12)
+  # Get the fitted function parameters and write them to txt file
+  #fit_params = [ ('Param {}'.format(i),'{:.2f}'.format(f1.GetParameter(i)), '{:.2f}'.format(f1.GetParError(i)) ) for i in range(0,5)]
+  #ffitout = open(det + '_' + fitoutfile , 'a')
+  #ffitout.write('\n\nFit results for seeding={} gathering={} subdet={}:\n'.format(iseeding, igathering, det))
+  #ffitout.write('\nChi2/Ndf=' + str(f1.GetChisquare()) + '/' + str(f1.GetNDF()) + '\n')
+  #par_string = '\n'.join("%s: val=%s  err=%s" % tup for tup in fit_params)
+  #ffitout.write(par_string)
 
-    c.SaveAs('plots/EoverEtrue_{det}_{s}.pdf'.format(det=det, s=suffix))
-    c.SaveAs('plots/EoverEtrue_{det}_{s}.png'.format(det=det, s=suffix))
+  ###################
+  # Efficiency
+  ##################
+  hpass = TH1F('hpass', 'hpass', 1, 0., 1.)
+  Npass = histo.GetEntries()
+  for i in range(0,int(Npass)):
+    hpass.Fill(0.5)
+
+  htot = f.Get('{}/{}/{}'.format(inputdir,'general', 'h_genP_n{d}'.format(d=det)))
+
+  if TEfficiency.CheckConsistency(hpass, htot):
+    pEff = TEfficiency(hpass, htot) # default stat option is clopper pearson
+    eff=pEff.GetEfficiency(1)
+    erru=pEff.GetEfficiencyErrorUp(1)
+    errd=pEff.GetEfficiencyErrorLow(1)
+  else:
+    eff = 1.0
+    erru = 1.0
+    errd = 1.0
+  eff_label = '{:.3f}+{:.3f}-{:.3f}'.format(eff,erru,errd)
+  #fout = open(det + '_' + outfile, 'a')
+  #fout.write('Total efficiency for seeding={} gathering={}:  {} \n'.format(iseeding,igathering,eff_label))
+  #fout.close()
+
+  eff_label = 'Eff={}'.format(eff_label)
+  defaultLabels([eff_label], x=0.62, y=0.65, spacing = 0.04, size = 0.06, dx = 0.12)
+
+
+  ###################
+  # RESULTS
+  ##################
+  c.SaveAs('{o}/EoverEtrue_{det}_{s}.pdf'.format(o=outputdir,det=det, s=suffix))
+  c.SaveAs('{o}/EoverEtrue_{det}_{s}.png'.format(o=outputdir,det=det, s=suffix))
+
+  return True,EoverEtrueAnalysisResult(det=det, eff=eff, sigma=f1.GetParameter(2), rms=histo.GetRMS(), iseeding=iseeding, igathering=igathering)
 
 
 if __name__ == "__main__":
@@ -90,19 +122,54 @@ if __name__ == "__main__":
   #gStyle.SetOptStat('emMrRo')
   TH1.StatOverflows(kTRUE) # if false stats will be calculated without overflow, must be set also at filling time
 
-  outfile = 'Efficiency_EoverEtrue.txt'
-  fitoutfile = 'fit_EoverEtrue.txt'
-  version = 'v2'
 
-  #fo=TFile(rootoutfile, 'NEW')
+  ####################################
+  ## Define input and output
+  ####################################
+
+  version = 'vprodV1_ecalV4'
+  inputfile = '../test/outputfiles/test_photonGun_seed{s}_gather{g}_{v}_numEvent{n}.root'
 
   params = {}
   params["nevts"] =     [10000]
-  params["gathering"] = [0.5,1.0, 2.0]#[1.0] # multiplier
-  params["seeding"] =   [0.5,1.0, 2.0] # multiplier
+  params["gathering"] = [1.0, 2.0, 5.0, 10., 0.5, 0.2, 0.1] # multiplier
+  params["seeding"] =   [1.0, 2.0, 5.0, 10., 0.5, 0.2, 0.1] # multiplier#
   parameters_set = list(itertools.product(params["nevts"],params["seeding"],params["gathering"] ))
 
+  results = []
+  outputdir = 'plots/anaEoverEtrue_{v}'.format(v=version)
+
+  os.system('mkdir {}'.format(outputdir))
+
+  ####################################
+  ## Do the analysis for each seeding-gathering threshold
+  ####################################
   for iset in parameters_set:
-    inevts,iseeding,igathering= iset
-    inputfile = '../test/outputfiles/test_photonGun_seed{s}_GATHER{g}_{v}_numEvent{n}.root'
-    makeEoverEtrueAnalysis(inputfile, iseeding, igathering, inevts, outfile, fitoutfile)
+    inevts,iseeding,igathering = iset
+    inputfilename = inputfile.format(s=iseeding, g=igathering, n=inevts, v=version)
+    for det in ['EB']:
+      ret,result = makeEoverEtrueAnalysis(inputfilename, det, iseeding, igathering, inevts, outputdir, outfile='Efficiency_EoverEtrue.txt', fitoutfile='fit_EoverEtrue.txt')
+      if ret:
+        results.append(result)
+      else:
+        print 'No result for' , iset, '  skipping'
+
+  ###################################
+  ## Plot the results
+  ##################################
+  effs = []
+  resofit = []
+  resorms = []
+  for result in results:
+    if result.det != 'EB': continue
+    effs.append(result.eff)
+    resofit.append(result.sigma)
+    resorms.append(result.rms)
+
+  if len(effs)!=0:
+
+    g1 = gU.makeGraph( xs=effs, ys=resofit, xtitle='N_{reco}/N_{gen}', ytitle='#sigma(E) (Fit)', label='Et true = 9-10 GeV', color=kPink, style=20)
+    gU.makePlot(graphs=[g1], plotName='EffVsReso', outputdir=outputdir)
+
+    g2 = gU.makeGraph( xs=effs, ys=resorms, xtitle='N_{reco}/N_{gen}', ytitle='#sigma(E) (RMS)', label='Et true = 9-10 GeV', color=kPink, style=20)
+    gU.makePlot(graphs=[g2], plotName='EffVsResoRMS', outputdir=outputdir)
