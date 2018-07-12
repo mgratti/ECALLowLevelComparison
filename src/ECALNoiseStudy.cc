@@ -290,6 +290,11 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_PFclusters500_deltaR_gen_EEP = PFclustersDir.make<TH1D>("h_PFclusters500_deltaR_gen_EEP", "h_PFclusters500_deltaR_gen_EEP", 1000., 0., 10.);
   h_PFclusters500_deltaR_gen_EEM = PFclustersDir.make<TH1D>("h_PFclusters500_deltaR_gen_EEM", "h_PFclusters500_deltaR_gen_EEM", 1000., 0., 10.);
 
+  h_PFclusters1000_deltaR_gen = PFclustersDir.make<TH1D>("h_PFclusters1000_deltaR_gen", "h_PFclusters1000_deltaR_gen", 1000., 0., 10.);
+  h_PFclusters1000_deltaR_gen_EB = PFclustersDir.make<TH1D>("h_PFclusters1000_deltaR_gen_EB", "h_PFclusters1000_deltaR_gen_EB", 1000., 0., 10.);
+  h_PFclusters1000_deltaR_gen_EEP = PFclustersDir.make<TH1D>("h_PFclusters1000_deltaR_gen_EEP", "h_PFclusters1000_deltaR_gen_EEP", 1000., 0., 10.);
+  h_PFclusters1000_deltaR_gen_EEM = PFclustersDir.make<TH1D>("h_PFclusters1000_deltaR_gen_EEM", "h_PFclusters1000_deltaR_gen_EEM", 1000., 0., 10.);
+
   // --------- PF clusters - gen matched
   h_PFclusters_genMatched_EB_size    = PFclustersDir.make<TH1D>("h_PFclusters_genMatched_EB_size","h_PFclusters_genMatched_EB_size",100,0.,100.);
   h_PFclusters_genMatched_EB_nXtals  = PFclustersDir.make<TH1D>("h_PFclusters_genMatched_EB_nXtals","h_PFclusters_genMatched_EB_nXtals",50,0.,50.);
@@ -834,7 +839,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
       // matchin only with photons of status 1
       if(genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
-      //if(genParticle->pt()<9) continue;
+      if(genParticle->pt()<9) continue; // only consider clusters matched to 9-10 GeV photons
 
       double deltaPhi = TVector2::Phi_mpi_pi( genParticle->phi() - itr->phi());
       double deltaEta = genParticle->eta() - itr->eta();
@@ -850,6 +855,12 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         if (fabs(genParticle->eta()) < 1.48) h_PFclusters500_deltaR_gen_EB->Fill(deltaR);
         else if (genParticle->eta()  > 1.48) h_PFclusters500_deltaR_gen_EEP->Fill(deltaR);
         else                                 h_PFclusters500_deltaR_gen_EEM->Fill(deltaR);
+      }
+      if (itr->pt()>1) { // 1 GeV
+        h_PFclusters1000_deltaR_gen->Fill(deltaR);
+        if (fabs(genParticle->eta()) < 1.48) h_PFclusters1000_deltaR_gen_EB->Fill(deltaR);
+        else if (genParticle->eta()  > 1.48) h_PFclusters1000_deltaR_gen_EEP->Fill(deltaR);
+        else                                 h_PFclusters1000_deltaR_gen_EEM->Fill(deltaR);
       }
 
       if(deltaR < 1.41*2*0.0174 and itr->pt() > 1.) { // tryring with threshold

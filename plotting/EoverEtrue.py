@@ -54,7 +54,7 @@ def makeEoverEtrueAnalysis(inputfile, det, iseeding, igathering, nevts, outputdi
   # FIT
   ##################
   f1 = TF1('f1','crystalball',0.4, 2.)
-  f1.SetParameters(20, 1, 0.1, 0.5, 1) # my guess: constant (normalization)=integral, mean = 1, sigma = 0.1, alpha (quanto lontano dal picco si innesta la coda) = 0.7, N = 0.5 (lunghezza della coda(?)
+  f1.SetParameters(200, 1, 0.05, 3, 2) # my guess: constant (normalization)=integral, mean = 1, sigma = 0.1, alpha (quanto lontano dal picco si innesta la coda) = 0.7, N = 0.5 (lunghezza della coda(?)
   f1.SetLineColor(kRed)
 
   c = TCanvas()
@@ -86,6 +86,8 @@ def makeEoverEtrueAnalysis(inputfile, det, iseeding, igathering, nevts, outputdi
     hpass.Fill(0.5)
 
   htot = f.Get('{}/{}/{}'.format(inputdir,'general', 'h_genP_n{d}'.format(d=det)))
+
+  print 'eff calculated from npass {} over ntot {}'.format(hpass.GetEntries(),htot.GetEntries())
 
   if TEfficiency.CheckConsistency(hpass, htot):
     pEff = TEfficiency(hpass, htot) # default stat option is clopper pearson
@@ -127,12 +129,12 @@ if __name__ == "__main__":
   ## Define input and output
   ####################################
 
-  version = 'vprodV1_ecalV4'
+  version = 'vprodV1_ecalV5'
   inputfile = '../test/outputfiles/test_photonGun_seed{s}_gather{g}_{v}_numEvent{n}.root'
 
   params = {}
   params["nevts"] =     [10000]
-  params["gathering"] = [1.0, 2.0, 5.0, 10., 0.5, 0.2, 0.1] # multiplier
+  params["gathering"] = [1.0, 2.0, 5.0, 10., 0.5, 0.2, 0.1]# [1.0, 2.0, 5.0, 10., 0.5, 0.2, 0.1] # multiplier
   params["seeding"] =   [1.0, 2.0, 5.0, 10., 0.5, 0.2, 0.1] # multiplier#
   parameters_set = list(itertools.product(params["nevts"],params["seeding"],params["gathering"] ))
 

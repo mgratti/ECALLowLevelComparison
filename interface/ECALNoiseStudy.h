@@ -219,11 +219,14 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFclusters_deltaR_gen_EB;
    TH1D *h_PFclusters_deltaR_gen_EEP;
    TH1D *h_PFclusters_deltaR_gen_EEM;
-
    TH1D *h_PFclusters500_deltaR_gen;
    TH1D *h_PFclusters500_deltaR_gen_EB;
    TH1D *h_PFclusters500_deltaR_gen_EEP;
    TH1D *h_PFclusters500_deltaR_gen_EEM;
+   TH1D *h_PFclusters1000_deltaR_gen;
+   TH1D *h_PFclusters1000_deltaR_gen_EB;
+   TH1D *h_PFclusters1000_deltaR_gen_EEP;
+   TH1D *h_PFclusters1000_deltaR_gen_EEM;
 
    TH1D *h_PFclusters_genMatched_EB_size;
    TH1D *h_PFclusters_genMatched_EB_nXtals;
