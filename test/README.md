@@ -41,11 +41,12 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER2.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
 
 ### more thresholds requires for loops :)
-for iSEED in 0.1 0.2 0.5 1.0 2.0 5.0 10.0
-do 
-  for iGATHER in 0.1 0.2 0.5 1.0 2.0 5.0 10.0
+VERSION="prodV1_ecalV6"
+for iSEED in 0.5 1.0 2.0 5.0 10.0
+do
+  for iGATHER in 1.0 2.0 5.0 10.0
   do
-    cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed$iSEED_gather$iGATHER_v$VERSION.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v1/NEVTS10000_seed$iSEED_GATHER$iGATHER/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
+    cmsRun ../python/Cfg_std.py outputFile="outputfiles/test_photonGun_seed"$iSEED"_gather"$iGATHER"_v"$VERSION".root" inputFiles="/store/user/mratti/EcalGen/PROD_SeedingGathering_v1/NEVTS10000_seed"$iSEED"_GATHER"$iGATHER"/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root" maxEvents=10000
   done
 done
 
