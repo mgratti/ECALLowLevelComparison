@@ -159,14 +159,14 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_nPVs = genDir.make<TH1D>("h_nPVs","h_nPVs",80,0,80);
 
   // gen particles
-  h_genP_pt                 = genDir.make<TH1D>("h_genP_pt", "h_genP_pt", 1000, 0., 100. );
+  h_genP_pt                 = genDir.make<TH1D>("h_genP_pt", "h_genP_pt", 100, 0., 100. );
   h_genP_eta                = genDir.make<TH1D>("h_genP_eta", "h_genP_eta", 120, -3., 3. );
   h_genP_phi                = genDir.make<TH1D>("h_genP_phi", "h_genP_phi", 128, -3.2, 3.2);
   h_genP_status             = genDir.make<TH1D>("h_genP_status", "h_genP_status", 10, 0., 10.);
   h_genP_pdgid              = genDir.make<TH1D>("h_genP_pdgid", "h_genP_pdgid", 40, 0., 40.);
-  h_genP_nEB                = genDir.make<TH1D>("h_genP_nEB", "h_genP_nEB", 1, 0., 1. );
-  h_genP_nEEP               = genDir.make<TH1D>("h_genP_nEEP", "h_genP_nEEP", 1, 0., 1. );
-  h_genP_nEEM               = genDir.make<TH1D>("h_genP_nEEM", "h_genP_nEEM", 1, 0., 1. );
+  h_genP_pt_EB                = genDir.make<TH1D>("h_genP_pt_EB", "h_genP_pt_EB", 100, 0., 100. );
+  h_genP_pt_EEP               = genDir.make<TH1D>("h_genP_pt_EEP", "h_genP_pt_EEP", 100, 0., 100. );
+  h_genP_pt_EEM               = genDir.make<TH1D>("h_genP_pt_EEM", "h_genP_pt_EEM", 100, 0., 100. );
 
   // Rechits, barrel
   h_recHits_EB_size          = recHitsDir.make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 100, 500, 3500 );
@@ -400,13 +400,13 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   for (int i=0; i<100; i++){
 
     TString histo_name = "h_genP_etaVsPhi_"  + TString::Format("%d", i);
-    h_genP_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 60,-3.0,3.0, 64,-3.2,3.2 ));
+    h_genP_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 344,-3.0,3.0, 360,-3.14,3.14 ));
     histo_name = "h_RecHits_etaVsPhi_" + TString::Format("%d", i);
-    h_recHits_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 60,-3.0,3.0, 64,-3.2,3.2 ));
+    h_recHits_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 344,-3.0,3.0, 360,-3.14,3.14 ));
     histo_name = "h_PFclusters_etaVsPhi_" + TString::Format("%d", i);
-    h_PFclusters_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 60,-3.0,3.0, 64,-3.2,3.2 ));
+    h_PFclusters_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 344,-3.0,3.0, 360,-3.14,3.14 ));
     histo_name = "h_PFclusters_genMatched_etaVsPhi_" + TString::Format("%d", i);
-    h_PFclusters_genMatched_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 60,-3.0,3.0, 64,-3.2,3.2 ));
+    h_PFclusters_genMatched_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 344,-3.0,3.0, 360,-3.14,3.14 ));
   }
 
 
@@ -454,9 +454,9 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_genP_status->Fill(genParticle->status());
     h_genP_pdgid->Fill(genParticle->pdgId());
     if(naiveId_<100) h_genP_etaVsPhi.at(naiveId_)->Fill(genParticle->eta(), genParticle->phi(), genParticle->energy());
-    if (fabs(genParticle->eta()) < 1.48) h_genP_nEB->Fill(0.5);
-    else if (genParticle->eta()  > 1.48) h_genP_nEEP->Fill(0.5);
-    else                                 h_genP_nEEM->Fill(0.5);
+    if (fabs(genParticle->eta()) < 1.48) h_genP_pt_EB->Fill(genParticle->pt());
+    else if (genParticle->eta()  > 1.48) h_genP_pt_EEP->Fill(genParticle->pt());
+    else                                 h_genP_pt_EEM->Fill(genParticle->pt());
   }
 
   // calo geometry
@@ -839,7 +839,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
       // matchin only with photons of status 1
       if(genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
-      if(genParticle->pt()<9) continue; // only consider clusters matched to 9-10 GeV photons
+      if(genParticle->pt()<9) continue; // FIXME only consider clusters matched to 9-10 GeV photons
 
       double deltaPhi = TVector2::Phi_mpi_pi( genParticle->phi() - itr->phi());
       double deltaEta = genParticle->eta() - itr->eta();
@@ -863,7 +863,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         else                                 h_PFclusters1000_deltaR_gen_EEM->Fill(deltaR);
       }
 
-      if(deltaR < 1.41*2*0.0174 and itr->pt() > 1.) { // tryring with threshold
+      if(deltaR < 1.41*2*0.0174 && itr->pt() > 1. ) { // FIXME:  THRESHOLD and itr->pt() > 1.
         //size_PFclusters_genMatched++;
 
         if(fabs(itr->eta()) < 1.48) {
@@ -910,7 +910,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
               break; // when you found it, do not loop over the other keys
             }
           }
-        }
+        } //
         else if(itr->eta()  < -1.48) {
           size_PFclusters_genMatched_EEM++;
           h_PFclusters_genMatched_EEM_nXtals -> Fill( (*itr).hitsAndFractions().size() );
@@ -932,7 +932,8 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
               break; // when you found it, do not loop over the other keys
             }
           }
-        }
+        } // end if EEM
+        //std::cout << "I am here for event " << naiveId_ << std::endl;
         if(naiveId_<100) h_PFclusters_genMatched_etaVsPhi.at(naiveId_)->Fill(itr->eta(),itr->phi(), itr->energy() );
       } // end if matching
     } // end loop over gen particles

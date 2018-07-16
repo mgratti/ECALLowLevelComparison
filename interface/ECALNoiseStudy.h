@@ -84,9 +84,9 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_genP_phi;
    TH1D *h_genP_status;
    TH1D *h_genP_pdgid;
-   TH1D *h_genP_nEB;
-   TH1D *h_genP_nEEP;
-   TH1D *h_genP_nEEM;
+   TH1D *h_genP_pt_EB;
+   TH1D *h_genP_pt_EEP;
+   TH1D *h_genP_pt_EEM;
 
    std::vector<TH2D*> h_PFclusters_etaVsPhi;
    std::vector<TH2D*> h_PFclusters_genMatched_etaVsPhi;
