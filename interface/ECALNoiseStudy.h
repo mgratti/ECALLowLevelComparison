@@ -100,6 +100,8 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::map<TString, std::map<TString, TH1F*>> h_PFrecHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_EtBinned;
+   std::map<TString, std::map<TString, TH1F*>> h_genP_nEvts_EtBinned;
+
 
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;

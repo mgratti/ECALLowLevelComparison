@@ -135,12 +135,12 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   // configurations for plots in gen energy bins
   for (TString region: regions){
-    Et_keys[region].push_back("4_5");
-    Et_keys[region].push_back("9_10");
-    Et_edges[region]["4_5"].first = 4;
-    Et_edges[region]["4_5"].second = 5;
-    Et_edges[region]["9_10"].first = 9;
-    Et_edges[region]["9_10"].second = 10;
+    for (Int_t i=1; i<10; i++){
+      TString key = TString::Format("%d_%d", i, i+1 );
+      Et_keys[region].push_back(key);
+      Et_edges[region][key].first = i;
+      Et_edges[region][key].second = i+1;
+    }
   }
 
   // histos
@@ -393,6 +393,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
     for (TString key : Et_keys[region]){
       TString histo_name = "h_PFclusters_genMatched_" + region + "_eOverEtrue_" + key;
       h_PFclusters_genMatched_eOverEtrue_EtBinned[region][key] = EtBinnedDir.make<TH1F>(histo_name,histo_name,100,0.,2.);
+      histo_name = "h_genP_" + region + "_nEvts_" + key;
+      h_genP_nEvts_EtBinned[region][key] = EtBinnedDir.make<TH1F>(histo_name,histo_name,1,0.,1.);
      }
   }
 
@@ -454,10 +456,38 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_genP_status->Fill(genParticle->status());
     h_genP_pdgid->Fill(genParticle->pdgId());
     if(naiveId_<100) h_genP_etaVsPhi.at(naiveId_)->Fill(genParticle->eta(), genParticle->phi(), genParticle->energy());
-    if (fabs(genParticle->eta()) < 1.48) h_genP_pt_EB->Fill(genParticle->pt());
-    else if (genParticle->eta()  > 1.48) h_genP_pt_EEP->Fill(genParticle->pt());
-    else                                 h_genP_pt_EEM->Fill(genParticle->pt());
-  }
+
+    // FIXME: this is a poor way of doing this, please automatise
+    if (fabs(genParticle->eta()) < 1.48) {
+      h_genP_pt_EB->Fill(genParticle->pt());
+      for(TString key: Et_keys["EB"]){
+        if (genParticle->pt() >= Et_edges["EB"][key].first && genParticle->pt() < Et_edges["EB"][key].second){
+          h_genP_nEvts_EtBinned["EB"][key]->Fill(0.5);
+          break; // when you found it, do not loop over the other keys
+        }
+      }
+    }
+    else if (genParticle->eta()  > 1.48) {
+      h_genP_pt_EEP->Fill(genParticle->pt());
+      for(TString key: Et_keys["EEP"]){
+        // FIXME: in reality these edges are the same between EB and EE... but ok
+        if (genParticle->pt() >= Et_edges["EEP"][key].first && genParticle->pt() < Et_edges["EEP"][key].second){
+          h_genP_nEvts_EtBinned["EEP"][key]->Fill(0.5);
+          break; // when you found it, do not loop over the other keys
+        }
+      }
+    }
+    else {
+      h_genP_pt_EEM->Fill(genParticle->pt());
+      for(TString key: Et_keys["EEM"]){
+        if (genParticle->pt() >= Et_edges["EEM"][key].first && genParticle->pt() < Et_edges["EEM"][key].second){
+          h_genP_nEvts_EtBinned["EEM"][key]->Fill(0.5);
+          break; // when you found it, do not loop over the other keys
+        }
+      }
+    }
+
+  } // end loop gen particles
 
   // calo geometry
   edm::ESHandle<CaloGeometry> pGeometry;
@@ -839,7 +869,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
       // matchin only with photons of status 1
       if(genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
-      if(genParticle->pt()<9) continue; // FIXME only consider clusters matched to 9-10 GeV photons
+      //if(genParticle->pt()<9) continue; //  only consider clusters matched to 9-10 GeV photons
 
       double deltaPhi = TVector2::Phi_mpi_pi( genParticle->phi() - itr->phi());
       double deltaEta = genParticle->eta() - itr->eta();
@@ -863,7 +893,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         else                                 h_PFclusters1000_deltaR_gen_EEM->Fill(deltaR);
       }
 
-      if(deltaR < 1.41*2*0.0174 && itr->pt() > 1. ) { // FIXME:  THRESHOLD and itr->pt() > 1.
+      if(deltaR < 1.41*2*0.0174 && itr->pt() > 0.4 ) { // FIXME:  THRESHOLD and itr->pt() > 1.
         //size_PFclusters_genMatched++;
 
         if(fabs(itr->eta()) < 1.48) {
