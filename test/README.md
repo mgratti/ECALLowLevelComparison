@@ -16,15 +16,15 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_nuGun_v10.root inputFile
 ### relval Zee
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_relValZee_v2.root maxEvents=1000 inputFiles_load=samples/reduced_RelValZEE_RECO_zeroThreshold.txt
 
-### neutrino gun in full-readout 
-cmsRun ../python/Cfg_std.py outputFile=test_nuGun_fullReadout_v1.root maxEvents=1000 inputFiles_load=/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3/src/test_generation/mg_test_EcalSRSettingsRcd/SingleNuE10_GEN_SIM_DIGI_RECO_FullReadout.root 
+### neutrino gun in full-readout
+cmsRun ../python/Cfg_std.py outputFile=test_nuGun_fullReadout_v1.root maxEvents=1000 inputFiles_load=/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3/src/test_generation/mg_test_EcalSRSettingsRcd/SingleNuE10_GEN_SIM_DIGI_RECO_FullReadout.root
 
-### neutrino gun with correct PFrechit collection saved 
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_nuGun_MOD.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3_mod/src/test_generation/mg_test_1000evts/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=1000 
+### neutrino gun with correct PFrechit collection saved
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_nuGun_MOD.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3_mod/src/test_generation/mg_test_1000evts/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=1000
 
 ## PFClusters
 
-### double photon 
+### double photon
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_std.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3_mod/src/test_generation/doublePhoton_10000evts/sgejob-2295886/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=1000
 
 ### double photon with changed seeding and gathering thresholds
@@ -40,8 +40,12 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER1.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_photonGun_seed2.0_GATHER2.0_v3.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v0/NEVTS10000_seed2.0_GATHER2.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=10000
 
+### Notes on version
+v8 is with DeltaR=0.05
+v9 is with DeltaR=0.08
+
 ### more thresholds requires for loops :)
-VERSION="prodV1_ecalV7"
+VERSION="prodV1_ecalV9"
 for iSEED in 0.5 1.0 2.0 5.0 10.0
 do
   for iGATHER in 1.0 2.0 5.0 10.0
@@ -50,7 +54,7 @@ do
   done
 done
 
-## Basic plotting / monitoring of output 
+## Basic plotting / monitoring of output
 root -l -b -q "loopdir.C(\"outputfiles/test_relValZee_v3_numEvent1000.root\", \"ecalnoisestudy\")"
 
 ## Example to copy to web page

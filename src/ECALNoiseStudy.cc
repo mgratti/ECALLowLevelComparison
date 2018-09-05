@@ -412,7 +412,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // --------- E (PF clusters) over E true binned in et and eta
   for (TString Et_key : Et_keys){
     for (TString Eta_key: Eta_keys){
-      TString histo_name = "h_PFclusters_genMatched_Eta" + Eta_key + "_Et" + Et_key;
+      TString histo_name = "h_PFclusters_genMatched_eOverEtrue_Eta" + Eta_key + "_Et" + Et_key;
       h_PFclusters_genMatched_eOverEtrue_EtaEtBinned[Eta_key][Et_key] = EtaEtBinnedDir.make<TH1F>(histo_name,histo_name,100,0.,2.);
       histo_name = "h_genP_nEvts_Eta" + Eta_key + "_Et" + Et_key;
       h_genP_nEvts_EtaEtBinned[Eta_key][Et_key] = EtaEtBinnedDir.make<TH1F>(histo_name,histo_name,1,0.,1.);
@@ -916,7 +916,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         else                                 h_PFclusters1000_deltaR_gen_EEM->Fill(deltaR);
       }
 
-      if(deltaR < 1.41*2*0.0174 && itr->pt() > 0.4 ) { // FIXME:  THRESHOLD and itr->pt() > 1.
+      if(deltaR <1.41*2*0.0174 && itr->pt() > 0.4 ) { // Delta R chosen to be ~ size of a crystal ~ = 1.41*2*0.0174 =~ 0.05 // FIXME:  THRESHOLD and itr->pt() > 1.
         size_PFclusters_genMatched++;
         //if(size_PFclusters_genMatched>1) std::cout << "More than one cluster matched to gen particle" << std::endl;
 
