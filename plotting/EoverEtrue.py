@@ -109,7 +109,8 @@ def makeEoverEtrueAnalysis(inputfile, det, iseeding, igathering, nevts, outputdi
   # Efficiency
   ##################
   hpass = TH1F('hpass', 'hpass', 1, 0., 1.)
-  Npass = histo.GetEntries()
+  #Npass = histo.GetEntries()
+  Npass = histo.Integral(6,histo.FindLastBinAbove(0.)) # 0.2 cut in EoverEtrue 
   for i in range(0,int(Npass)):
     hpass.Fill(0.5)
 

@@ -820,16 +820,19 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   if ( ! PFclusters_handle.isValid() ) std::cout << "ECALNoiseStudy::analyze --> PFclusters not found" << std::endl;
   const reco::PFClusterCollection* PFclusters = PFclusters_handle.product ();
 
+  int size_PFclusters = 0; // how many pf clusters in EB in the event
   int size_PFclusters_EB = 0; // how many pf clusters in EB in the event
   int size_PFclusters_EEP = 0; // ""
   int size_PFclusters_EEM = 0; // ""
 
+  int size_PFclusters_genMatched = 0; // how many gen matched pf clusters in EB in the event
   int size_PFclusters_genMatched_EB = 0; // how many gen matched pf clusters in EB in the event
   int size_PFclusters_genMatched_EEP = 0; // ""
   int size_PFclusters_genMatched_EEM = 0; // ""
 
   for (reco::PFClusterCollection::const_iterator itr = PFclusters->begin(); itr != PFclusters->end(); itr++ ) {
-
+    size_PFclusters++;
+    //std::cout << size_PFclusters << "  pt=" << itr->pt() << std::endl;
     h_PFclusters_eta -> Fill( itr->eta() );
 
     // barrel
@@ -894,7 +897,8 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       }
 
       if(deltaR < 1.41*2*0.0174 && itr->pt() > 0.4 ) { // FIXME:  THRESHOLD and itr->pt() > 1.
-        //size_PFclusters_genMatched++;
+        size_PFclusters_genMatched++;
+        //if(size_PFclusters_genMatched>1) std::cout << "More than one cluster matched to gen particle" << std::endl;
 
         if(fabs(itr->eta()) < 1.48) {
           size_PFclusters_genMatched_EB++;
