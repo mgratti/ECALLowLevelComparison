@@ -98,16 +98,21 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_PFrecHits_energy_etaBinned;
-   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_etaBinned;
-   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_EtBinned;
-   std::map<TString, std::map<TString, TH1F*>> h_genP_nEvts_EtBinned;
+
+   // PFClusters vs eta and Et
+   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_EtaEtBinned;
+   std::map<TString, std::map<TString, TH1F*>> h_genP_nEvts_EtaEtBinned;
 
 
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
 
-   std::map<TString, std::vector<TString>> Et_keys;
-   std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> Et_edges;
+   //std::map<TString, std::vector<TString>> Et_keys;
+   //std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> Et_edges;
+   std::vector<TString> Et_keys;
+   std::map<TString, std::pair<Float_t,Float_t>> Et_edges;
+   std::vector<TString> Eta_keys;
+   std::map<TString, std::pair<Float_t,Float_t>> Eta_edges;
 
 	 // RecHits ----------------------------------------------
 	 TH1D *h_recHits_EB_size;

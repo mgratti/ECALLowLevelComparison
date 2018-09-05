@@ -134,6 +134,36 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   }
 
   // configurations for plots in gen energy bins
+  Et_keys.push_back("1_4");
+  Et_keys.push_back("4_7");
+  Et_keys.push_back("7_10");
+  Et_edges["1_4"].first = 1.;
+  Et_edges["1_4"].second = 4.;
+  Et_edges["4_7"].first = 4.;
+  Et_edges["4_7"].second = 7.;
+  Et_edges["7_10"].first = 7.;
+  Et_edges["7_10"].second = 10.;
+
+  Eta_keys.push_back("0p00_0p50");
+  Eta_edges["0p00_0p50"].first = 0.;
+  Eta_edges["0p00_0p50"].second = 0.5;
+  Eta_keys.push_back("0p50_1p00");
+  Eta_edges["0p50_1p00"].first = 0.5;
+  Eta_edges["0p50_1p00"].second = 1.0;
+  Eta_keys.push_back("1p00_1p48");
+  Eta_edges["1p00_1p48"].first = 1.0;
+  Eta_edges["1p00_1p48"].second = 1.48;
+  Eta_keys.push_back("1p48_2p00");
+  Eta_edges["1p48_2p00"].first = 1.48;
+  Eta_edges["1p48_2p00"].second = 2.0;
+  Eta_keys.push_back("2p00_2p50");
+  Eta_edges["2p00_2p50"].first = 2.0;
+  Eta_edges["2p00_2p50"].second = 2.5;
+  Eta_keys.push_back("2p50_3p00");
+  Eta_edges["2p50_3p00"].first = 2.5;
+  Eta_edges["2p50_3p00"].second = 3.0;
+
+  /*
   for (TString region: regions){
     for (Int_t i=1; i<10; i++){
       TString key = TString::Format("%d_%d", i, i+1 );
@@ -141,7 +171,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
       Et_edges[region][key].first = i;
       Et_edges[region][key].second = i+1;
     }
-  }
+  }*/
 
   // histos
   edm::Service<TFileService> fs;
@@ -150,7 +180,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   TFileDirectory PFrecHitsDir = fs->mkdir( "PFrecHits" );
   TFileDirectory PFclustersDir = fs->mkdir( "PFClusters" );
   TFileDirectory etaBinnedDir = fs->mkdir( "etaBinnedQuantities" );
-  TFileDirectory EtBinnedDir = fs->mkdir( "EtBinnedQuantities" );
+  TFileDirectory EtaEtBinnedDir = fs->mkdir( "EtaEtBinnedQuantities" );
   TFileDirectory eventDir = fs->mkdir( "event" );
 
 
@@ -379,7 +409,16 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
       h_PFrecHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
-
+  // --------- E (PF clusters) over E true binned in et and eta
+  for (TString Et_key : Et_keys){
+    for (TString Eta_key: Eta_keys){
+      TString histo_name = "h_PFclusters_genMatched_Eta" + Eta_key + "_Et" + Et_key;
+      h_PFclusters_genMatched_eOverEtrue_EtaEtBinned[Eta_key][Et_key] = EtaEtBinnedDir.make<TH1F>(histo_name,histo_name,100,0.,2.);
+      histo_name = "h_genP_nEvts_Eta" + Eta_key + "_Et" + Et_key;
+      h_genP_nEvts_EtaEtBinned[Eta_key][Et_key] = EtaEtBinnedDir.make<TH1F>(histo_name,histo_name,1,0.,1.);
+    }
+  }
+  /*
   // --------- E (PF clusters) over E true binned in eta
   for (TString region : regions){
     for (TString key : eta_keys[region]){
@@ -387,8 +426,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
       h_PFclusters_genMatched_eOverEtrue_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,100,0.,2.);
     }
   }
-
-  // --------- E (PF clusters) over E true binned in et
+  // --------- E (PF clusters) over E true binned in et and eta
   for (TString region : regions){
     for (TString key : Et_keys[region]){
       TString histo_name = "h_PFclusters_genMatched_" + region + "_eOverEtrue_" + key;
@@ -396,7 +434,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
       histo_name = "h_genP_" + region + "_nEvts_" + key;
       h_genP_nEvts_EtBinned[region][key] = EtBinnedDir.make<TH1F>(histo_name,histo_name,1,0.,1.);
      }
-  }
+  }*/
 
   // --------- event by event diagnostic plots
   for (int i=0; i<100; i++){
@@ -457,32 +495,14 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_genP_pdgid->Fill(genParticle->pdgId());
     if(naiveId_<100) h_genP_etaVsPhi.at(naiveId_)->Fill(genParticle->eta(), genParticle->phi(), genParticle->energy());
 
-    // FIXME: this is a poor way of doing this, please automatise
-    if (fabs(genParticle->eta()) < 1.48) {
-      h_genP_pt_EB->Fill(genParticle->pt());
-      for(TString key: Et_keys["EB"]){
-        if (genParticle->pt() >= Et_edges["EB"][key].first && genParticle->pt() < Et_edges["EB"][key].second){
-          h_genP_nEvts_EtBinned["EB"][key]->Fill(0.5);
-          break; // when you found it, do not loop over the other keys
-        }
-      }
-    }
-    else if (genParticle->eta()  > 1.48) {
-      h_genP_pt_EEP->Fill(genParticle->pt());
-      for(TString key: Et_keys["EEP"]){
-        // FIXME: in reality these edges are the same between EB and EE... but ok
-        if (genParticle->pt() >= Et_edges["EEP"][key].first && genParticle->pt() < Et_edges["EEP"][key].second){
-          h_genP_nEvts_EtBinned["EEP"][key]->Fill(0.5);
-          break; // when you found it, do not loop over the other keys
-        }
-      }
-    }
-    else {
-      h_genP_pt_EEM->Fill(genParticle->pt());
-      for(TString key: Et_keys["EEM"]){
-        if (genParticle->pt() >= Et_edges["EEM"][key].first && genParticle->pt() < Et_edges["EEM"][key].second){
-          h_genP_nEvts_EtBinned["EEM"][key]->Fill(0.5);
-          break; // when you found it, do not loop over the other keys
+    for(TString Eta_key: Eta_keys){
+      for(TString Et_key: Et_keys){
+        if (     genParticle->pt() >= Et_edges[Et_key].first
+              && genParticle->pt() < Et_edges[Et_key].second
+              && fabs(genParticle->eta()) >= Eta_edges[Eta_key].first
+              && fabs(genParticle->eta()) < Eta_edges[Eta_key].second
+            ){
+          h_genP_nEvts_EtaEtBinned[Eta_key][Et_key]->Fill(0.5);
         }
       }
     }
@@ -908,20 +928,6 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
           h_PFclusters_genMatched_EB_eta    -> Fill( itr->eta() );
           h_PFclusters_genMatched_EB_phi    -> Fill( itr->phi() );
           h_PFclusters_genMatched_EB_eOverEtrue->Fill(itr->energy()/genParticle->energy());
-
-          for(TString key : eta_keys["EB"]){
-            if( itr->eta() >= eta_edges["EB"][key].first && itr->eta() < eta_edges["EB"][key].second){
-              h_PFclusters_genMatched_eOverEtrue_etaBinned["EB"][key]->Fill(itr->energy()/genParticle->energy());
-              break; // when you found it, do not loop over the other keys
-            }
-          }
-          for(TString key: Et_keys["EB"]){
-            // please note that here we bin based on the gen particle NOT reco particle
-            if (genParticle->pt() >= Et_edges["EB"][key].first && genParticle->pt() < Et_edges["EB"][key].second){
-              h_PFclusters_genMatched_eOverEtrue_EtBinned["EB"][key]->Fill(itr->energy()/genParticle->energy());
-              break; // when you found it, do not loop over the other keys
-            }
-          }
         }
         else if(itr->eta()  > 1.48) {
           size_PFclusters_genMatched_EEP++;
@@ -931,19 +937,6 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
           h_PFclusters_genMatched_EEP_eta    -> Fill( itr->eta() );
           h_PFclusters_genMatched_EEP_phi    -> Fill( itr->phi() );
           h_PFclusters_genMatched_EEP_eOverEtrue->Fill(itr->energy()/genParticle->energy());
-          for(TString key : eta_keys["EEP"]){
-            if( itr->eta() >= eta_edges["EEP"][key].first && itr->eta() < eta_edges["EEP"][key].second){
-              h_PFclusters_genMatched_eOverEtrue_etaBinned["EEP"][key]->Fill(itr->energy()/genParticle->energy());
-              break; // when you found it, exit
-            }
-          }
-          for(TString key: Et_keys["EEP"]){
-            // please note that here we bin based on the gen particle NOT reco particle
-            if (genParticle->pt() >= Et_edges["EEP"][key].first && genParticle->pt() < Et_edges["EEP"][key].second){
-              h_PFclusters_genMatched_eOverEtrue_EtBinned["EEP"][key]->Fill(itr->energy()/genParticle->energy());
-              break; // when you found it, do not loop over the other keys
-            }
-          }
         } //
         else if(itr->eta()  < -1.48) {
           size_PFclusters_genMatched_EEM++;
@@ -953,22 +946,37 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
           h_PFclusters_genMatched_EEM_eta    -> Fill( itr->eta() );
           h_PFclusters_genMatched_EEM_phi    -> Fill( itr->phi() );
           h_PFclusters_genMatched_EEM_eOverEtrue->Fill(itr->energy()/genParticle->energy());
-          for(TString key : eta_keys["EEM"]){
-            if( itr->eta() >= eta_edges["EEM"][key].first && itr->eta() < eta_edges["EEM"][key].second){
-              h_PFclusters_genMatched_eOverEtrue_etaBinned["EEM"][key]->Fill(itr->energy()/genParticle->energy());
-              break; // when you found it, exit
-            }
-          }
-          for(TString key: Et_keys["EEM"]){
-            // please note that here we bin based on the gen particle NOT reco particle
-            if (genParticle->pt() >= Et_edges["EEM"][key].first && genParticle->pt() < Et_edges["EEP"][key].second){
-              h_PFclusters_genMatched_eOverEtrue_EtBinned["EEM"][key]->Fill(itr->energy()/genParticle->energy());
-              break; // when you found it, do not loop over the other keys
-            }
-          }
         } // end if EEM
         //std::cout << "I am here for event " << naiveId_ << std::endl;
         if(naiveId_<100) h_PFclusters_genMatched_etaVsPhi.at(naiveId_)->Fill(itr->eta(),itr->phi(), itr->energy() );
+
+
+        for(TString Eta_key: Eta_keys){
+          for(TString Et_key: Et_keys){
+            if (     genParticle->pt() >= Et_edges[Et_key].first
+                  && genParticle->pt() < Et_edges[Et_key].second
+                  && fabs(genParticle->eta()) >= Eta_edges[Eta_key].first
+                  && fabs(genParticle->eta()) < Eta_edges[Eta_key].second
+                ){
+              h_PFclusters_genMatched_eOverEtrue_EtaEtBinned[Eta_key][Et_key]->Fill(itr->energy()/genParticle->energy());
+            }
+          }
+        }
+        /*for(TString key : eta_keys["EEM"]){
+          if( itr->eta() >= eta_edges["EEM"][key].first && itr->eta() < eta_edges["EEM"][key].second){
+            h_PFclusters_genMatched_eOverEtrue_etaBinned["EEM"][key]->Fill(itr->energy()/genParticle->energy());
+            break; // when you found it, exit
+          }
+        }
+        for(TString key: Et_keys["EEM"]){
+          // please note that here we bin based on the gen particle NOT reco particle
+          if (genParticle->pt() >= Et_edges["EEM"][key].first && genParticle->pt() < Et_edges["EEP"][key].second){
+            h_PFclusters_genMatched_eOverEtrue_EtBinned["EEM"][key]->Fill(itr->energy()/genParticle->energy());
+            break; // when you found it, do not loop over the other keys
+          }
+        }*/
+
+
       } // end if matching
     } // end loop over gen particles
 
