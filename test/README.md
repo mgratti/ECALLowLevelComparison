@@ -39,15 +39,20 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_v9.root  inputFiles=/st
 ```
 ### Notes on versions
 EcalGen:
+```
 PROD_SeedingGathering_v1 -> 10K evts per sample
 PROD_SeedingGathering_v3 -> 50K evts per sample
-
+```
 ECALNoiseStudy:
+```
 v8 -> with DeltaR=0.05
 v9 -> with DeltaR=0.08
-
+```
 ## Basic plotting / monitoring of output
+```
 root -l -b -q "loopdir.C(\"outputfiles/test_relValZee_v3_numEvent1000.root\", \"ecalnoisestudy\")"
-
+```
 ## Example to copy to web page
+```
 scp test_relValZee_v3_numEvent1000.root.pdf mratti@lxplus.cern.ch:/eos/user/m/mratti/www/EcalDPG/zee/diagnostic_plots/.
+```
