@@ -64,8 +64,7 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   ###################
   # READ
   ##################
-  histoname = 'h_PFclusters_genMatched_Eta{eta}_Et{et}'.format(eta=eta, et=et)
-  #histoname = 'h_PFclusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
+  histoname = 'h_PFclusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
   inputdir = 'ecalnoisestudy'
   subdir = 'EtaEtBinnedQuantities'
   f=TFile(inputfile, 'READ')
@@ -180,11 +179,12 @@ if __name__ == "__main__":
   ####################################
   ## Define input, output and parameters
   ####################################
-  version = 'vprodV1_ecalV8'
+  #version = 'vprodV1_ecalV9'
+  version = 'vprodV3_ecalV9'
   inputfile = '../test/outputfiles/test_photonGun_seed{s}_gather{g}_{v}_numEvent{n}.root'
 
   params = {}
-  params["nevts"] =     [10000]
+  params["nevts"] =     [50000]
   params["gathering"] = [1.0, 2.0, 5.0, 10.] # below it doesn't make sense
   params["seeding"] =   [0.5, 1.0, 2.0, 5.0, 10.] #
   parameters_set = list(itertools.product(params["nevts"],params["seeding"],params["gathering"] ))
@@ -326,6 +326,7 @@ if __name__ == "__main__":
 
   for iset in parameters_set:
       inevts,iseeding,igathering = iset
+      print 'Plots as a function of energy for issed={}, igather={}'.format(iseeding, igathering)
       for group in groups:
         xs={}; errxs={}; ys={}; errys={}
         gs = []
@@ -348,11 +349,11 @@ if __name__ == "__main__":
                   errys[eta].append(result.erreff)
           if len(xs[eta])!=0:
             gs.append( gU.makeGraph( xs=xs[eta], xerrs=errxs[eta], ys=ys[eta], yerrs=errys[eta], xtitle='Et (GeV)', ytitle=title[group], title=eta, color=colors[i], style=20))
-
-        # commented for the moment as it crashes at some point why ?
-        #gU.makePlot(graphs=gs, plotName='Set_seed{}_gather{}_{}VsEt'.format(iseeding,igathering, group), outputdir=outputdir, xrange=(0., 10.), yrange=yranges[group],  \
-        #            labels=['#gamma#gamma, no tracker','Seeding thr={}'.format(iseeding), 'Gathering thr={}'.format(igathering)] )
-
+        if len(gs) > 0:
+          gU.makePlot(graphs=gs, plotName='Set_seed{}_gather{}_{}VsEt'.format(iseeding,igathering, group), outputdir=outputdir, xrange=(0., 10.), yrange=yranges[group],  \
+                      labels=['#gamma#gamma, no tracker','Seeding thr={}'.format(iseeding), 'Gathering thr={}'.format(igathering)] )
+        else: 
+          print 'No graphs for group={}'.format(group)
 
   #######################
   # Yet another way of plotting results
