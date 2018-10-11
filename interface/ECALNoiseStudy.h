@@ -53,22 +53,25 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 	 virtual void endJob() ;
 
 	 // ----------member data ---------------------------
-   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-   edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
-   edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
+
+	 edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+         edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
+         edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
 	 edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EE_;
-   edm::EDGetTokenT<reco::PFRecHitCollection>                PFrecHitCollection_;
-   edm::EDGetTokenT<reco::PFClusterCollection>                         PFclusterCollection_;
+         edm::EDGetTokenT<reco::PFRecHitCollection>                PFrecHitCollection_;
+         edm::EDGetTokenT<reco::PFClusterCollection>                         PFclusterCollection_;
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EB_;//reco::SuperClusterCollection
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EE_;
 	 edm::EDGetTokenT<reco::BeamSpot>                      	  beamSpot_ ;//reco::BeamSpot
 
-   bool SaveSrFlag_;
+         bool SaveSrFlag_;
 
 	 double ethrEB_;
 	 double ethrEE_;
 	 double scEtThrEB_;
 	 double scEtThrEE_;
+
+         std::string anaName_;
 
    // tree
    //TTree *outTree;

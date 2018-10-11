@@ -76,6 +76,11 @@ using namespace reco;
 // constructors and destructor
 ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 {
+  // analysis configurations
+  anaName_                    = ps.getParameter<std::string>("anaName");
+
+  std::cout << "Setting up analysis for channel=" << anaName_ << std::endl;
+
   // collections
   vertexToken_               = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVTag"));
 
@@ -487,6 +492,8 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   const reco::GenParticleCollection* genParticles = genParticles_handle.product ();
 
   for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin (); genParticle != genParticles->end () ;++genParticle) {
+
+    //if (fabs(genParticle->pdgId())!=11 || genParticle->status()!=1 || genParticle->pt()<1.) continue; // FIXME: added only for quick tests on electrons 
     //std::cout << naiveId_ << " pdgid=" << genParticle->pdgId() << " status=" <<  genParticle->status() << " pt=" << genParticle->pt() << std::endl;
     h_genP_pt->Fill(genParticle->pt());
     h_genP_eta->Fill(genParticle->eta());
@@ -890,8 +897,19 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     // delta R
     for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin (); genParticle != genParticles->end () ;++genParticle) {
 
-      // matchin only with photons of status 1
-      if(genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
+      // matchin only with photons / electrons of status 1
+      if(anaName_ ==      "DoublePhoton") {
+        if (genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
+      }
+      else if(anaName_ == "DoubleElectron") { 
+        if (genParticle->pdgId()!=11 or genParticle->status()!= 1) continue;
+      }
+      else {
+        std::cout << "**********************" << std::endl;
+        std::cout << "WARNING: not going to select any particle status or pdg id: are you sure this is what you want ?" << std::endl;
+        std::cout << "**********************" << std::endl;
+
+      }
       //if(genParticle->pt()<9) continue; //  only consider clusters matched to 9-10 GeV photons
 
       double deltaPhi = TVector2::Phi_mpi_pi( genParticle->phi() - itr->phi());
