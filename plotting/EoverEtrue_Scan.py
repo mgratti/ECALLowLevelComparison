@@ -49,7 +49,7 @@ class EoverEtrueAnalysisResult(object):
     self.igathering = igathering
 
 
-def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outputdir):
+def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outputdir, doCBfit=False):
 
   print '*******************************************'
   print 'Starting analysis for Eta={}, Et={}, seed thrs={}, gather thrs={}'.format(eta, et, iseeding, igathering)
@@ -77,7 +77,7 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   histo.GetXaxis().SetTitle('E_{{PFcluster}} / E_{{True}} (GeV)'.format(eta=eta))
   histo.GetYaxis().SetTitle('Entries')
   histo.GetXaxis().SetRangeUser(0, 2)
-  histo.GetYaxis().SetRangeUser(0,450)
+  histo.GetYaxis().SetRangeUser(0,1500)
   histo.Rebin(2)
   #histo.GetYaxis().SetRangeUser(0., 1600)
   #if 'EE' in det:
@@ -89,22 +89,28 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   ###################
   # FIT
   ##################
-  #f1 = TF1('f1','crystalball',0.4, 2.)
-  #f1.SetParameters(200, 1, 0.05, 3, 2) # my guess: constant (normalization)=integral, mean = 1, sigma = 0.1, alpha (quanto lontano dal picco si innesta la coda) = 0.7, N = 0.5 (lunghezza della coda(?)
-  #f1.SetLineColor(kRed)
-  f1 = TF1('f1','gaus',0.4, 2.)
-  f1.SetParameter(0, 200)
-  f1.SetParameter(1,histo.GetMean())
-  f1.SetParameter(2,histo.GetRMS())
 
-  # do one first fit on the full range
-  fitresult = histo.Fit(f1, 'RM') # L for loglikelihood ,
-  mean = f1.GetParameter(1)
-  sigma = f1.GetParameter(2)
-  f1.SetParameter(1, mean)
-  f1.SetParameter(2, sigma)
-  f1.SetRange(mean-3*sigma, mean+3*sigma)
-  fitresult = histo.Fit(f1, 'SRM')
+  if doCBfit:
+    f1 = TF1('f1','crystalball',0.4, 2.)
+    f1.SetParameters(200, 1, 0.05, 3, 2) # my guess: constant (normalization)=integral, mean = 1, sigma = 0.1, alpha (quanto lontano dal picco si innesta la coda) = 0.7, N = 0.5 (lunghezza della coda(?)
+    f1.SetLineColor(kRed)
+    fitresult = histo.Fit(f1, 'SRM')
+
+  else:
+    # do one first fit on the full range
+    f1 = TF1('f1','gaus',0.4, 2.)
+    f1.SetParameter(0, 200)
+    f1.SetParameter(1,histo.GetMean())
+    f1.SetParameter(2,histo.GetRMS())
+    fitresult = histo.Fit(f1, 'SRM')
+
+    # then set the initial parameters to the fit parameters and restrict to +/- 3 sigma
+    mean = f1.GetParameter(1)
+    sigma = f1.GetParameter(2)
+    f1.SetParameter(1, mean)
+    f1.SetParameter(2, sigma)
+    f1.SetRange(mean-3*sigma, mean+3*sigma)
+    fitresult = histo.Fit(f1, 'SRM')
 
   c = TCanvas()
   histo.Draw('PE')
@@ -117,8 +123,8 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   ##################
   hpass = TH1F('hpass', 'hpass', 1, 0., 1.)
   #Npass = histo.GetEntries()
-  # compute efficiency only in +-3 sigma fitted peak
   Npass = histo.Integral(6,histo.FindLastBinAbove(0.)) # 0.2 cut in EoverEtrue
+  # does it make sense to instead compute efficiency only in +-3 sigma fitted peak
   for i in range(0,int(Npass)):
     hpass.Fill(0.5)
 
@@ -216,7 +222,7 @@ if __name__ == "__main__":
         ### FILTER OUT PATHOLOGICAL CASES
         inputfilename = inputfile.format(s=iseeding, g=igathering, n=inevts, v=version)
         if igathering * thrs[det[eta]]['gather'] > iseeding * thrs[det[eta]]['seed']: continue # minimal sense of decency # FIXME: do it at generation level directly
-        ret,result = makeEoverEtrueAnalysis(inputfilename, eta, et, iseeding, igathering, inevts, outputdir)
+        ret,result = makeEoverEtrueAnalysis(inputfilename, eta, et, iseeding, igathering, inevts, outputdir, doCBfit=False)
         if ret:
           results[eta][et].append(result)
         else:

@@ -40,8 +40,12 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_v9.root  inputFiles=/st
 ### Notes on versions
 EcalGen:
 ```
-PROD_SeedingGathering_v1 -> 10K evts per sample
-PROD_SeedingGathering_v3 -> 50K evts per sample
+$PNFS/EcalGen/PROD_SeedingGathering_v1/  --> Run2 conditions, 10K evts, w/o tracker, 100X_upgrade2018_realistic_v7,
+$PNFS/EcalGen/PROD_SeedingGathering_v3/  --> Run2 conditions, 50K evts, w/o tracker, 100X_upgrade2018_realistic_v7,
+$PNFS/EcalGen/PROD_SeedingGathering_v4/  --> Run3 conditions, 50K evts, w/o tracker, 102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1
+$PNFS/EcalGen/PROD_SeedingGathering_v5/  --> Run3 conditions, 50K evts, w/o tracker, 102X_upgrade2018_realistic_EcalAging_mid2022_315fb_v1
+$PNFS/EcalGen/PROD_SeedingGathering_v6/  --> Run3 conditions, 50K evts, w/o tracker, 102X_upgrade2018_realistic_EcalAging_mid2023_400fb_v1
+$PNFS/EcalGen/PROD_SeedingGathering_v7/  --> Run3 conditions, 50K evts, w   tracker, 102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1
 ```
 ECALNoiseStudy:
 ```
