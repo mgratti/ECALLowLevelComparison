@@ -171,6 +171,11 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
 
 if __name__ == "__main__":
 
+  from argparse import ArgumentParser
+  parser = ArgumentParser(description='', add_help=True)
+  parser.add_argument('-v', '--version', type=str, dest='version', help='', default=None)
+  options = parser.parse_args()
+
   gROOT.SetBatch(True)
   #gROOT.ProcessLine('.L ~/CMS_style/tdrstyleGraph.C')
   #gROOT.ProcessLine('setTDRStyle()')
@@ -185,8 +190,11 @@ if __name__ == "__main__":
   ####################################
   ## Define input, output and parameters
   ####################################
-  #version = 'vprodV1_ecalV9'
   version = 'vprodV3_ecalV9'
+  
+  if options.version != None:
+    version = options.version
+
   inputfile = '../test/outputfiles/test_photonGun_seed{s}_gather{g}_{v}_numEvent{n}.root'
 
   params = {}
