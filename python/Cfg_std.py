@@ -42,7 +42,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2018_realistic_forECAL_A_alpha_v1')
 process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2018_realistic_v7')
-
+######### IS THE GT IMPORTANT HERE ??????????? maybe for the geometry it is !!!!!!! TODO: xcheck this
 
 # Load the algorithm and send configurable arguments to it
 process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
@@ -57,8 +57,8 @@ process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
     beamSpot                  = cms.InputTag("offlineBeamSpot"),
 
     #despite the name "Cleaned", this collection contains dirty PFRechits, those which do not pass the cleaning
-    #PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL:Cleaned"),
     PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL:Cleaned"),
+#    PFrecHitCollection = cms.InputTag("particleFlowRecHitECAL"),
 
     PFclusterCollection = cms.InputTag("particleFlowClusterECAL"),
 
@@ -69,6 +69,8 @@ process.ecalnoisestudy = cms.EDAnalyzer("ECALNoiseStudy",
     ethrEE = cms.double(0.0),
     scEtThrEB = cms.double(0.0),
     scEtThrEE = cms.double(0.0),
+
+    anaName = cms.string('DoubleElectron'), # DoublePhoton, DoubleElectron, DoubleNu
 )
 
 process.p = cms.Path(

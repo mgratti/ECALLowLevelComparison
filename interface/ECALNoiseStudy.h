@@ -53,22 +53,25 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 	 virtual void endJob() ;
 
 	 // ----------member data ---------------------------
-   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-   edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
-   edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
+
+	 edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+         edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
+         edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
 	 edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EE_;
-   edm::EDGetTokenT<reco::PFRecHitCollection>                PFrecHitCollection_;
-   edm::EDGetTokenT<reco::PFClusterCollection>                         PFclusterCollection_;
+         edm::EDGetTokenT<reco::PFRecHitCollection>                PFrecHitCollection_;
+         edm::EDGetTokenT<reco::PFClusterCollection>                         PFclusterCollection_;
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EB_;//reco::SuperClusterCollection
 	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EE_;
 	 edm::EDGetTokenT<reco::BeamSpot>                      	  beamSpot_ ;//reco::BeamSpot
 
-   bool SaveSrFlag_;
+         bool SaveSrFlag_;
 
 	 double ethrEB_;
 	 double ethrEE_;
 	 double scEtThrEB_;
 	 double scEtThrEE_;
+
+         std::string anaName_;
 
    // tree
    //TTree *outTree;
@@ -84,9 +87,9 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_genP_phi;
    TH1D *h_genP_status;
    TH1D *h_genP_pdgid;
-   TH1D *h_genP_nEB;
-   TH1D *h_genP_nEEP;
-   TH1D *h_genP_nEEM;
+   TH1D *h_genP_pt_EB;
+   TH1D *h_genP_pt_EEP;
+   TH1D *h_genP_pt_EEM;
 
    std::vector<TH2D*> h_PFclusters_etaVsPhi;
    std::vector<TH2D*> h_PFclusters_genMatched_etaVsPhi;
@@ -98,10 +101,21 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_PFrecHits_energy_etaBinned;
-   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_etaBinned;
+
+   // PFClusters vs eta and Et
+   std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_EtaEtBinned;
+   std::map<TString, std::map<TString, TH1F*>> h_genP_nEvts_EtaEtBinned;
+
 
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
+
+   //std::map<TString, std::vector<TString>> Et_keys;
+   //std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> Et_edges;
+   std::vector<TString> Et_keys;
+   std::map<TString, std::pair<Float_t,Float_t>> Et_edges;
+   std::vector<TString> Eta_keys;
+   std::map<TString, std::pair<Float_t,Float_t>> Eta_edges;
 
 	 // RecHits ----------------------------------------------
 	 TH1D *h_recHits_EB_size;
@@ -212,6 +226,17 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 
    TH1D *h_PFclusters_eta;
    TH1D *h_PFclusters_deltaR_gen;
+   TH1D *h_PFclusters_deltaR_gen_EB;
+   TH1D *h_PFclusters_deltaR_gen_EEP;
+   TH1D *h_PFclusters_deltaR_gen_EEM;
+   TH1D *h_PFclusters500_deltaR_gen;
+   TH1D *h_PFclusters500_deltaR_gen_EB;
+   TH1D *h_PFclusters500_deltaR_gen_EEP;
+   TH1D *h_PFclusters500_deltaR_gen_EEM;
+   TH1D *h_PFclusters1000_deltaR_gen;
+   TH1D *h_PFclusters1000_deltaR_gen_EB;
+   TH1D *h_PFclusters1000_deltaR_gen_EEP;
+   TH1D *h_PFclusters1000_deltaR_gen_EEM;
 
    TH1D *h_PFclusters_genMatched_EB_size;
    TH1D *h_PFclusters_genMatched_EB_nXtals;
