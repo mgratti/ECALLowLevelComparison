@@ -55,7 +55,7 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "/mnt/t3nfs01/data01/shome/mratti/cmssw_workarea/EcalDPG/CMSSW_10_0_0/src/ECAL/ECALLowLevelComparison/interface/ECALNoiseStudy.h"
+#include "ECAL/ECALLowLevelComparison/interface/ECALNoiseStudy.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -184,6 +184,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   TFileDirectory recHitsDir = fs->mkdir( "recHits" );
   TFileDirectory PFrecHitsDir = fs->mkdir( "PFrecHits" );
   TFileDirectory PFclustersDir = fs->mkdir( "PFClusters" );
+  TFileDirectory superClustersDir = fs->mkdir( "superClusters" );
   TFileDirectory etaBinnedDir = fs->mkdir( "etaBinnedQuantities" );
   TFileDirectory EtaEtBinnedDir = fs->mkdir( "EtaEtBinnedQuantities" );
   TFileDirectory eventDir = fs->mkdir( "event" );
@@ -361,40 +362,52 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   // Super Clusters ----------------------------------------------
   // ... barrel
-  h_superClusters_EB_size      = fs->make<TH1D>("h_superClusters_EB_size","h_superClusters_EB_size",15,0.,15.);
-  h_superClusters_EB_nXtals    = fs->make<TH1D>("h_superClusters_EB_nXtals","h_superClusters_EB_nXtals",30,0.,150.);
-  h_superClusters_EB_nBC       = fs->make<TH1D>("h_superClusters_EB_nBC","h_superClusters_EB_nBC",20,0.,20.);
-  h_superClusters_EB_energy    = fs->make<TH1D>("h_superClusters_EB_energy","h_superClusters_EB_energy",50,0.,200.);
-  h_superClusters_EB_rawEnergy = fs->make<TH1D>("h_superClusters_EB_rawEnergy","h_superClusters_EB_rawEnergy",50,0.,200.);
-  h_superClusters_EB_et        = fs->make<TH1D>("h_superClusters_EB_et","h_superClusters_EB_et",50,0.,200.);
+  h_superClusters_EB_size      = superClustersDir.make<TH1D>("h_superClusters_EB_size","h_superClusters_EB_size",15,0.,15.);
+  h_superClusters_EB_nXtals    = superClustersDir.make<TH1D>("h_superClusters_EB_nXtals","h_superClusters_EB_nXtals",30,0.,150.);
+  h_superClusters_EB_nBC       = superClustersDir.make<TH1D>("h_superClusters_EB_nBC","h_superClusters_EB_nBC",20,0.,20.);
+  h_superClusters_EB_energy    = superClustersDir.make<TH1D>("h_superClusters_EB_energy","h_superClusters_EB_energy",50,0.,200.);
+  h_superClusters_EB_rawEnergy = superClustersDir.make<TH1D>("h_superClusters_EB_rawEnergy","h_superClusters_EB_rawEnergy",50,0.,200.);
+  h_superClusters_EB_et        = superClustersDir.make<TH1D>("h_superClusters_EB_et","h_superClusters_EB_et",50,0.,200.);
 
   // ... endcap
-  h_superClusters_EEP_size   = fs->make<TH1D>("h_superClusters_EEP_size","h_superClusters_EEP_size",15,0.,15.);
-  h_superClusters_EEP_nXtals = fs->make<TH1D>("h_superClusters_EEP_nXtals","h_superClusters_EEP_nXtals",30,0.,60.);
-  h_superClusters_EEP_nBC    = fs->make<TH1D>("h_superClusters_EEP_nBC","h_superClusters_EEP_nBC",20,0.,20.);
-  h_superClusters_EEP_energy = fs->make<TH1D>("h_superClusters_EEP_energy","h_superClusters_EEP_energy",50,0.,200.);
-  h_superClusters_EEP_rawEnergy = fs->make<TH1D>("h_superClusters_EEP_rawEnergy","h_superClusters_EEP_rawEnergy",50,0.,200.);
-  h_superClusters_EEP_et     = fs->make<TH1D>("h_superClusters_EEP_et","h_superClusters_EEP_et",50,0.,200.);
+  h_superClusters_EEP_size   = superClustersDir.make<TH1D>("h_superClusters_EEP_size","h_superClusters_EEP_size",15,0.,15.);
+  h_superClusters_EEP_nXtals = superClustersDir.make<TH1D>("h_superClusters_EEP_nXtals","h_superClusters_EEP_nXtals",30,0.,60.);
+  h_superClusters_EEP_nBC    = superClustersDir.make<TH1D>("h_superClusters_EEP_nBC","h_superClusters_EEP_nBC",20,0.,20.);
+  h_superClusters_EEP_energy = superClustersDir.make<TH1D>("h_superClusters_EEP_energy","h_superClusters_EEP_energy",50,0.,200.);
+  h_superClusters_EEP_rawEnergy = superClustersDir.make<TH1D>("h_superClusters_EEP_rawEnergy","h_superClusters_EEP_rawEnergy",50,0.,200.);
+  h_superClusters_EEP_et     = superClustersDir.make<TH1D>("h_superClusters_EEP_et","h_superClusters_EEP_et",50,0.,200.);
 
-  h_superClusters_EEM_size   = fs->make<TH1D>("h_superClusters_EEM_size","h_superClusters_EEM_size",15,0.,15.);
-  h_superClusters_EEM_nXtals = fs->make<TH1D>("h_superClusters_EEM_nXtals","h_superClusters_EEM_nXtals",30,0.,60.);
-  h_superClusters_EEM_nBC    = fs->make<TH1D>("h_superClusters_EEM_nBC","h_superClusters_EEM_nBC",20,0.,20.);
-  h_superClusters_EEM_energy = fs->make<TH1D>("h_superClusters_EEM_energy","h_superClusters_EEM_energy",50,0.,200.);
-  h_superClusters_EEM_rawEnergy = fs->make<TH1D>("h_superClusters_EEM_rawEnergy","h_superClusters_EEM_rawEnergy",50,0.,200.);
-  h_superClusters_EEM_et     = fs->make<TH1D>("h_superClusters_EEM_et","h_superClusters_EEM_et",50,0.,200.);
+  h_superClusters_EEM_size   = superClustersDir.make<TH1D>("h_superClusters_EEM_size","h_superClusters_EEM_size",15,0.,15.);
+  h_superClusters_EEM_nXtals = superClustersDir.make<TH1D>("h_superClusters_EEM_nXtals","h_superClusters_EEM_nXtals",30,0.,60.);
+  h_superClusters_EEM_nBC    = superClustersDir.make<TH1D>("h_superClusters_EEM_nBC","h_superClusters_EEM_nBC",20,0.,20.);
+  h_superClusters_EEM_energy = superClustersDir.make<TH1D>("h_superClusters_EEM_energy","h_superClusters_EEM_energy",50,0.,200.);
+  h_superClusters_EEM_rawEnergy = superClustersDir.make<TH1D>("h_superClusters_EEM_rawEnergy","h_superClusters_EEM_rawEnergy",50,0.,200.);
+  h_superClusters_EEM_et     = superClustersDir.make<TH1D>("h_superClusters_EEM_et","h_superClusters_EEM_et",50,0.,200.);
 
-  h_superClusters_eta        = fs->make<TH1D>("h_superClusters_eta","h_superClusters_eta",      300,-3.,3.);
-  h_superClusters_EB_eta     = fs->make<TH1D>("h_superClusters_EB_eta","h_superClusters_EB_eta",148,-1.48,1.48);
-  h_superClusters_EE_eta     = fs->make<TH1D>("h_superClusters_EE_eta","h_superClusters_EE_eta",300,-3.,3.);
+  h_superClusters_eta        = superClustersDir.make<TH1D>("h_superClusters_eta","h_superClusters_eta",      300,-3.,3.);
+  h_superClusters_EB_eta     = superClustersDir.make<TH1D>("h_superClusters_EB_eta","h_superClusters_EB_eta",148,-1.48,1.48);
+  h_superClusters_EE_eta     = superClustersDir.make<TH1D>("h_superClusters_EE_eta","h_superClusters_EE_eta",300,-3.,3.);
 
   // check golden fraction
-  h_superClusters_nBCvsEta = fs->make<TH2D>("h_superClusters_nBCvsEta","h_superClusters_nBCvsEta",300,-3.,3.,20,0.,20.);
-  h_superClusters_nBC_0to1     = fs->make<TH1D>("h_superClusters_nBC_0to1",    "h_superClusters_nBC_0to1",    20,0.,20.);
-  h_superClusters_nBC_1to1d5   = fs->make<TH1D>("h_superClusters_nBC_1to1d5",  "h_superClusters_nBC_1to1d5",  20,0.,20.);
-  h_superClusters_nBC_1d5to1d8 = fs->make<TH1D>("h_superClusters_nBC_1d5to1d8","h_superClusters_nBC_1d5to1d8",20,0.,20.);
-  h_superClusters_nBC_1d8to2d1 = fs->make<TH1D>("h_superClusters_nBC_1d8to2d1","h_superClusters_nBC_1d8to2d1",20,0.,20.);
-  h_superClusters_nBC_2d1to2d5 = fs->make<TH1D>("h_superClusters_nBC_2d1to2d5","h_superClusters_nBC_2d1to2d5",20,0.,20.);
-  h_superClusters_nBC_2d5to3   = fs->make<TH1D>("h_superClusters_nBC_2d5to3",  "h_superClusters_nBC_2d5to3",  20,0.,20.);
+  h_superClusters_nBCvsEta = superClustersDir.make<TH2D>("h_superClusters_nBCvsEta","h_superClusters_nBCvsEta",300,-3.,3.,20,0.,20.);
+  h_superClusters_nBC_0to1     = superClustersDir.make<TH1D>("h_superClusters_nBC_0to1",    "h_superClusters_nBC_0to1",    20,0.,20.);
+  h_superClusters_nBC_1to1d5   = superClustersDir.make<TH1D>("h_superClusters_nBC_1to1d5",  "h_superClusters_nBC_1to1d5",  20,0.,20.);
+  h_superClusters_nBC_1d5to1d8 = superClustersDir.make<TH1D>("h_superClusters_nBC_1d5to1d8","h_superClusters_nBC_1d5to1d8",20,0.,20.);
+  h_superClusters_nBC_1d8to2d1 = superClustersDir.make<TH1D>("h_superClusters_nBC_1d8to2d1","h_superClusters_nBC_1d8to2d1",20,0.,20.);
+  h_superClusters_nBC_2d1to2d5 = superClustersDir.make<TH1D>("h_superClusters_nBC_2d1to2d5","h_superClusters_nBC_2d1to2d5",20,0.,20.);
+  h_superClusters_nBC_2d5to3   = superClustersDir.make<TH1D>("h_superClusters_nBC_2d5to3",  "h_superClusters_nBC_2d5to3",  20,0.,20.);
+
+  // delta R from truth particle
+  h_superClusters_deltaR_gen = superClustersDir.make<TH1D>("h_superClusters_deltaR_gen", "h_superClusters_deltaR_gen", 1000., 0., 10.);
+  h_superClusters_deltaR_gen_EB = superClustersDir.make<TH1D>("h_superClusters_deltaR_gen_EB", "h_superClusters_deltaR_gen_EB", 1000., 0., 10.);
+  h_superClusters_deltaR_gen_EEP = superClustersDir.make<TH1D>("h_superClusters_deltaR_gen_EEP", "h_superClusters_deltaR_gen_EEP", 1000., 0., 10.);
+  h_superClusters_deltaR_gen_EEM = superClustersDir.make<TH1D>("h_superClusters_deltaR_gen_EEM", "h_superClusters_deltaR_gen_EEM", 1000., 0., 10.);
+
+  h_superClusters500_deltaR_gen = superClustersDir.make<TH1D>("h_superClusters500_deltaR_gen", "h_superClusters500_deltaR_gen", 1000., 0., 10.);
+  h_superClusters500_deltaR_gen_EB = superClustersDir.make<TH1D>("h_superClusters500_deltaR_gen_EB", "h_superClusters500_deltaR_gen_EB", 1000., 0., 10.);
+  h_superClusters500_deltaR_gen_EEP = superClustersDir.make<TH1D>("h_superClusters500_deltaR_gen_EEP", "h_superClusters500_deltaR_gen_EEP", 1000., 0., 10.);
+  h_superClusters500_deltaR_gen_EEM = superClustersDir.make<TH1D>("h_superClusters500_deltaR_gen_EEM", "h_superClusters500_deltaR_gen_EEM", 1000., 0., 10.);
+
 
 
   // --------- Rechits vs eta
@@ -1026,12 +1039,46 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_superClusters_EB_energy -> Fill( itSC -> energy() );
     h_superClusters_EB_rawEnergy -> Fill( itSC -> rawEnergy() );
     h_superClusters_EB_et     -> Fill( scEt );
-    h_superClusters_eta       -> Fill( itSC -> eta() );
+    h_superClusters_eta       -> Fill( itSC -> eta() ); // why using normal eta here and not geometric eta ?
     h_superClusters_EB_eta    -> Fill( itSC -> eta() );
     h_superClusters_nBCvsEta  -> Fill( itSC -> eta(), itSC -> clustersSize() );
 
     if ( fabs(itSC->eta())<1 ) h_superClusters_nBC_0to1 -> Fill(itSC->clustersSize());
     if ( fabs(itSC->eta())<1.5 && fabs(itSC->eta())>=1) h_superClusters_nBC_1to1d5 -> Fill(itSC->clustersSize());
+
+    // superluster matching with gen particle
+    // delta R
+    for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin (); genParticle != genParticles->end () ;++genParticle) {
+
+      // matchin only with photons / electrons of status 1
+      if(anaName_ ==      "DoublePhoton") {
+        if (genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
+      }
+      else if(anaName_ == "DoubleElectron") { 
+        if (genParticle->pdgId()!=11 or genParticle->status()!= 1) continue;
+      }
+      else {
+        std::cout << "**********************" << std::endl;
+        std::cout << "WARNING: not going to select any particle status or pdg id: are you sure this is what you want ?" << std::endl;
+        std::cout << "**********************" << std::endl;
+
+      }
+      //if(genParticle->pt()<9) continue; //  only consider clusters matched to 9-10 GeV photons
+
+      double deltaPhi = TVector2::Phi_mpi_pi( genParticle->phi() - itSC->phi());
+      double deltaEta = genParticle->eta() - itSC->eta();
+      double deltaR = TMath::Sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+
+      h_superClusters_deltaR_gen->Fill(deltaR);
+      h_superClusters_deltaR_gen_EB->Fill(deltaR);
+
+      if (scEt>0.5) { // 500 MeV
+        h_superClusters500_deltaR_gen->Fill(deltaR);
+        h_superClusters500_deltaR_gen_EB->Fill(deltaR);
+      }
+
+    }
+
   }
   h_superClusters_EB_size         -> Fill( superClusters_EB_h->size() );
 
@@ -1071,7 +1118,42 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_superClusters_EEM_et -> Fill( scEt );
       nSuperClustersEEM++;
     }
-  }
+
+    // trying to match with gen particles
+    for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin (); genParticle != genParticles->end () ;++genParticle) {
+
+      // matchin only with photons / electrons of status 1
+      if(anaName_ ==      "DoublePhoton") {
+        if (genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
+      }
+      else if(anaName_ == "DoubleElectron") { 
+        if (genParticle->pdgId()!=11 or genParticle->status()!= 1) continue;
+      }
+      else {
+        std::cout << "**********************" << std::endl;
+        std::cout << "WARNING: not going to select any particle status or pdg id: are you sure this is what you want ?" << std::endl;
+        std::cout << "**********************" << std::endl;
+
+      }
+
+      double deltaPhi = TVector2::Phi_mpi_pi( genParticle->phi() - itSC->phi());
+      double deltaEta = genParticle->eta() - itSC->eta();
+      double deltaR = TMath::Sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+
+      h_superClusters_deltaR_gen->Fill(deltaR);
+      if  ( itSC -> z() > 0 ) h_superClusters_deltaR_gen_EEP->Fill(deltaR);
+      else                    h_superClusters_deltaR_gen_EEM->Fill(deltaR);
+
+      if (scEt>0.5) { // 500 MeV
+        h_superClusters500_deltaR_gen->Fill(deltaR);
+        if  ( itSC -> z() > 0 ) h_superClusters500_deltaR_gen_EEP->Fill(deltaR);
+        else                    h_superClusters500_deltaR_gen_EEM->Fill(deltaR);
+      }
+
+    } // end loop over gen particles
+
+
+  } // end for super clusters end-caps
 
   h_superClusters_EEP_size->Fill( nSuperClustersEEP );
   h_superClusters_EEM_size->Fill( nSuperClustersEEM );
