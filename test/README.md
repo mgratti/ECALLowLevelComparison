@@ -47,11 +47,21 @@ $PNFS/EcalGen/PROD_SeedingGathering_v5/  --> Run3 conditions, 50K evts, w/o trac
 $PNFS/EcalGen/PROD_SeedingGathering_v6/  --> Run3 conditions, 50K evts, w/o tracker, 102X_upgrade2018_realistic_EcalAging_mid2023_400fb_v1
 $PNFS/EcalGen/PROD_SeedingGathering_v7/  --> Run3 conditions, 50K evts, w   tracker, 102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1
 ```
+
 ECALNoiseStudy:
 ```
 v8 -> with DeltaR=0.05
 v9 -> with DeltaR=0.08
 ```
+
+### double electron
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_doubleEle.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v7/NEVTS50000_seed1.0_GATHER1.0/EGM-RunIISpring18_GEN_SIM_DIGI_RECO.root maxEvents=1000 anaName="DoubleElectron"
+```
+
+$PNFS/EcalGen/PROD_SeedingGathering_v7/  --> Run3 conditions, 50K evts, w   tracker, 102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1
+
+
 ## Basic plotting / monitoring of output
 ```
 root -l -b -q "loopdir.C(\"outputfiles/test_relValZee_v3_numEvent1000.root\", \"ecalnoisestudy\")"
