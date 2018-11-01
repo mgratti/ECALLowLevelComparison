@@ -93,6 +93,8 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 
    std::vector<TH2D*> h_PFclusters_etaVsPhi;
    std::vector<TH2D*> h_PFclusters_genMatched_etaVsPhi;
+   std::vector<TH2D*> h_superClusters_etaVsPhi;
+   std::vector<TH2D*> h_superClusters_genMatched_etaVsPhi;
    std::vector<TH2D*> h_recHits_etaVsPhi;
    std::vector<TH2D*> h_genP_etaVsPhi;
 
@@ -106,6 +108,8 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::map<TString, std::map<TString, TH1F*>> h_PFclusters_genMatched_eOverEtrue_EtaEtBinned;
    std::map<TString, std::map<TString, TH1F*>> h_genP_nEvts_EtaEtBinned;
 
+   // SuperClusters vs eta and Et
+   std::map<TString, std::map<TString, TH1F*>> h_superClusters_genMatched_eOverEtrue_EtaEtBinned;
 
    std::map<TString, std::vector<TString>> eta_keys;
    std::map<TString, std::map<TString, std::pair<Float_t,Float_t>>> eta_edges;
@@ -307,6 +311,33 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters500_deltaR_gen_EB;
    TH1D *h_superClusters500_deltaR_gen_EEP;
    TH1D *h_superClusters500_deltaR_gen_EEM;
+
+   TH1D *h_superClusters_genMatched_EB_size;
+   TH1D *h_superClusters_genMatched_EB_nXtals;
+   TH1D *h_superClusters_genMatched_EB_energy;
+   TH1D *h_superClusters_genMatched_EB_rawEnergy;
+   TH1D *h_superClusters_genMatched_EB_et;
+   TH1D *h_superClusters_genMatched_EB_eta;
+   TH1D *h_superClusters_genMatched_EB_phi;
+   TH1D *h_superClusters_genMatched_EB_eOverEtrue;
+
+   TH1D *h_superClusters_genMatched_EEP_size;
+   TH1D *h_superClusters_genMatched_EEP_nXtals;
+   TH1D *h_superClusters_genMatched_EEP_energy;
+   TH1D *h_superClusters_genMatched_EEP_rawEnergy;
+   TH1D *h_superClusters_genMatched_EEP_et;
+   TH1D *h_superClusters_genMatched_EEP_eta;
+   TH1D *h_superClusters_genMatched_EEP_phi;
+   TH1D *h_superClusters_genMatched_EEP_eOverEtrue;
+
+   TH1D *h_superClusters_genMatched_EEM_size;
+   TH1D *h_superClusters_genMatched_EEM_nXtals;
+   TH1D *h_superClusters_genMatched_EEM_energy;
+   TH1D *h_superClusters_genMatched_EEM_rawEnergy;
+   TH1D *h_superClusters_genMatched_EEM_et;
+   TH1D *h_superClusters_genMatched_EEM_eta;
+   TH1D *h_superClusters_genMatched_EEM_phi;
+   TH1D *h_superClusters_genMatched_EEM_eOverEtrue;
 
 
 };
