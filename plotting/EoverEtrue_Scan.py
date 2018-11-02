@@ -64,7 +64,8 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   ###################
   # READ
   ##################
-  histoname = 'h_PFclusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
+  #histoname = 'h_PFclusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
+  histoname = 'h_superClusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
   inputdir = 'ecalnoisestudy'
   subdir = 'EtaEtBinnedQuantities'
   f=TFile(inputfile, 'READ')
@@ -154,7 +155,8 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   eff_label = 'N_{{reco}}/N_{{gen}}={}'.format(eff_label)
   defaultLabels([eff_label], x=0.62, y=0.65, spacing = 0.04, size = 0.06, dx = 0.12)
 
-  sample_label = '#gamma#gamma, no tracker'
+  #sample_label = '#gamma#gamma, no tracker'
+  sample_label = anaLabel
   et_label = 'Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1])
   eta_label = 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])
   defaultLabels([sample_label,et_label,eta_label], x=0.25, y=0.85, spacing = 0.04, size=0.06, dx=0.12)
@@ -190,12 +192,16 @@ if __name__ == "__main__":
   ####################################
   ## Define input, output and parameters
   ####################################
-  version = 'vprodV3_ecalV9'
+  version = 'vprodV7_ecalV9'
+  anaName = 'DoubleElectron' # photonGun
+  global anaLabel 
+  anaLabel = 'ee, w/ tracker' if anaName == 'DoubleElectron' else '#gamma#gamma, no tracker'
   
   if options.version != None:
     version = options.version
 
-  inputfile = '../test/outputfiles/test_photonGun_seed{s}_gather{g}_{v}_numEvent{n}.root'
+  #inputfile = '../test/outputfiles/test_photonGun_seed{s}_gather{g}_{v}_numEvent{n}.root'
+  inputfile = '../test/outputfiles/test_{a}_seed{s}_gather{g}_{v}_numEvent{n}.root'
 
   params = {}
   params["nevts"] =     [50000]
@@ -228,7 +234,7 @@ if __name__ == "__main__":
       for iset in parameters_set:
         inevts,iseeding,igathering = iset
         ### FILTER OUT PATHOLOGICAL CASES
-        inputfilename = inputfile.format(s=iseeding, g=igathering, n=inevts, v=version)
+        inputfilename = inputfile.format(a=anaName, s=iseeding, g=igathering, n=inevts, v=version)
         if igathering * thrs[det[eta]]['gather'] > iseeding * thrs[det[eta]]['seed']: continue # minimal sense of decency # FIXME: do it at generation level directly
         ret,result = makeEoverEtrueAnalysis(inputfilename, eta, et, iseeding, igathering, inevts, outputdir, doCBfit=False)
         if ret:
@@ -255,7 +261,7 @@ if __name__ == "__main__":
           gs.append( gU.makeGraph( xs=xs[iseeding], xerrs=errxs[iseeding], ys=ys[iseeding], yerrs=errys[iseeding], xtitle='N_{reco}^{peak}/N_{gen}', ytitle='#sigma(E/E_{true}) [Fit]', title='Seeding thr={:.1f}'.format(iseeding), color=colors[i], style=20))
 
       gU.makePlot(graphs=gs, plotName='EffVsReso_Eta{}_Et{}_seed'.format(eta,et), outputdir=outputdir,  \
-                  labels=['#gamma#gamma, no tracker','Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
+                  labels=[anaLabel,'Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
 
       # xrange=(0.8, 1.1), yrange=(0.03, 0.06),
 
@@ -274,7 +280,7 @@ if __name__ == "__main__":
           gs.append( gU.makeGraph( xs=xs[igathering], xerrs=errxs[igathering], ys=ys[igathering], yerrs=errys[igathering], xtitle='N_{reco}^{peak}/N_{gen}', ytitle='#sigma(E/E_{true}) [Fit]', title='Gathering thr={:.1f}'.format(igathering), color=colors[5+i], style=21))
 
       gU.makePlot(graphs=gs, plotName='EffVsReso_Eta{}_Et{}_gather'.format(eta,et), outputdir=outputdir, \
-                  labels=['#gamma#gamma, no tracker','Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
+                  labels=[anaLabel,'Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
 
       #################
       # Mean vs Reso
@@ -292,7 +298,7 @@ if __name__ == "__main__":
           gs.append( gU.makeGraph( xs=xs[iseeding], xerrs=errxs[iseeding], ys=ys[iseeding], yerrs=errys[iseeding], xtitle='#mu(E/E_{true}) [Fit]', ytitle='#sigma(E/E_{true}) [Fit]', title='Seeding thr={:.1f}'.format(iseeding), color=colors[i], style=20))
 
       gU.makePlot(graphs=gs, plotName='MeanVsReso_Eta{}_Et{}_seed'.format(eta,et), outputdir=outputdir,  \
-                  labels=['#gamma#gamma, no tracker','Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
+                  labels=[anaLabel,'Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
 
       xs={}; errxs={}; ys={}; errys={}
       gs = []
@@ -309,7 +315,7 @@ if __name__ == "__main__":
           gs.append( gU.makeGraph( xs=xs[igathering], xerrs=errxs[igathering], ys=ys[igathering], yerrs=errys[igathering], xtitle='#mu(E/E_{true}) [Fit]', ytitle='#sigma(E/E_{true}) [Fit]', title='Gathering thr={:.1f}'.format(igathering), color=colors[5+i], style=21))
 
       gU.makePlot(graphs=gs, plotName='MeanVsReso_Eta{}_Et{}_gather'.format(eta,et), outputdir=outputdir,  \
-                  labels=['#gamma#gamma, no tracker','Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
+                  labels=[anaLabel,'Et=({},{})GeV'.format(et.split('_')[0], et.split('_')[1]), 'Region=({},{})'.format(eta.split('_')[0], eta.split('_')[1])] )
 
 
 
@@ -365,7 +371,7 @@ if __name__ == "__main__":
             gs.append( gU.makeGraph( xs=xs[eta], xerrs=errxs[eta], ys=ys[eta], yerrs=errys[eta], xtitle='Et (GeV)', ytitle=title[group], title=eta, color=colors[i], style=20))
         if len(gs) > 0:
           gU.makePlot(graphs=gs, plotName='Set_seed{}_gather{}_{}VsEt'.format(iseeding,igathering, group), outputdir=outputdir, xrange=(0., 10.), yrange=yranges[group],  \
-                      labels=['#gamma#gamma, no tracker','Seeding thr={}'.format(iseeding), 'Gathering thr={}'.format(igathering)] )
+                      labels=[anaLabel,'Seeding thr={}'.format(iseeding), 'Gathering thr={}'.format(igathering)] )
         else: 
           print 'No graphs for group={}'.format(group)
 
