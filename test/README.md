@@ -27,6 +27,34 @@ cmsRun ../python/Cfg_std.py outputFile=test_nuGun_fullReadout_v1.root maxEvents=
 ```
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/test_nuGun_MOD.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_0_3_mod/src/test_generation/mg_test_1000evts/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=1000
 ```
+
+### neutrino gun with run-2 vs run-3 tags
+
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/100X_upgrade2018_realistic_v7/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_new_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/102X_upgrade2018_realistic_v15/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_1_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_2_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2022_315fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_3_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2023_400fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
+
+```
+### neutrino gun for UL tests
+
+GT="103X_mc2017_realistic_v2_AB_v01"
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_UL_AB_ecalV10.root inputFiles=file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AB_v01_HS-v1/20000/658C0857-EAE3-E44A-B7EB-BAB266C005AB.root maxEvents=100000
+```
+GT="103X_mc2017_realistic_v2_AC_v01" 
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_UL_AC_ecalV10.root inputFiles=file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AC_v01_HS-v1/20000/8530C79A-90EB-7640-A963-922BE7484B16.root maxEvents=100000
+```
+GT="94X_mc2017_realistic_v11"
+/store/mc/RunIIFall17FSPremix/MinBias_TuneCP2_13TeV-pythia8/GEN-SIM-RECO/PUMoriond17_94X_mc2017_realistic_v11-v1/80000/7CB15E49-7BF1-E811-8096-008CFAC919F8.root
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/MinBias_Run2_Fall17_ecalV10.root inputFiles=file:root://cms-xrd-global.cern.ch//store/mc/RunIIFall17FSPremix/MinBias_TuneCP2_13TeV-pythia8/GEN-SIM-RECO/PUMoriond17_94X_mc2017_realistic_v11-v1/80000/7CB15E49-7BF1-E811-8096-008CFAC919F8.root maxEvents=10000
 ## PFClusters
 
 ### double photon
@@ -61,21 +89,6 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_doubleEle.root inputFil
 ```
 
 $PNFS/EcalGen/PROD_SeedingGathering_v7/  --> Run3 conditions, 50K evts, w   tracker, 102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1
-
-### Neutrino gun - reloaded
-
-```
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/100X_upgrade2018_realistic_v7/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=10000
-
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_new_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/102X_upgrade2018_realistic_v15/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=10000
-
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_1_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
-
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_2_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2022_315fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
-
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_3_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2023_400fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
-
-```
 
 
 

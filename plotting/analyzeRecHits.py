@@ -215,7 +215,9 @@ if __name__ == "__main__":
   #inputfile = '../test/outputfiles/test_photonGun_v3_numEvent1000.root'
 
   #version = 'SingleNu_Run3_2_ecalV9'
-  version = 'SingleNu_Run2_new_ecalV9'
+  #version = 'SingleNu_Run2_new_ecalV9'
+  #version = 'SingleNu_Run2_UL_AB_ecalV10'
+  version = 'SingleNu_Run2_UL_AC_ecalV10'
 
   inputfile = '../test/outputfiles/{v}_numEvent10000.root'.format(v=version)
   inputdir = 'ecalnoisestudy/etaBinnedQuantities'

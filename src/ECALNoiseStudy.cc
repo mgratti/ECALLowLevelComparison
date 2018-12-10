@@ -40,7 +40,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
+///#include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
@@ -513,7 +513,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 {
   TH1::StatOverflows(kTRUE);
 
-  // Get vertices
+/*  // Get vertices
   edm::Handle<reco::VertexCollection> vtx_h;
   ev.getByToken(vertexToken_, vtx_h);
   if ( ! vtx_h.isValid() ) std::cout << "ECALNoiseStudy: vtx collection not found" << std::endl;
@@ -531,6 +531,8 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     }
   }
   h_nPVs->Fill(nvertices);
+*/
+// MG: commented lines in order to run on 94X tags
 
   // Gen particles
   edm::Handle<reco::GenParticleCollection> genParticles_handle;
