@@ -1,0 +1,5 @@
+file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AC_v01_HS-v1/20000/8530C79A-90EB-7640-A963-922BE7484B16.root
+file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AC_v01_HS-v1/20000/C37B3C2F-F70B-D244-ACC0-B6A24A1A8488.root
+file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AC_v01_HS-v1/20000/59A11E02-803B-9A4D-81FD-DF49F9B04961.root
+file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AC_v01_HS-v1/20000/70AE7DFD-F133-7945-B642-D09568452169.root
+file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AC_v01_HS-v1/20000/68A39F36-6BA9-0648-80EF-08EF07BDA920.root
