@@ -52,6 +52,7 @@ ECALNoiseStudy:
 ```
 v8 -> with DeltaR=0.05
 v9 -> with DeltaR=0.08
+v10 -> as v9 but change eta bin end-caps
 ```
 
 ### double electron
@@ -60,6 +61,22 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/check_doubleEle.root inputFil
 ```
 
 $PNFS/EcalGen/PROD_SeedingGathering_v7/  --> Run3 conditions, 50K evts, w   tracker, 102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1
+
+### Neutrino gun - reloaded
+
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/100X_upgrade2018_realistic_v7/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_new_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/102X_upgrade2018_realistic_v15/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_1_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_2_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2022_315fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_3_ecalV9.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/102X_upgrade2018_realistic_EcalAging_mid2023_400fb_v1/SingleNuE10_GEN_SIM_DIGI_RECO.root  maxEvents=10000
+
+```
+
 
 
 ## Basic plotting / monitoring of output

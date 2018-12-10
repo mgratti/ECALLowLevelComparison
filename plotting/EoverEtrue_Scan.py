@@ -29,7 +29,7 @@ det = {}
 det['0p00_0p50'] = 'EB'
 det['0p50_1p00'] = 'EB'
 det['1p00_1p48'] = 'EB'
-det['1p48_2p00'] = 'EEP' # I don't care at this point if it's EEP or EEM
+det['1p65_2p00'] = 'EEP' # I don't care at this point if it's EEP or EEM
 det['2p00_2p50'] = 'EEP' # I don't care at this point if it's EEP or EEM
 det['2p50_3p00'] = 'EEP' # I don't care at this point if it's EEP or EEM
 
@@ -65,13 +65,14 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   # READ
   ##################
   #histoname = 'h_PFclusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
-  histoname = 'h_superClusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
+  #histoname = 'h_superClusters_genMatched_eOverEtrue_Eta{eta}_Et{et}'.format(eta=eta, et=et)
+  histonameFull = histoname + '_Eta{eta}_Et{et}'.format(eta=eta, et=et)
   inputdir = 'ecalnoisestudy'
   subdir = 'EtaEtBinnedQuantities'
   f=TFile(inputfile, 'READ')
-  histo=f.Get('{}/{}/{}'.format(inputdir,subdir,histoname))
+  histo=f.Get('{}/{}/{}'.format(inputdir,subdir,histonameFull))
   if not histo:
-    print 'ERROR: did not find histogram', inputdir, subdir, histoname
+    print 'ERROR: did not find histogram', inputdir, subdir, histonameFull
     return False,result
 
   histo.SetMarkerStyle(20)
@@ -92,9 +93,36 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
   ##################
 
   if doCBfit:
+
+    # first fit a gaussian starting from reasonable parameters
+    f0 = TF1('f1','gaus',0.4, 2.)
+    #f0.SetParameter(0, 200)
+    f0.SetParameter(1,histo.GetMean())
+    f0.SetParameter(2,histo.GetRMS())
+    fitresult = histo.Fit(f0, 'SRM')
+    mean = f0.GetParameter(1)
+    sigma = f0.GetParameter(2)
+    
+    # refit to gaussian, just to make sure
+    f0.SetParameter(1, mean)
+    f0.SetParameter(2, sigma)
+    f0.SetRange(mean-3*sigma, mean+3*sigma)
+    fitresult = histo.Fit(f0, 'SRM')
+    mean = f0.GetParameter(1)
+    sigma = f0.GetParameter(2)
+
+    # then restrict yourself to +/- 3 sigma and fit a crystal ball there
     f1 = TF1('f1','crystalball',0.4, 2.)
+    f1.SetRange(mean-4*sigma, mean+4*sigma)
     f1.SetParameters(200, 1, 0.05, 3, 2) # my guess: constant (normalization)=integral, mean = 1, sigma = 0.1, alpha (quanto lontano dal picco si innesta la coda) = 0.7, N = 0.5 (lunghezza della coda(?)
     f1.SetLineColor(kRed)
+    fitresult = histo.Fit(f1, 'SRM')
+
+    # fit it one more time, starting from fitted parameters
+    f1.SetParameters(f1.GetParameters())
+    fitresult = histo.Fit(f1, 'SRM')
+    # ... and one more time
+    f1.SetParameters(f1.GetParameters())
     fitresult = histo.Fit(f1, 'SRM')
 
   else:
@@ -111,6 +139,20 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
     f1.SetParameter(1, mean)
     f1.SetParameter(2, sigma)
     f1.SetRange(mean-3*sigma, mean+3*sigma)
+    fitresult = histo.Fit(f1, 'SRM')
+
+    mean = f1.GetParameter(1)
+    sigma = f1.GetParameter(2)
+    f1.SetParameter(1, mean)
+    f1.SetParameter(2, sigma)
+    f1.SetRange(mean-2*sigma, mean+2*sigma)
+    fitresult = histo.Fit(f1, 'SRM')
+
+    mean = f1.GetParameter(1)
+    sigma = f1.GetParameter(2)
+    f1.SetParameter(1, mean)
+    f1.SetParameter(2, sigma)
+    f1.SetRange(mean-2*sigma, mean+2*sigma)
     fitresult = histo.Fit(f1, 'SRM')
 
   c = TCanvas()
@@ -130,8 +172,8 @@ def makeEoverEtrueAnalysis(inputfile, eta, et, iseeding, igathering, nevts, outp
     hpass.Fill(0.5)
 
   htot = TH1F('htot', 'htot', 1, 0., 1.)
-  histoname = 'h_genP_nEvts_Eta{eta}_Et{Et}'.format(eta=eta, Et=et)
-  h_genP = f.Get('{}/{}/{}'.format(inputdir,subdir,histoname))
+  histonameFull = 'h_genP_nEvts_Eta{eta}_Et{Et}'.format(eta=eta, Et=et)
+  h_genP = f.Get('{}/{}/{}'.format(inputdir,subdir,histonameFull))
   Ntot = h_genP.GetEntries()
   for i in range(0, int(Ntot)):
     htot.Fill(0.5)
@@ -175,7 +217,12 @@ if __name__ == "__main__":
 
   from argparse import ArgumentParser
   parser = ArgumentParser(description='', add_help=True)
-  parser.add_argument('-v', '--version', type=str, dest='version', help='', default=None)
+  parser.add_argument('-e', '--ecalVersion', type=str, dest='ecalVersion', help='', default=None)
+  parser.add_argument('-p', '--prodVersion', type=str, dest='prodVersion', help='', default=None)
+  parser.add_argument('-a', '--anaName', type=str, dest='anaName', help='', default=None)
+  parser.add_argument('--doCB', dest='doCB', help='', action='store_true', default=False)
+
+
   options = parser.parse_args()
 
   gROOT.SetBatch(True)
@@ -192,15 +239,16 @@ if __name__ == "__main__":
   ####################################
   ## Define input, output and parameters
   ####################################
-  version = 'vprodV7_ecalV9'
-  anaName = 'DoubleElectron' # photonGun
+  version = '{}_{}'.format(options.prodVersion, options.ecalVersion)
+  anaName = options.anaName # photonGun
   global anaLabel 
   anaLabel = 'ee, w/ tracker' if anaName == 'DoubleElectron' else '#gamma#gamma, no tracker'
-  
-  if options.version != None:
-    version = options.version
+  global histoname 
+  if anaName=='DoubleElectron':
+    histoname = 'h_superClusters_genMatched_eOverEtrue'
+  else:
+    histoname = 'h_PFclusters_genMatched_eOverEtrue'
 
-  #inputfile = '../test/outputfiles/test_photonGun_seed{s}_gather{g}_{v}_numEvent{n}.root'
   inputfile = '../test/outputfiles/test_{a}_seed{s}_gather{g}_{v}_numEvent{n}.root'
 
   params = {}
@@ -210,7 +258,8 @@ if __name__ == "__main__":
   parameters_set = list(itertools.product(params["nevts"],params["seeding"],params["gathering"] ))
 
   Ets = ['1_4', '4_7', '7_10']
-  Etas= ['0p00_0p50', '0p50_1p00', '1p00_1p48', '1p48_2p00', '2p00_2p50', '2p50_3p00']
+  #Ets = [ '4_7']
+  Etas= ['0p00_0p50', '0p50_1p00', '1p00_1p48', '1p65_2p00', '2p00_2p50', '2p50_3p00']
 
   results = {}
   for eta in Etas:
@@ -219,7 +268,7 @@ if __name__ == "__main__":
       results[eta][et]=[]
 
   outputdir = 'plots/anaEoverEtrue_{v}'.format(v=version)
-
+  if not options.doCB: outputdir = outputdir + '_noCB'
   os.system('mkdir {}'.format(outputdir))
 
   ####################################
@@ -236,7 +285,7 @@ if __name__ == "__main__":
         ### FILTER OUT PATHOLOGICAL CASES
         inputfilename = inputfile.format(a=anaName, s=iseeding, g=igathering, n=inevts, v=version)
         if igathering * thrs[det[eta]]['gather'] > iseeding * thrs[det[eta]]['seed']: continue # minimal sense of decency # FIXME: do it at generation level directly
-        ret,result = makeEoverEtrueAnalysis(inputfilename, eta, et, iseeding, igathering, inevts, outputdir, doCBfit=False)
+        ret,result = makeEoverEtrueAnalysis(inputfilename, eta, et, iseeding, igathering, inevts, outputdir, doCBfit=options.doCB)
         if ret:
           results[eta][et].append(result)
         else:
@@ -380,7 +429,8 @@ if __name__ == "__main__":
   # 2D maps
   #Ets = ['1_2', '5_6', '9_10']
   Ets = ['1_4', '4_7', '7_10']
-  Etas= ['0p00_0p50', '0p50_1p00', '1p00_1p48', '1p48_2p00', '2p00_2p50', '2p50_3p00']
+  #Ets = [ '4_7']
+  Etas= ['0p00_0p50', '0p50_1p00', '1p00_1p48', '1p65_2p00', '2p00_2p50', '2p50_3p00']
 
 
   for group in groups:

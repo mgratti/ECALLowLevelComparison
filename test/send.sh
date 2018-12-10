@@ -1,5 +1,5 @@
-VERSION="prodV7_ecalV9"
-PL="PROD_SeedingGathering_v7"
+VERSION="prodV8_ecalV9"
+PL="PROD_SeedingGathering_v8"
 ANANAME="DoubleElectron"
 
 for iSEED in 0.5 1.0 2.0 5.0 10.0

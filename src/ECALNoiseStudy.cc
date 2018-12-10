@@ -157,10 +157,10 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   Eta_edges["0p50_1p00"].second = 1.0;
   Eta_keys.push_back("1p00_1p48");
   Eta_edges["1p00_1p48"].first = 1.0;
-  Eta_edges["1p00_1p48"].second = 1.48;
-  Eta_keys.push_back("1p48_2p00");
-  Eta_edges["1p48_2p00"].first = 1.48;
-  Eta_edges["1p48_2p00"].second = 2.0;
+  Eta_edges["1p00_1p48"].second = 1.479;
+  Eta_keys.push_back("1p65_2p00");
+  Eta_edges["1p65_2p00"].first = 1.653;
+  Eta_edges["1p65_2p00"].second = 2.0;
   Eta_keys.push_back("2p00_2p50");
   Eta_edges["2p00_2p50"].first = 2.0;
   Eta_edges["2p00_2p50"].second = 2.5;
