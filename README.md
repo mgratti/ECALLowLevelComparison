@@ -19,8 +19,8 @@ Studies so far do not include pile-up.
 CMSSW release depends on the GT of the samples you want to run on
 
 ```
-cmsrel CMSSW_10_2_4
-cd CMSSW_10_2_4/src
+cmsrel CMSSW_10_5_0
+cd CMSSW_10_5_0/src
 cmsenv
 
 git clone git@github.com:mgratti/ECALNoiseStudy.git ECAL/ECALLowLevelComparison

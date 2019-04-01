@@ -50,7 +50,8 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEv
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff' )
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2018_realistic_forECAL_A_alpha_v1')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2018_realistic_v7')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '102X_upgrade2018_realistic_EcalAging_mid2021_235fb_v1')
@@ -58,7 +59,8 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 ## I believe that this is due to the fact that I simply read collections that have not changed over the checked global tags.
 ## However, it seems it's not good practice, therefore I have moved to specifying the global tag
 #process.GlobalTag = GlobalTag(process.GlobalTag, cms.string(options.conditions))
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_mc2017_realistic_v2_AC_v01')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_mc2017_realistic_v2_AC_v01')
+process.GlobalTag = GlobalTag(process.GlobalTag, '105X_upgrade2018_realistic_v3', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '94X_mc2017_realistic_v11')
 
 # Load the algorithm and send configurable arguments to it
