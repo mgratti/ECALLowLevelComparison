@@ -58,8 +58,8 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 ## I believe that this is due to the fact that I simply read collections that have not changed over the checked global tags.
 ## However, it seems it's not good practice, therefore I have moved to specifying the global tag
 #process.GlobalTag = GlobalTag(process.GlobalTag, cms.string(options.conditions))
-#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_mc2017_realistic_v2_AC_v01')
-process.GlobalTag = GlobalTag(process.GlobalTag, '94X_mc2017_realistic_v11')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_mc2017_realistic_v2_AC_v01')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '94X_mc2017_realistic_v11')
 
 # Load the algorithm and send configurable arguments to it
 process.ecalnoisestudy = cms.EDAnalyzer('ECALNoiseStudy',

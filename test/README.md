@@ -46,15 +46,28 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_3_ecalV9.root i
 
 GT="103X_mc2017_realistic_v2_AB_v01"
 ```
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_UL_AB_ecalV10.root inputFiles=file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AB_v01_HS-v1/20000/658C0857-EAE3-E44A-B7EB-BAB266C005AB.root maxEvents=100000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_UL_AB_ecalV10.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_4_0_pre2/src/ECALGen/private_production/reco/nugun_reco_103X_AB/RelValNuGun_103X_mc2017_realistic_v2_AB_v01_HS-v1.root maxEvents=15000
 ```
 GT="103X_mc2017_realistic_v2_AC_v01" 
 ```
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_UL_AC_ecalV10.root inputFiles=file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2_AC_v01_HS-v1/20000/8530C79A-90EB-7640-A963-922BE7484B16.root maxEvents=100000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_UL_AC_ecalV10.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_10_4_0_pre2/src/ECALGen/private_production/reco/nugun_reco_103X_AC/RelValNuGun_103X_mc2017_realistic_v2_AC_v01_HS-v1.root maxEvents=15000
 ```
 GT="94X_mc2017_realistic_v11"
-/store/mc/RunIIFall17FSPremix/MinBias_TuneCP2_13TeV-pythia8/GEN-SIM-RECO/PUMoriond17_94X_mc2017_realistic_v11-v1/80000/7CB15E49-7BF1-E811-8096-008CFAC919F8.root
+```
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/MinBias_Run2_Fall17_ecalV10.root inputFiles=file:root://cms-xrd-global.cern.ch//store/mc/RunIIFall17FSPremix/MinBias_TuneCP2_13TeV-pythia8/GEN-SIM-RECO/PUMoriond17_94X_mc2017_realistic_v11-v1/80000/7CB15E49-7BF1-E811-8096-008CFAC919F8.root maxEvents=10000
+```
+
+Fall17 conditions
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_Fall17_central_ecalV10.root inputFiles=file:root://cms-xrd-global.cern.ch//store/relval/CMSSW_11_4_0_pre2/RelValNuGun/GEN-SIM-RECO/103X_mc2017_realistic_v2-v1/20000/E3B48B18-B84F-4346-BEF4-CA8508B2675F.root     maxEvents=15000
+```
+
+THIS SAMPLE IS BUGGED
+GT="94X_mc2017_realistic_v10"
+```
+cmsRun ../python/Cfg_std.py  outputFile=outputfiles/SingleNu_Run2_Fall17_ecalV10.root inputFiles=file:/shome/mratti/cmssw_workarea/Generation/CMSSW_9_4_0_patch1/src/ECALGen/private_production/gen_sim_digi_reco/nugun_Fall17/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=15000
+```
+
 ## PFClusters
 
 ### double photon
