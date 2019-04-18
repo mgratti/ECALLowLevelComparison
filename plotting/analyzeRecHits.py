@@ -6,7 +6,7 @@
 
 import sys
 import os
-sys.path.append('{user}/plotting/myplotting'.format(user=os.environ['HOME']))
+sys.path.append('/work/mratti/plotting/myplotting')
 from spares import *
 from array import *
 
@@ -194,7 +194,7 @@ def makeNoiseVsEtaPlot(outputdir, allgraphs, groups_to_plot, namegroups_to_plot,
   mg.GetYaxis().SetTitle('Noise (GeV)')
 
   mg.GetXaxis().SetTitle('#eta')
-  if 'EB' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 0.3)
+  if 'EB' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0.1, 0.6)
   elif 'EE' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 10)
 
   leg.Draw('same')
@@ -206,7 +206,7 @@ def makeNoiseVsEtaPlot(outputdir, allgraphs, groups_to_plot, namegroups_to_plot,
 
 if __name__ == "__main__":
 
-  gROOT.ProcessLine('.L ~/CMS_style/tdrstyle.C')
+  gROOT.ProcessLine('.L /work/mratti/CMS_style/tdrstyle.C')
   gROOT.ProcessLine('setTDRStyle()')
   gROOT.SetBatch(True)
   TH1.StatOverflows(kTRUE)
@@ -221,9 +221,11 @@ if __name__ == "__main__":
   #version = 'SingleNu_Run3_2_ecalV9'
   #version = 'SingleNu_Run2_new_ecalV9'
   #version = 'SingleNu_Run2_UL_AB_ecalV10'
-  version = 'SingleNu_Run2_UL_AC_ecalV10'
+  #version = 'SingleNu_Run2_UL_AC_ecalV10'
   #version = 'SingleNu_Run2_Fall17_ecalV10'
   #version = 'SingleNu_Run2_Fall17_central_ecalV10'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV10'
+  version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV10'
 
   inputfile = '../test/outputfiles/{v}_numEvent15000.root'.format(v=version)
   inputdir = 'ecalnoisestudy/etaBinnedQuantities'

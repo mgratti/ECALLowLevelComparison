@@ -73,6 +73,8 @@ edit in Cfg GT="105X_upgrade2018_realistic_v3"
 
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV10.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=15000
 
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_450ifb_ecalV10.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=15000
+
 ## PFClusters
 
 ### double photon

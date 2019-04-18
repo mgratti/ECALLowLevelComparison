@@ -1,3 +1,7 @@
+// TODO: fix the bad tabs created by ATOM
+
+
+
 #include <memory>
 
 
@@ -217,6 +221,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_recHits_EB_iPhiOccupancy = recHitsDir.make<TH1D>("h_recHits_EB_iPhiOccupancy","h_recHits_EB_iPhiOccupancy",360,1.,361. );
   h_recHits_EB_iEtaOccupancy = recHitsDir.make<TH1D>("h_recHits_EB_iEtaOccupancy","h_recHits_EB_iEtaOccupancy",172,-86.,86.);
   h_recHits_EB_occupancy     = recHitsDir.make<TH2D>("h_recHits_EB_occupancy","h_recHits_EB_occupancy",360,1.,361.,172,-86.,86. );
+  h_recHits_EB_energy_etaphi     = recHitsDir.make<TH2D>("h_recHits_EB_energy_etaphi","h_recHits_EB_energy_etaphi",32,-3.2,3.2,30,-1.5,1.5 );
+  h_recHits_EB_energy_ietaiphi     = recHitsDir.make<TH2D>("h_recHits_EB_energy_ietaiphi","h_recHits_EB_energy_ietaiphi",360, 1.,361,172,-86.,86.);
   h_recHits_EB_occupancy_gt10 = recHitsDir.make<TH2D>("h_recHits_EB_occupancy_gt10","h_recHits_EB_occupancy_gt10",360,1.,361.,172,-86.,86. );
   h_recHits_EB_occupancy_lt10 = recHitsDir.make<TH2D>("h_recHits_EB_occupancy_lt10","h_recHits_EB_occupancy_lt10",360,1.,361.,172,-86.,86. );
   h_recHits_EB_eneVSieta     = recHitsDir.make<TH2D>("h_recHits_EB_eneVSieta", "h_recHits_EB_eneVSieta", 100,0,20, 172,-86.,86.);
@@ -246,6 +252,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_recHits_EEP_occupancy_etaphi = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy_etaphi","h_recHits_EEP_occupancy_etaphi",40,1.0,3.0,100,-3.2,3.2 );
   h_recHits_EEP_occupancy_gt10 = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy_gt10","h_recHits_EEP_occupancy_gt10",100,0.,100.,100,0.,100. );
   h_recHits_EEP_occupancy_lt10 = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy_lt10","h_recHits_EEP_occupancy_lt10",100,0.,100.,100,0.,100. );
+  h_recHits_EEP_energy_etaphi = recHitsDir.make<TH2D>("h_recHits_EEP_energy_etaphi","h_recHits_EEP_energy_etaphi",100,-3.2,3.2,40,1.0,3.0);
+  h_recHits_EEP_energy_ixiy   = recHitsDir.make<TH2D>("h_recHits_EEP_energy_ixiy","h_recHits_EEP_energy_ixiy",100,0.,100.,100,0.,100. );
 
   h_recHits_EEM_size          = recHitsDir.make<TH1D>("h_recHits_EEM_size","h_recHits_EEM_size",100,0,1000);
   h_recHits_EEM_eta           = recHitsDir.make<TH1D>("h_recHits_EEM_eta","h_recHits_EEM_eta",74,-3.,-1.48);
@@ -599,6 +607,8 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_recHits_EB_Chi2          -> Fill( itr -> chi2() );
       h_recHits_EB_eneVSieta     -> Fill( itr->energy() , ebid.ieta() );
       h_recHits_EB_occupancy     -> Fill( ebid.iphi() , ebid.ieta() );
+      h_recHits_EB_energy_etaphi     -> Fill( mycell.phi() , mycell.eta(), itr->energy() );
+      h_recHits_EB_energy_ietaiphi     -> Fill( ebid.iphi() ,  ebid.ieta(), itr->energy() );
       if (itr->energy() > 10) h_recHits_EB_occupancy_gt10 -> Fill( ebid.iphi() , ebid.ieta() );
       if (itr->energy() < 10) h_recHits_EB_occupancy_lt10 -> Fill( ebid.iphi() , ebid.ieta() );
       h_recHits_EB_iPhiOccupancy -> Fill( ebid.iphi() );
@@ -700,7 +710,9 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     	  h_recHits_EEP_time          -> Fill( itr -> time() );
     	  h_recHits_EEP_Chi2          -> Fill( itr -> chi2() );
     	  h_recHits_EEP_occupancy     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
-        h_recHits_EEP_occupancy_etaphi -> Fill (mycell.eta(), mycell.phi());
+          h_recHits_EEP_occupancy_etaphi -> Fill (mycell.eta(), mycell.phi());
+          h_recHits_EEP_energy_etaphi -> Fill (mycell.phi(), mycell.eta(), itr -> energy());
+          h_recHits_EEP_energy_ixiy -> Fill (eeid.ix() - 0.5, eeid.iy() - 0.5, itr -> energy());
     	  if (itr->energy() >10) h_recHits_EEP_occupancy_gt10     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
     	  if (itr->energy() <10) h_recHits_EEP_occupancy_lt10     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
     	  h_recHits_EEP_iXoccupancy   -> Fill( eeid.ix() - 0.5 );

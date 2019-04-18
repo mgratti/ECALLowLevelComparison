@@ -134,6 +134,8 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_recHits_EB_iPhiOccupancy;
    TH1D *h_recHits_EB_iEtaOccupancy;
    TH2D *h_recHits_EB_occupancy;
+   TH2D *h_recHits_EB_energy_etaphi;
+   TH2D *h_recHits_EB_energy_ietaiphi;
    TH2D *h_recHits_EB_occupancy_gt10;
    TH2D *h_recHits_EB_occupancy_lt10;
    TH1D *h_recHits_EB_energy_spike;
@@ -169,6 +171,8 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH2D *h_recHits_EEP_occupancy_etaphi;
    TH2D *h_recHits_EEP_occupancy_gt10;
    TH2D *h_recHits_EEP_occupancy_lt10;
+   TH2D *h_recHits_EEP_energy_etaphi;
+   TH2D *h_recHits_EEP_energy_ixiy;
 
    TH1D *h_PFrecHits_EEP_eta;
    TH1D *h_PFrecHits_EEP_energy;
