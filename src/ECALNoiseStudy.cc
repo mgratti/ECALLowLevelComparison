@@ -85,7 +85,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
   std::cout << "Setting up analysis for channel=" << anaName_ << std::endl;
 
-  // collections
+  // collections to access
   vertexToken_               = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVTag"));
 
   genParticleCollection_     = consumes<reco::GenParticleCollection>(ps.getParameter<edm::InputTag>("genParticleCollection"));
@@ -126,7 +126,6 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   nBins_eta["EEM"]= (int) (1.5/delta_eta["EEM"]);
   nBins_eta["EEP"]= (int) (1.5/delta_eta["EEP"]);
 
-
   for (TString region : regions){
     // create the keys for the eta bins
     for (Int_t i=0; i<nBins_eta[region]; i++){
@@ -139,6 +138,37 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
       eta_keys[region].push_back(key);
       eta_edges[region][key].first = low_edge;
       eta_edges[region][key].second = up_edge;
+    }
+  }
+
+  // configurations for plots in ring bins
+  std::map<TString, Double_t> start_ring;
+  start_ring["EB"]=  -90.;//-86.;  // this is in ieta coordinates
+  start_ring["EEP"] = 0.;  //(~11.5 -> ~52.) // this is in ir=sqrt((ix-50)**2+(iy-50)**2) coordinates
+  start_ring["EEM"] = 0.;
+
+  std::map<TString,Double_t> delta_ring;
+  delta_ring["EB"]=  1; // in EB size size of a trigger tower is 5x5
+  delta_ring["EEP"]= 1; // in end-caps fixed delta ring means variable number of crystal inside
+  delta_ring["EEM"]= 1; // in end-caps fixed delta ring means variable number of crystal inside
+
+  std::map<TString, Int_t> nBins_ring;
+  nBins_ring["EB"]  = (int) (-start_ring["EB"]-start_ring["EB"])/delta_ring["EB"];
+  nBins_ring["EEP"] = (int) (40-start_ring["EEP"])/delta_ring["EEP"];
+  nBins_ring["EEM"] = nBins_ring["EEP"];
+
+  for (TString region : regions){
+    // create the keys for the ring bins
+    for (Int_t i=0; i<nBins_ring[region]; i++){
+      Float_t low_edge = (start_ring[region] + i * delta_ring[region]);
+      Float_t up_edge =  (start_ring[region] + (i+1) * delta_ring[region]);
+      //std::cout << TString::Format("%.2f_%.2f", low_edge, up_edge) << std::endl;
+      TString key = TString::Format("%d_%d", int(low_edge), int(up_edge));
+      //if(key.Contains(".")) key.ReplaceAll(".", "dot");
+      if(key.Contains("-")) key.ReplaceAll("-", "n");
+      ring_keys[region].push_back(key);
+      ring_edges[region][key].first = low_edge;
+      ring_edges[region][key].second = up_edge;
     }
   }
 
@@ -172,17 +202,8 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   Eta_edges["2p50_3p00"].first = 2.5;
   Eta_edges["2p50_3p00"].second = 3.0;
 
-  /*
-  for (TString region: regions){
-    for (Int_t i=1; i<10; i++){
-      TString key = TString::Format("%d_%d", i, i+1 );
-      Et_keys[region].push_back(key);
-      Et_edges[region][key].first = i;
-      Et_edges[region][key].second = i+1;
-    }
-  }*/
 
-  // histos
+  // histos (and a few graphs)
   edm::Service<TFileService> fs;
   TFileDirectory genDir = fs->mkdir( "general" );
   TFileDirectory recHitsDir = fs->mkdir( "recHits" );
@@ -190,16 +211,18 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   TFileDirectory PFclustersDir = fs->mkdir( "PFClusters" );
   TFileDirectory superClustersDir = fs->mkdir( "superClusters" );
   TFileDirectory etaBinnedDir = fs->mkdir( "etaBinnedQuantities" );
+  TFileDirectory ringBinnedDir = fs->mkdir( "ringBinnedQuantities" );
   TFileDirectory EtaEtBinnedDir = fs->mkdir( "EtaEtBinnedQuantities" );
   TFileDirectory eventDir = fs->mkdir( "event" );
 
 
-  // Vertices
+  // General
   h_numberOfEvents = genDir.make<TH1D>("h_numberOfEvents","h_numberOfEvents",10,0,10);
   h_nPVs = genDir.make<TH1D>("h_nPVs","h_nPVs",80,0,80);
 
   // gen particles
   h_genP_pt                 = genDir.make<TH1D>("h_genP_pt", "h_genP_pt", 100, 0., 100. );
+  h_genP_energy             = genDir.make<TH1D>("h_genP_energy", "h_genP_energy", 100, 0., 100. );
   h_genP_eta                = genDir.make<TH1D>("h_genP_eta", "h_genP_eta", 120, -3., 3. );
   h_genP_phi                = genDir.make<TH1D>("h_genP_phi", "h_genP_phi", 128, -3.2, 3.2);
   h_genP_status             = genDir.make<TH1D>("h_genP_status", "h_genP_status", 10, 0., 10.);
@@ -209,23 +232,36 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_genP_pt_EEM               = genDir.make<TH1D>("h_genP_pt_EEM", "h_genP_pt_EEM", 100, 0., 100. );
 
   // Rechits, barrel
+  g_coord_EB_ieta_eta = recHitsDir.make<TGraph>(); //"h_coord_EB_ieta_eta", "h_coord_EB_ieta_eta", 172, -86., 86., 172, -1.479, 1.479); // here use exact values to get one-to-one correspondance
+  g_coord_EB_iphi_phi = recHitsDir.make<TGraph>(); // "h_coord_EB_iphi_phi", "h_coord_EB_iphi_phi", 360, 1., 361., 360,-3.2,3.2); // here use exact values to get one-to-one correspondance
+  g_coord_EE_ir_eta = recHitsDir.make<TGraph>();
+  g_coord_EE_iphi_phi = recHitsDir.make<TGraph>();
+  g_coord_EB_ieta_eta->SetTitle("g_coord_EB_ieta_eta");
+  g_coord_EB_ieta_eta->SetName("g_coord_EB_ieta_eta");
+  g_coord_EB_iphi_phi->SetTitle("g_coord_EB_iphi_phi");
+  g_coord_EB_iphi_phi->SetName("g_coord_EB_iphi_phi");
+  g_coord_EE_ir_eta->SetTitle("g_coord_EE_ir_eta");
+  g_coord_EE_ir_eta->SetName("g_coord_EE_ir_eta");
+  g_coord_EE_iphi_phi->SetTitle("g_coord_EE_iphi_phi");
+  g_coord_EE_iphi_phi->SetName("g_coord_EE_iphi_phi");
+
   h_recHits_EB_size          = recHitsDir.make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 100, 500, 3500 );
   h_recHits_EB_eta           = recHitsDir.make<TH1D>("h_recHits_EB_eta","h_recHits_EB_eta",148,-1.48,1.48);
-  h_recHits_EB_maxEneEta     = recHitsDir.make<TH1D>("h_recHits_EB_maxEneEta","h_recHits_EB_maxEneEta",148,-1.48,1.48);
   h_recHits_EB_energy        = recHitsDir.make<TH1D>("h_recHits_EB_energy","h_recHitsEB_energy",1000,0,20);
   h_recHits_EB_energyMax     = recHitsDir.make<TH1D>("h_recHits_EB_energyMax","h_recHitsEB_energyMax",100,0,20);
+  h_recHits_EB_energyMaxEta  = recHitsDir.make<TH1D>("h_recHits_EB_energyMaxEta","h_recHits_EB_energyMaxEta",148,-1.48,1.48);
   h_recHits_EB_time          = recHitsDir.make<TH1D>("h_recHits_EB_time","h_recHits_EB_time",400,-100,100);
   h_recHits_EB_Chi2          = recHitsDir.make<TH1D>("h_recHits_EB_Chi2","h_recHits_EB_Chi2",500,0,50);
-  h_recHits_EB_OutOfTimeChi2 = recHitsDir.make<TH1D>("h_recHits_EB_OutOfTimeChi2","h_recHits_EB_OutOfTimeChi2",1000,0,100);
+  //h_recHits_EB_OutOfTimeChi2 = recHitsDir.make<TH1D>("h_recHits_EB_OutOfTimeChi2","h_recHits_EB_OutOfTimeChi2",1000,0,100);
   h_recHits_EB_E1oE4         = recHitsDir.make<TH1D>("h_recHits_EB_E1oE4","h_recHitsEB_E1oE4",148, 0, 1.48);
   h_recHits_EB_iPhiOccupancy = recHitsDir.make<TH1D>("h_recHits_EB_iPhiOccupancy","h_recHits_EB_iPhiOccupancy",360,1.,361. );
   h_recHits_EB_iEtaOccupancy = recHitsDir.make<TH1D>("h_recHits_EB_iEtaOccupancy","h_recHits_EB_iEtaOccupancy",172,-86.,86.);
   h_recHits_EB_occupancy     = recHitsDir.make<TH2D>("h_recHits_EB_occupancy","h_recHits_EB_occupancy",360,1.,361.,172,-86.,86. );
-  h_recHits_EB_energy_etaphi     = recHitsDir.make<TH2D>("h_recHits_EB_energy_etaphi","h_recHits_EB_energy_etaphi",32,-3.2,3.2,30,-1.5,1.5 );
-  h_recHits_EB_energy_ietaiphi     = recHitsDir.make<TH2D>("h_recHits_EB_energy_ietaiphi","h_recHits_EB_energy_ietaiphi",360, 1.,361,172,-86.,86.);
+  //h_recHits_EB_energy_etaphi     = recHitsDir.make<TH2D>("h_recHits_EB_energy_etaphi","h_recHits_EB_energy_etaphi",32,-3.2,3.2,30,-1.5,1.5 );
+  //h_recHits_EB_energy_ietaiphi     = recHitsDir.make<TH2D>("h_recHits_EB_energy_ietaiphi","h_recHits_EB_energy_ietaiphi",360, 1.,361,172,-86.,86.);
   h_recHits_EB_occupancy_gt10 = recHitsDir.make<TH2D>("h_recHits_EB_occupancy_gt10","h_recHits_EB_occupancy_gt10",360,1.,361.,172,-86.,86. );
   h_recHits_EB_occupancy_lt10 = recHitsDir.make<TH2D>("h_recHits_EB_occupancy_lt10","h_recHits_EB_occupancy_lt10",360,1.,361.,172,-86.,86. );
-  h_recHits_EB_eneVSieta     = recHitsDir.make<TH2D>("h_recHits_EB_eneVSieta", "h_recHits_EB_eneVSieta", 100,0,20, 172,-86.,86.);
+  //h_recHits_EB_eneVSieta     = recHitsDir.make<TH2D>("h_recHits_EB_eneVSieta", "h_recHits_EB_eneVSieta", 100,0,20, 172,-86.,86.);
   h_recHits_EB_energy_spike  = recHitsDir.make<TH1D>("h_recHits_EB_energy_spike","h_recHitsEB_energy_spike",2000,0,500);
 
   // Rechits, barrel (with spike cleaning)
@@ -238,10 +274,10 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_recHits_EE_size           = recHitsDir.make<TH1D>("h_recHits_EE_size","h_recHits_EE_size",100,0,1000);
   h_recHits_EEP_size          = recHitsDir.make<TH1D>("h_recHits_EEP_size","h_recHits_EEP_size",100,0,1000);
   h_recHits_EEP_eta           = recHitsDir.make<TH1D>("h_recHits_EEP_eta","h_recHits_EEP_eta",74,1.48,3.);
-  h_recHits_EEP_maxEneEta     = recHitsDir.make<TH1D>("h_recHits_EEP_maxEneEta","h_recHits_EEP_maxEneEta",74,1.48,3.);
   h_recHits_EEP_energy        = recHitsDir.make<TH1D>("h_recHits_EEP_energy","h_recHits_EEP_energy",50,0,100);
   h_recHits_EEP_energy_gt25   = recHitsDir.make<TH1D>("h_recHits_EEP_energy_gt25","h_recHits_EEP_energy_gt25",50,0,100);
   h_recHits_EEP_energyMax     = recHitsDir.make<TH1D>("h_recHits_EEP_energyMax","h_recHitsEEP_energyMax",50,0,100);
+  h_recHits_EEP_energyMaxEta  = recHitsDir.make<TH1D>("h_recHits_EEP_energyMaxEta","h_recHits_EEP_energyMaxEta",74,1.48,3.);
   h_recHits_EEP_time          = recHitsDir.make<TH1D>("h_recHits_EEP_time","h_recHits_EEP_time",400,-100,100);
   h_recHits_EEP_Chi2          = recHitsDir.make<TH1D>("h_recHits_EEP_Chi2","h_recHits_EEP_Chi2",500,0,50);
   h_recHits_EEP_OutOfTimeChi2 = recHitsDir.make<TH1D>("h_recHits_EEP_OutOfTimeChi2","h_recHits_EEP_OutOfTimeChi2",500,0,50);
@@ -249,18 +285,18 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   h_recHits_EEP_iXoccupancy   = recHitsDir.make<TH1D>("h_recHits_EEP_iXoccupancy","h_recHits_EEP_iXoccupancy",100,0.,100.);
   h_recHits_EEP_iYoccupancy   = recHitsDir.make<TH1D>("h_recHits_EEP_iYoccupancy","h_recHits_EEP_iYoccupancy",100,0.,100.);
   h_recHits_EEP_occupancy     = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy","h_recHits_EEP_occupancy",100,0.,100.,100,0.,100. );
-  h_recHits_EEP_occupancy_etaphi = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy_etaphi","h_recHits_EEP_occupancy_etaphi",40,1.0,3.0,100,-3.2,3.2 );
+  //h_recHits_EEP_occupancy_etaphi = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy_etaphi","h_recHits_EEP_occupancy_etaphi",40,1.0,3.0,100,-3.2,3.2 );
   h_recHits_EEP_occupancy_gt10 = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy_gt10","h_recHits_EEP_occupancy_gt10",100,0.,100.,100,0.,100. );
   h_recHits_EEP_occupancy_lt10 = recHitsDir.make<TH2D>("h_recHits_EEP_occupancy_lt10","h_recHits_EEP_occupancy_lt10",100,0.,100.,100,0.,100. );
-  h_recHits_EEP_energy_etaphi = recHitsDir.make<TH2D>("h_recHits_EEP_energy_etaphi","h_recHits_EEP_energy_etaphi",100,-3.2,3.2,40,1.0,3.0);
-  h_recHits_EEP_energy_ixiy   = recHitsDir.make<TH2D>("h_recHits_EEP_energy_ixiy","h_recHits_EEP_energy_ixiy",100,0.,100.,100,0.,100. );
+  //h_recHits_EEP_energy_etaphi = recHitsDir.make<TH2D>("h_recHits_EEP_energy_etaphi","h_recHits_EEP_energy_etaphi",100,-3.2,3.2,40,1.0,3.0);
+  //h_recHits_EEP_energy_ixiy   = recHitsDir.make<TH2D>("h_recHits_EEP_energy_ixiy","h_recHits_EEP_energy_ixiy",100,0.,100.,100,0.,100. );
 
   h_recHits_EEM_size          = recHitsDir.make<TH1D>("h_recHits_EEM_size","h_recHits_EEM_size",100,0,1000);
   h_recHits_EEM_eta           = recHitsDir.make<TH1D>("h_recHits_EEM_eta","h_recHits_EEM_eta",74,-3.,-1.48);
-  h_recHits_EEM_maxEneEta     = recHitsDir.make<TH1D>("h_recHits_EEM_maxEneEta","h_recHits_EEM_maxEneEta",74,-3.,-1.48);
   h_recHits_EEM_energy        = recHitsDir.make<TH1D>("h_recHits_EEM_energy","h_recHits_EEM_energy",50,0,100);
   h_recHits_EEM_energy_gt25   = recHitsDir.make<TH1D>("h_recHits_EEM_energy_gt25","h_recHits_EEM_energy_gt25",50,0,100);
   h_recHits_EEM_energyMax     = recHitsDir.make<TH1D>("h_recHits_EEM_energyMax","h_recHitsEEM_energyMax",50,0,100);
+  h_recHits_EEM_energyMaxEta  = recHitsDir.make<TH1D>("h_recHits_EEM_energyMaxEta","h_recHits_EEM_energyMaxEta",74,-3.,-1.48);
   h_recHits_EEM_time          = recHitsDir.make<TH1D>("h_recHits_EEM_time","h_recHits_EEM_time",400,-100,100);
   h_recHits_EEM_Chi2          = recHitsDir.make<TH1D>("h_recHits_EEM_Chi2","h_recHits_EEM_Chi2",500,0,50);
   h_recHits_EEM_OutOfTimeChi2 = recHitsDir.make<TH1D>("h_recHits_EEM_OutOfTimeChi2","h_recHits_EEM_OutOfTimeChi2",500,0,50);
@@ -448,20 +484,37 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // --------- Rechits vs eta
   for (TString region : regions){
     for (TString key : eta_keys[region]){
-      TString histo_name = "h_RecHits_" + region + "_energy_" + key;
+      TString histo_name = "h_RecHits_" + region + "_energy_eta_" + key;
       h_recHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
       histo_name = "h_RecHits_" + region + "_et_" + key;
       h_recHits_et_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
 
+  // --------- Rechits vs ring
+  for (TString region : regions){
+    for (TString key : ring_keys[region]){
+      TString histo_name = "h_RecHits_" + region + "_energy_ring_" + key;
+      h_recHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
+    }
+  }
+
   // --------- PFRechits vs eta
   for (TString region : regions){
     for (TString key : eta_keys[region]){
-      TString histo_name = "h_PfRecHits_" + region + "_energy_" + key;
+      TString histo_name = "h_PfRecHits_" + region + "_energy_eta_" + key;
       h_PFrecHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
+
+  // --------- PFRechits vs ring
+  for (TString region : regions){
+    for (TString key : ring_keys[region]){
+      TString histo_name = "h_PfRecHits_" + region + "_energy_ring_" + key;
+      h_PFrecHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
+    }
+  }
+
   // --------- E (PF clusters) over E true binned in et and eta
   for (TString Et_key : Et_keys){
     for (TString Eta_key: Eta_keys){
@@ -550,9 +603,10 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
   for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin (); genParticle != genParticles->end () ;++genParticle) {
 
-    //if (fabs(genParticle->pdgId())!=11 || genParticle->status()!=1 || genParticle->pt()<1.) continue; // FIXME: added only for quick tests on electrons 
+    //if (fabs(genParticle->pdgId())!=11 || genParticle->status()!=1 || genParticle->pt()<1.) continue; // FIXME: added only for quick tests on electrons
     //std::cout << naiveId_ << " pdgid=" << genParticle->pdgId() << " status=" <<  genParticle->status() << " pt=" << genParticle->pt() << std::endl;
     h_genP_pt->Fill(genParticle->pt());
+    h_genP_energy->Fill(genParticle->energy());
     h_genP_eta->Fill(genParticle->eta());
     h_genP_phi->Fill(genParticle->phi());
     h_genP_status->Fill(genParticle->status());
@@ -588,10 +642,16 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   float maxERecHitEB_ene = -999.;
   float maxERecHitEB_eta = -999.;
   int sizeEB_cleaned = 0;
+  int iEBrh = 0;
   for ( EcalRecHitCollection::const_iterator itr = theBarrelEcalRecHits->begin (); itr != theBarrelEcalRecHits->end () ;++itr) {
 
     EBDetId ebid( itr -> id() );
     GlobalPoint mycell = geometry -> getPosition(DetId(itr->id()));
+
+    // fill geometry graphs
+    iEBrh++;
+    g_coord_EB_ieta_eta->SetPoint(iEBrh, ebid.ieta(), mycell.eta()); // even if points are filled more than once, it should not matter
+    g_coord_EB_iphi_phi->SetPoint(iEBrh, ebid.iphi(), mycell.phi()); // even if points are filled more than once, it should not matter
 
     // max energy rec hit
     if (itr -> energy() > maxERecHitEB_ene ) {
@@ -605,10 +665,10 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       //std::cout << "energy=" << itr->energy() << " et=" << itr->pt() << std::endl;
       h_recHits_EB_time          -> Fill( itr -> time() );
       h_recHits_EB_Chi2          -> Fill( itr -> chi2() );
-      h_recHits_EB_eneVSieta     -> Fill( itr->energy() , ebid.ieta() );
+      //h_recHits_EB_eneVSieta     -> Fill( itr->energy() , ebid.ieta() );
       h_recHits_EB_occupancy     -> Fill( ebid.iphi() , ebid.ieta() );
-      h_recHits_EB_energy_etaphi     -> Fill( mycell.phi() , mycell.eta(), itr->energy() );
-      h_recHits_EB_energy_ietaiphi     -> Fill( ebid.iphi() ,  ebid.ieta(), itr->energy() );
+      //h_recHits_EB_energy_etaphi     -> Fill( mycell.phi() , mycell.eta(), itr->energy() );
+      //h_recHits_EB_energy_ietaiphi     -> Fill( ebid.iphi() ,  ebid.ieta(), itr->energy() );
       if (itr->energy() > 10) h_recHits_EB_occupancy_gt10 -> Fill( ebid.iphi() , ebid.ieta() );
       if (itr->energy() < 10) h_recHits_EB_occupancy_lt10 -> Fill( ebid.iphi() , ebid.ieta() );
       h_recHits_EB_iPhiOccupancy -> Fill( ebid.iphi() );
@@ -623,6 +683,13 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
           h_recHits_energy_etaBinned["EB"][key]->Fill(itr -> energy());
           Double_t et = itr -> energy() *  TMath::Sin(2*TMath::ATan(TMath::Exp(-mycell.eta())));
           h_recHits_et_etaBinned["EB"][key]->Fill(et);
+          break; // when you found it, exit
+        }
+      }
+
+      for(TString key : ring_keys["EB"]){
+        if( ebid.ieta() >= ring_edges["EB"][key].first && ebid.ieta() < ring_edges["EB"][key].second){
+          h_recHits_energy_ringBinned["EB"][key]->Fill(itr -> energy());
           break; // when you found it, exit
         }
       }
@@ -649,7 +716,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   h_recHits_EB_size          -> Fill( recHitsEB->size() );
   h_recHits_EB_size_cleaned  -> Fill( sizeEB_cleaned );
   h_recHits_EB_energyMax     -> Fill( maxERecHitEB_ene );
-  h_recHits_EB_maxEneEta     -> Fill( maxERecHitEB_eta );
+  h_recHits_EB_energyMaxEta  -> Fill( maxERecHitEB_eta );
 
 
 
@@ -685,6 +752,10 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
 	    nHitsEEP++;
 
+      // fill geometry graphs
+      g_coord_EE_ir_eta->SetPoint(nHitsEEP, TMath::Sqrt((eeid.ix()-50)*(eeid.ix()-50) + (eeid.iy()-50)*(eeid.iy()-50)), mycell.eta()); // even if points are filled more than once, it should not matter
+      g_coord_EE_iphi_phi->SetPoint(nHitsEEP, TMath::ATan2((eeid.iy()-50),(eeid.ix()-50)), mycell.phi()); // even if points are filled more than once, it should not matter
+
 	    // max energy rec hit
 	    if (itr -> energy() > maxERecHitEEP_ene){
 	      maxERecHitEEP_ene = itr -> energy() ;
@@ -710,9 +781,9 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     	  h_recHits_EEP_time          -> Fill( itr -> time() );
     	  h_recHits_EEP_Chi2          -> Fill( itr -> chi2() );
     	  h_recHits_EEP_occupancy     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
-          h_recHits_EEP_occupancy_etaphi -> Fill (mycell.eta(), mycell.phi());
-          h_recHits_EEP_energy_etaphi -> Fill (mycell.phi(), mycell.eta(), itr -> energy());
-          h_recHits_EEP_energy_ixiy -> Fill (eeid.ix() - 0.5, eeid.iy() - 0.5, itr -> energy());
+        //h_recHits_EEP_occupancy_etaphi -> Fill (mycell.eta(), mycell.phi());
+        //h_recHits_EEP_energy_etaphi -> Fill (mycell.phi(), mycell.eta(), itr -> energy());
+        //h_recHits_EEP_energy_ixiy -> Fill (eeid.ix() - 0.5, eeid.iy() - 0.5, itr -> energy());
     	  if (itr->energy() >10) h_recHits_EEP_occupancy_gt10     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
     	  if (itr->energy() <10) h_recHits_EEP_occupancy_lt10     -> Fill( eeid.ix() - 0.5, eeid.iy() - 0.5 );
     	  h_recHits_EEP_iXoccupancy   -> Fill( eeid.ix() - 0.5 );
@@ -731,8 +802,17 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
              break; // when you found it, exit
           }
         }
+
+        for(TString key : ring_keys["EEP"]){
+          double r = TMath::Sqrt((eeid.ix()-50)*(eeid.ix()-50) + (eeid.iy()-50)*(eeid.iy()-50)) - 11.;
+          if( r >= ring_edges["EEP"][key].first && r < ring_edges["EEP"][key].second){
+             h_recHits_energy_ringBinned["EEP"][key]->Fill(itr -> energy());
+             break; // when you found it, exit
+          }
+        }
+
     	}
-    }
+    } // end EE+
 
     // EE-
     if ( eeid.zside() < 0 ){
@@ -768,11 +848,18 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
              Double_t et = itr -> energy() *  TMath::Sin(2*TMath::ATan(TMath::Exp(-mycell.eta())));
              h_recHits_et_etaBinned["EEM"][key]->Fill(et);
              break; // when you found it, exit
-           }
-         }
-       }
-     }
-   } // end loop over EE rec hits
+          }
+        }
+        for(TString key : ring_keys["EEM"]){
+          double r = TMath::Sqrt((eeid.ix()-50)*(eeid.ix()-50) + (eeid.iy()-50)*(eeid.iy()-50)) - 11.;
+          if( r >= ring_edges["EEM"][key].first && r < ring_edges["EEM"][key].second){
+             h_recHits_energy_ringBinned["EEM"][key]->Fill(itr -> energy());
+             break; // when you found it, exit
+          }
+        }
+      }
+    }
+  } // end loop over EE rec hits
 
 
   // size
@@ -782,8 +869,8 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
   h_recHits_EEP_energyMax -> Fill(maxERecHitEEP_ene);
   h_recHits_EEM_energyMax -> Fill(maxERecHitEEM_ene);
-  h_recHits_EEP_maxEneEta -> Fill(maxERecHitEEP_eta);
-  h_recHits_EEM_maxEneEta -> Fill(maxERecHitEEM_eta);
+  h_recHits_EEP_energyMaxEta -> Fill(maxERecHitEEP_eta);
+  h_recHits_EEM_energyMaxEta -> Fill(maxERecHitEEM_eta);
 
 
 
@@ -816,12 +903,6 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         sumEnergy_24 += et;
       }
     } // end condition of vicinity
-
-
-
-
-
-
   } // end loop over rechits
 
   h_recHits_EEP_sumneighbourEt_eta20->Fill(sumEnergy_20);
@@ -859,6 +940,12 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
             break; // when you found it, exit
           }
         }
+        for(TString key : ring_keys["EB"]){
+          if( ebid.ieta() >= ring_edges["EB"][key].first && ebid.ieta() < ring_edges["EB"][key].second){
+            h_PFrecHits_energy_ringBinned["EB"][key]->Fill(itr -> energy());
+            break; // when you found it, exit
+          }
+        }
       }
 
       // End-caps
@@ -880,6 +967,13 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
               break; // when you found it, exit
             }
           }
+          for(TString key : ring_keys["EEP"]){
+            double r = TMath::Sqrt((eeid.ix()-50)*(eeid.ix()-50) + (eeid.iy()-50)*(eeid.iy()-50)) - 11.;
+            if( r >= ring_edges["EEP"][key].first && r < ring_edges["EEP"][key].second){
+               h_PFrecHits_energy_ringBinned["EEP"][key]->Fill(itr -> energy());
+               break; // when you found it, exit
+            }
+          }
         }
         // EEM
         else {
@@ -896,7 +990,14 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
               break; // when you found it, exit
             }
           }
-        }
+          for(TString key : ring_keys["EEM"]){
+            double r = TMath::Sqrt((eeid.ix()-50)*(eeid.ix()-50) + (eeid.iy()-50)*(eeid.iy()-50));
+            if( r >= ring_edges["EEM"][key].first && r < ring_edges["EEM"][key].second){
+               h_PFrecHits_energy_ringBinned["EEM"][key]->Fill(itr -> energy());
+               break; // when you found it, exit
+            }
+          }
+        } // end EE-
       } // end end-caps
     } // end if threshold
   } // end loop over pfrechits
@@ -962,7 +1063,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       if(anaName_ ==      "DoublePhoton") {
         if (genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
       }
-      else if(anaName_ == "DoubleElectron") { 
+      else if(anaName_ == "DoubleElectron") {
         if (fabs(genParticle->pdgId())!=11 or genParticle->status()!= 1) continue;
       }
       else {
@@ -1107,7 +1208,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       if(anaName_ ==      "DoublePhoton") {
         if (genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
       }
-      else if(anaName_ == "DoubleElectron") { 
+      else if(anaName_ == "DoubleElectron") {
         if (fabs(genParticle->pdgId())!=11 or genParticle->status()!= 1) continue;
       }
       else {
@@ -1160,7 +1261,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
         }
 
       } // end if matching
-  
+
 
     } // end loop over gen particles
 
@@ -1214,7 +1315,7 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       if(anaName_ ==      "DoublePhoton") {
         if (genParticle->pdgId()!=22 or genParticle->status()!= 1) continue;
       }
-      else if(anaName_ == "DoubleElectron") { 
+      else if(anaName_ == "DoubleElectron") {
         if (fabs(genParticle->pdgId())!=11 or genParticle->status()!= 1) continue;
       }
       else {
@@ -1296,6 +1397,10 @@ void ECALNoiseStudy::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
   naiveId_++;
 
+
+
+
+
 }
 
 
@@ -1306,6 +1411,12 @@ void  ECALNoiseStudy::beginJob() {}
 void ECALNoiseStudy::endJob() {
 
   h_numberOfEvents ->Fill(0.,naiveId_);
+
+  // Write graphs to file
+  g_coord_EB_ieta_eta->Write();
+  g_coord_EB_iphi_phi->Write();
+  g_coord_EE_ir_eta->Write();
+  g_coord_EE_iphi_phi->Write();
 }
 
 //define this as a plug-in
