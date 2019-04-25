@@ -226,8 +226,8 @@ if __name__ == "__main__":
   #version = 'SingleNu_Run2_UL_AC_ecalV10'
   #version = 'SingleNu_Run2_Fall17_ecalV10'
   #version = 'SingleNu_Run2_Fall17_central_ecalV10'
-  version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV11'
-  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV11'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV11'
+  version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV11'
 
   doEtaBinnedAnalysis = True
   doRingBinnedAnalysis = True
@@ -241,7 +241,7 @@ if __name__ == "__main__":
   os.system('mkdir {}'.format(outputdir))
 
   whats = ['mean', 0.5, 0.7, 'firstNonEmpty']
-  names = ['Mean', '0.5 quantile', '0.7 quantile', 'PFRecHit Threshold']
+  names = ['Mean', '0.5 quantile', '0.7 quantile', 'PFrecHit Threshold']
 
   whats_to_plot = whats[:-1]
   names_to_plot = names[:-1]
@@ -288,8 +288,8 @@ if __name__ == "__main__":
     graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
     graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
 
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_RecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_RecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
+    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_recHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
+    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_recHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
 
     ############ noise vs eta - starting from pfrechits
     #    you can overwrite the graphs since the previous are already saved
@@ -335,8 +335,8 @@ if __name__ == "__main__":
     graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
     graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
 
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_RecHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='i#eta' )
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_RecHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='iRing' )
+    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='i#eta' )
+    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='iRing' )
 
   if doBasicAnalysis:
     # get occupancy plots and beautify them
