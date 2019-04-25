@@ -102,7 +102,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::vector<TH2D*> h_recHits_etaVsPhi;
    std::vector<TH2D*> h_genP_etaVsPhi;
 
-   // Rechits and PfRechit vs eta
+   // Rechits and PFrechit vs eta
    std::vector<TString> regions={"EB", "EEM", "EEP"};
    std::map<TString, std::map<TString, TH1F*>> h_recHits_energy_etaBinned;
    std::map<TString, std::map<TString, TH1F*>> h_recHits_et_etaBinned;

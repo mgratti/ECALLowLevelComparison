@@ -484,9 +484,9 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // --------- Rechits vs eta
   for (TString region : regions){
     for (TString key : eta_keys[region]){
-      TString histo_name = "h_RecHits_" + region + "_energy_eta_" + key;
+      TString histo_name = "h_recHits_" + region + "_energy_eta_" + key;
       h_recHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
-      histo_name = "h_RecHits_" + region + "_et_" + key;
+      histo_name = "h_recHits_" + region + "_et_" + key;
       h_recHits_et_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
@@ -494,7 +494,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // --------- Rechits vs ring
   for (TString region : regions){
     for (TString key : ring_keys[region]){
-      TString histo_name = "h_RecHits_" + region + "_energy_ring_" + key;
+      TString histo_name = "h_recHits_" + region + "_energy_ring_" + key;
       h_recHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
@@ -502,7 +502,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // --------- PFRechits vs eta
   for (TString region : regions){
     for (TString key : eta_keys[region]){
-      TString histo_name = "h_PfRecHits_" + region + "_energy_eta_" + key;
+      TString histo_name = "h_PFrecHits_" + region + "_energy_eta_" + key;
       h_PFrecHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
@@ -510,7 +510,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // --------- PFRechits vs ring
   for (TString region : regions){
     for (TString key : ring_keys[region]){
-      TString histo_name = "h_PfRecHits_" + region + "_energy_ring_" + key;
+      TString histo_name = "h_PFrecHits_" + region + "_energy_ring_" + key;
       h_PFrecHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
     }
   }
@@ -550,7 +550,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
 
     TString histo_name = "h_genP_etaVsPhi_"  + TString::Format("%d", i);
     h_genP_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 344,-3.0,3.0, 360,-3.14,3.14 ));
-    histo_name = "h_RecHits_etaVsPhi_" + TString::Format("%d", i);
+    histo_name = "h_recHits_etaVsPhi_" + TString::Format("%d", i);
     h_recHits_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 344,-3.0,3.0, 360,-3.14,3.14 ));
     histo_name = "h_PFclusters_etaVsPhi_" + TString::Format("%d", i);
     h_PFclusters_etaVsPhi.push_back(eventDir.make<TH2D>(histo_name,  histo_name, 344,-3.0,3.0, 360,-3.14,3.14 ));

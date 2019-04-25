@@ -171,7 +171,7 @@ def makeNoiseVsEtaGraph(histoinfo,binning,region, marker, color, whats):
       x = abs(binning.lowedges[k]+binning.upedges[k])/2
       if histoinfo[key][what]!=0:
         g[what].SetPoint(k,x, histoinfo[key][what]) # do not plot anything for histograms with zero mean
-        print what, histoinfo[key][what]
+        #print what, histoinfo[key][what]
 
   return g
 
@@ -230,7 +230,7 @@ if __name__ == "__main__":
   #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV11'
 
   doEtaBinnedAnalysis = True
-  doRingBinnedAnalysis = False
+  doRingBinnedAnalysis = True
   doBasicAnalysis = True
 
   inputfile = '../test/outputfiles/{v}_numEvent15000.root'.format(v=version)
@@ -251,7 +251,7 @@ if __name__ == "__main__":
 
   if doEtaBinnedAnalysis:
     ######## rechits in bins of eta
-    inputhistoname_EB = 'h_RecHits_EB_energy_eta_'
+    inputhistoname_EB = 'h_recHits_EB_energy_eta_'
     range_EB = (0.,2.) # up to 1 GeV
     rebin_EB = 1
     binning_EBP = Binning(det='EB', var='eta', start=-1.5, end=0, delta=0.1)
@@ -259,22 +259,22 @@ if __name__ == "__main__":
     histoinfo_EBP=makeHistoDiagnosis(outputdir=outputdir, inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
     histoinfo_EBM=makeHistoDiagnosis(outputdir=outputdir, inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBM, xrange=range_EB, rebin=rebin_EB)
 
-    inputhistoname_EEP = 'h_RecHits_EEP_energy_eta_'
+    inputhistoname_EEP = 'h_recHits_EEP_energy_eta_'
     range_EEP = (0.,5.)
     rebin_EEP = 4
     binning_EEP = Binning(det='EEP', var='eta', start=1.5, end=3.0, delta=0.1)
     histoinfo_EEP=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEP, binning=binning_EEP, xrange=range_EEP, rebin=rebin_EEP)
 
-    inputhistoname_EEM = 'h_RecHits_EEM_energy_eta_'
+    inputhistoname_EEM = 'h_recHits_EEM_energy_eta_'
     range_EEM = (0.,5.)
     rebin_EEM = 4
     binning_EEM = Binning(det='EEM', var='eta', start=-3.0, end=-1.5, delta=0.1)
     histoinfo_EEM=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
 
     ######### pfrechits in bins of eta
-    inputhistoname_EB = 'h_PfRecHits_EB_energy_eta_'
-    inputhistoname_EEP = 'h_PfRecHits_EEP_energy_eta_'
-    inputhistoname_EEM = 'h_PfRecHits_EEM_energy_eta_'
+    inputhistoname_EB = 'h_PFrecHits_EB_energy_eta_'
+    inputhistoname_EEP = 'h_PFrecHits_EEP_energy_eta_'
+    inputhistoname_EEM = 'h_PFrecHits_EEM_energy_eta_'
     # use the same binnings and ranges as the prechits plots
     histoinfo_Pf_EBP=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
     histoinfo_Pf_EBM=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdir, inputhistoname=inputhistoname_EB, binning=binning_EBM, xrange=range_EB, rebin=rebin_EB)
@@ -299,8 +299,8 @@ if __name__ == "__main__":
     graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_Pf_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
     graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_Pf_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
 
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PfRecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PfRecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
+    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PFrecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
+    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PFrecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xTitle='#eta' )
 
     makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PfThr_vsEta', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xTitle='#eta' )
     makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PfThr_vsEta', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xTitle='#eta' )
@@ -308,7 +308,7 @@ if __name__ == "__main__":
   if doRingBinnedAnalysis:
     ################## Now redo all analysis but instead with histograms binned in rings
     ######### rechits in bins of ring
-    inputhistoname_EB = 'h_RecHits_EB_energy_ring_'
+    inputhistoname_EB = 'h_recHits_EB_energy_ring_'
     range_EB = (0.,2.) # up to 1 GeV
     rebin_EB = 1
     binning_EBP = Binning(det='EB', var='ring', start=-90, end=0., delta=1.)
@@ -316,13 +316,13 @@ if __name__ == "__main__":
     histoinfo_EBP=makeHistoDiagnosis(outputdir=outputdir, inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
     histoinfo_EBM=makeHistoDiagnosis(outputdir=outputdir, inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EB, binning=binning_EBM, xrange=range_EB, rebin=rebin_EB)
 
-    inputhistoname_EEP = 'h_RecHits_EEP_energy_ring_'
+    inputhistoname_EEP = 'h_recHits_EEP_energy_ring_'
     range_EEP = (0.,5.)
     rebin_EEP = 4
     binning_EEP = Binning(det='EEP', var='ring', start=0., end=40., delta=1.)
     histoinfo_EEP=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EEP, binning=binning_EEP, xrange=range_EEP, rebin=rebin_EEP)
 
-    inputhistoname_EEM = 'h_RecHits_EEM_energy_ring_'
+    inputhistoname_EEM = 'h_recHits_EEM_energy_ring_'
     range_EEM = (0.,5.)
     rebin_EEM = 4
     binning_EEM = Binning(det='EEM', var='ring', start=0., end=40., delta=1.)
