@@ -45,6 +45,12 @@ process.source = cms.Source('PoolSource',
 # number of events
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
 
+# this is not giving an improved speed...
+#Setup FWK for multithreaded
+#process.options = cms.untracked.PSet(
+#)
+#process.options.numberOfThreads=cms.untracked.uint32(8)
+#process.options.numberOfStreams=cms.untracked.uint32(0)
 
 # Load CMSSW libraries that are needed - geometry
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
