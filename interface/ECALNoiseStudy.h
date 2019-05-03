@@ -26,6 +26,7 @@
 #include "TH1.h"
 #include "TGraph.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include <vector>
@@ -146,18 +147,20 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_recHits_EB_iPhiOccupancy;
    TH1D *h_recHits_EB_iEtaOccupancy;
    TH2D *h_recHits_EB_occupancy;
+   TH3D *h_recHits_EB_energy_3D;
    TH2D *h_recHits_EB_energy_etaphi;
    TH2D *h_recHits_EB_energy_ietaiphi;
    TH2D *h_recHits_EB_occupancy_gt10;
    TH2D *h_recHits_EB_occupancy_lt10;
    TH1D *h_recHits_EB_energy_spike;
-   TH2D *h_recHits_EB_eneVSieta;
+   //TH2D *h_recHits_EB_eneVSieta;
 
    TH1D *h_PFrecHits_EB_eta;
    TH1D *h_PFrecHits_EB_energy;
    TH1D *h_PFrecHits_EB_time;
    TH2D *h_PFrecHits_EB_occupancy;
-   TH2D *h_PFrecHits_EB_eneVSieta;
+   TH3D *h_PFrecHits_EB_energy_3D;
+   //TH2D *h_PFrecHits_EB_eneVSieta;
 
 	 //... barrel ( with spike cleaning )
    TH1D *h_recHits_EB_size_cleaned;
@@ -180,7 +183,8 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_recHits_EEP_iXoccupancy;
    TH1D *h_recHits_EEP_iYoccupancy;
    TH2D *h_recHits_EEP_occupancy;
-   TH2D *h_recHits_EEP_occupancy_etaphi;
+   TH3D *h_recHits_EEP_energy_3D;
+   //TH2D *h_recHits_EEP_occupancy_etaphi;
    TH2D *h_recHits_EEP_occupancy_gt10;
    TH2D *h_recHits_EEP_occupancy_lt10;
    TH2D *h_recHits_EEP_energy_etaphi;
@@ -190,6 +194,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFrecHits_EEP_energy;
    TH1D *h_PFrecHits_EEP_time;
    TH2D *h_PFrecHits_EEP_occupancy;
+   TH3D *h_PFrecHits_EEP_energy_3D;
    TH2D *h_PFrecHits_EEP_eneVSieta;
 
 
@@ -206,6 +211,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_recHits_EEM_iXoccupancy;
    TH1D *h_recHits_EEM_iYoccupancy;
    TH2D *h_recHits_EEM_occupancy;
+   TH3D *h_recHits_EEM_energy_3D;
    TH2D *h_recHits_EEM_occupancy_gt10;
    TH2D *h_recHits_EEM_occupancy_lt10;
 
@@ -213,6 +219,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFrecHits_EEM_energy;
    TH1D *h_PFrecHits_EEM_time;
    TH2D *h_PFrecHits_EEM_occupancy;
+   TH3D *h_PFrecHits_EEM_energy_3D;
    TH2D *h_PFrecHits_EEM_eneVSieta;
 
    TH1D *h_recHits_eta;  // all

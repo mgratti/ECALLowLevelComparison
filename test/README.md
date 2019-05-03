@@ -71,9 +71,16 @@ cmsRun ../python/Cfg_std.py  outputFile=outputfiles/SingleNu_Run2_Fall17_ecalV10
 ### neutrino gun for Run-2 vs Run-3 as of end of March19
 edit in Cfg GT="105X_upgrade2018_realistic_v3"
 
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV11.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=15000
+end-of-Run2 50K evts :
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV12.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_50K.root maxEvents=50000
+```
 
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV11.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=15000
+end-of-Run3 50K evts :
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV12.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_50K.root maxEvents=50000
+
+```
 
 ## PFClusters
 
