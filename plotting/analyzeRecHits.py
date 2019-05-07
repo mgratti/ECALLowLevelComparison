@@ -10,7 +10,7 @@ sys.path.append('/work/mratti/plotting/myplotting')
 from spares import *
 from array import *
 
-from ROOT import TH1F, TGraph, TGraph2D, TCanvas, TLegend, TFile, TTree, gROOT, TF1, TLatex, gStyle, TH2D, gPad, TColor,TMultiGraph, TH1
+from ROOT import TH1F, TGraph, TGraph2D, TCanvas, TLegend, TFile, TTree, gROOT, TF1, TLatex, gStyle, TH2D, gPad, TColor,TMultiGraph, TH1, TMath
 from ROOT import kRed, kBlue, kGray, kGreen, kPink, kYellow, kBlack, kWhite, kPink, kMagenta, kTRUE, kFALSE
 import glob
 from array import *
@@ -95,7 +95,7 @@ def makeHistoDiagnosis(outputdir, inputfile, inputdir, inputhistoname, binning, 
     histo.GetXaxis().SetTitle('Energy (GeV)')
     histo.GetYaxis().SetTitle('Entries')
     # better to avoid setting the range, since the mean calculation changes
-    histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
+    #histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
 
     gStyle.SetOptStat('emMrRo')
     histo.Draw('histPE')
@@ -110,6 +110,11 @@ def makeHistoDiagnosis(outputdir, inputfile, inputdir, inputhistoname, binning, 
     c.SaveAs('{}/{}.pdf'.format(outputdir,histoname))
     c.SaveAs('{}/{}.C'.format(outputdir,histoname))
     c.SaveAs('{}/{}.root'.format(outputdir,histoname))
+
+    c.SetLogy()
+    c.SaveAs('{}/{}_log.png'.format(outputdir,histoname))
+    c.SaveAs('{}/{}_log.pdf'.format(outputdir,histoname))
+
     del c
 
     # info part
@@ -159,7 +164,7 @@ def beautify2DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle):
   c.SaveAs('{}/{}.root'.format(outputdir,histo.GetName()))
   del c
 
-def makeNoiseVsEtaGraph(histoinfo,binning,region, marker, color, whats):
+def makeNoiseGraph(histoinfo,binning,region, marker, color, whats):
 
   g = {}
   for i,what in enumerate(whats):
@@ -178,7 +183,7 @@ def makeNoiseVsEtaGraph(histoinfo,binning,region, marker, color, whats):
   return g
 
 
-def makeNoiseVsEtaPlot(outputdir, allgraphs, groups_to_plot, namegroups_to_plot, suffix, whats_to_plot, names_to_plot, xtitle):
+def makeNoisePlot(outputdir, allgraphs, groups_to_plot, namegroups_to_plot, suffix, whats_to_plot, names_to_plot, xtitle):
 
 #  gROOT.ProcessLine('.L ~/CMS_style/tdrstyle.C')
 #  gROOT.ProcessLine('setTDRStyle()')
@@ -198,8 +203,8 @@ def makeNoiseVsEtaPlot(outputdir, allgraphs, groups_to_plot, namegroups_to_plot,
   mg.GetYaxis().SetTitle('Noise (GeV)')
 
   mg.GetXaxis().SetTitle(xtitle)
-  if 'EB' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0.1, 0.6)
-  elif 'EE' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 10)
+  if 'EB' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 0.6)
+  elif 'EE' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 8)
 
   leg.Draw('same')
   #c1.SetLogy()
@@ -219,6 +224,7 @@ def makeHistoDiagnosisFrom3D(outputdir, inputfile, inputdir, histoname, xtitle, 
   histo3D=f.Get('{}/{}'.format(inputdir,histoname))
   print 'histo 3D ' , '{}/{}'.format(inputdir,histoname), histo3D.GetName()
   #gStyle.SetOptStat(000000) # remove all stats
+  det = 'EB' if 'EB' in histoname else 'EEM' if 'EEM' in histoname else 'EEP'
 
   histos2D = {}
   whats = ['mean', 'rms']
@@ -228,9 +234,12 @@ def makeHistoDiagnosisFrom3D(outputdir, inputfile, inputdir, histoname, xtitle, 
   ranges['EB']['mean']=(0., 0.7)
   ranges['EB']['rms']=(0.,0.4)
   #ranges['EB']['0.5']
-  ranges['EE']={}
-  ranges['EE']['mean']=(0., 5.)
-  ranges['EE']['rms']=(0.,2.)
+  ranges['EEP']={}
+  ranges['EEP']['mean']=(0., 5.)
+  ranges['EEP']['rms']=(0.,2.)
+  ranges['EEM']={}
+  ranges['EEM']['mean']=(0., 5.)
+  ranges['EEM']['rms']=(0.,2.)
 
   # first create the 2D histograms with the correct binning and naming
   for what in whats:
@@ -267,10 +276,9 @@ def makeHistoDiagnosisFrom3D(outputdir, inputfile, inputdir, histoname, xtitle, 
       histos2D['mean'].SetBinContent(ibinX,ibinY,histo1D.GetMean())
       histos2D['rms'].SetBinContent(ibinX,ibinY,histo1D.GetRMS())
       del histo1D
-  # finally plot them and save them
+  # then plot them and save them
   for what in whats:
     c=TCanvas('c', 'c', 800, 500)
-    det = 'EB' if 'EB' in histoname else 'EE'
     histos2D[what].GetZaxis().SetRangeUser(ranges[det][what][0],ranges[det][what][1])
     histos2D[what].Draw('colz')
     histos2D[what].GetXaxis().SetTitle(xtitle)
@@ -282,8 +290,47 @@ def makeHistoDiagnosisFrom3D(outputdir, inputfile, inputdir, histoname, xtitle, 
     c.SaveAs('{}/{}.root'.format(outputdir,histos2D[what].GetName()))
     #del c
 
+  ## calculate mean of means over the ring, i.e. get the mean for each crystal and average over the ring 
+  ## put everything in a graph directly
+  g = {}
+
+  if 'PF' in histoname: return None
+  if 'EB' in histoname: return None # do only for EEP
+  color = kBlue if det == 'EEP' else kMagenta 
+  marker = 20 if det == 'EEP' else 24
+  for what in ['mean']:
+    g[what] = TGraph()
+    g[what].SetLineColor(color)
+    g[what].SetMarkerColor(color)  # not exactly the same shade, but similar
+    g[what].SetMarkerStyle(marker)
 
 
+    h_means_iRing = {}
+    for iRing in range(1,42):
+      h_means_iRing[iRing] = TH1F('h_means_{}'.format(iRing), 'h_means_{}'.format(iRing), 10, 0., 100) # only needed to compute mean
+    # TH1D('h_means_iRing', 'h_means_iRing', 40, 0., 40.) # where to put the mean per each ring 
+
+    for iX in range(1,histos2D[what].GetXaxis().GetNbins()+1):
+      for iY in range(1,histos2D[what].GetYaxis().GetNbins()+1):
+        iRing = TMath.Sqrt((iX-50)*(iX-50) + (iY-50)*(iY-50)) - 11.
+        rounded_iRing = round(iRing)
+        print iX, iY, rounded_iRing
+        if rounded_iRing>0 and histos2D[what].GetBinContent(iX,iY)>0. and rounded_iRing<42:
+          h_means_iRing[rounded_iRing].Fill(histos2D[what].GetBinContent(iX,iY)) 
+        
+    for iRing in range(1,42):
+      g[what].SetPoint(iRing,iRing,h_means_iRing[iRing].GetMean())
+
+
+    c1 = TCanvas()
+    g[what].Draw('AP')
+    name = 'NoiseVsRing_crystal_{}'.format(det)
+    c1.SaveAs('{}.pdf'.format(name))
+    c1.SaveAs('{}.png'.format(name))
+    c1.SaveAs('{}.C'.format(name))
+    c1.SaveAs('{}.root'.format(name))
+
+  #return g
 
 if __name__ == '__main__':
 
@@ -293,14 +340,16 @@ if __name__ == '__main__':
   TH1.StatOverflows(kTRUE) # for this to work, this flag must be activated at fill time
 
   #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV12'
-  version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV12'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV12'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_ecalV12'
+  version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_ecalV12'
 
   doEtaBinnedAnalysis = False
   doRingBinnedAnalysis = False
   doBasicAnalysis = False
   doPerCrystalAnalysis = True
 
-  inputfile = '../test/outputfiles/{v}_numEvent50000.root'.format(v=version)
+  inputfile = '../test/outputfiles/{v}_numEvent15000.root'.format(v=version)
   inputdir = 'ecalnoisestudy/etaBinnedQuantities'
   inputdirRing = 'ecalnoisestudy/ringBinnedQuantities'
   outputdir = 'plots/anaRechits_{v}'.format(v=version)
@@ -315,6 +364,10 @@ if __name__ == '__main__':
 
   whats_to_plot_1 = [whats[-1]]
   names_to_plot_1 = [names[-1]]
+
+  ##############################
+  # Noise analysis in eta bins
+  ##############################
 
   if doEtaBinnedAnalysis:
     ######## rechits in bins of eta
@@ -350,27 +403,31 @@ if __name__ == '__main__':
 
     ############ noise vs eta - starting from rechits
     graphs={}
-    graphs['EBP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
-    graphs['EBM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
-    graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
-    graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
+    graphs['EBP']=makeNoiseGraph(histoinfo=histoinfo_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
+    graphs['EBM']=makeNoiseGraph(histoinfo=histoinfo_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
+    graphs['EEP']=makeNoiseGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
+    graphs['EEM']=makeNoiseGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
 
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_recHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_recHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_recHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_recHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
 
     ############ noise vs eta - starting from pfrechits
     #    you can overwrite the graphs since the previous are already saved
     graphs={}
-    graphs['EBP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_Pf_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
-    graphs['EBM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_Pf_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
-    graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_Pf_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
-    graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_Pf_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
+    graphs['EBP']=makeNoiseGraph(histoinfo=histoinfo_Pf_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
+    graphs['EBM']=makeNoiseGraph(histoinfo=histoinfo_Pf_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
+    graphs['EEP']=makeNoiseGraph(histoinfo=histoinfo_Pf_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
+    graphs['EEM']=makeNoiseGraph(histoinfo=histoinfo_Pf_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
 
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PFrecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PFrecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PFrecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PFrecHitEnergy_vsEta', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
 
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PfThr_vsEta', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xtitle='#eta' )
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PfThr_vsEta', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PfThr_vsEta', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PfThr_vsEta', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xtitle='#eta' )
+
+  ##############################
+  # Noise analysis in rings
+  ##############################
 
   if doRingBinnedAnalysis:
     ################## Now redo all analysis but instead with histograms binned in rings
@@ -395,24 +452,72 @@ if __name__ == '__main__':
     binning_EEM = Binning(det='EEM', var='ring', start=0., end=40., delta=1.)
     histoinfo_EEM=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
 
-    ############ noise vs eta - starting from rechits
-    graphs={}
-    graphs['EBP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
-    graphs['EBM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
-    graphs['EEP']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
-    graphs['EEM']=makeNoiseVsEtaGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
+    ######### pfrechits in bins of ring 
+    inputhistoname_EB = 'h_PFrecHits_EB_energy_ring_'
+    inputhistoname_EEP = 'h_PFrecHits_EEP_energy_ring_'
+    inputhistoname_EEM = 'h_PFrecHits_EEM_energy_ring_'
 
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='i#eta' )
-    makeNoiseVsEtaPlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='iRing' )
+    histoinfo_Pf_EBP=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EB, binning=binning_EBP, xrange=range_EB, rebin=rebin_EB)
+    histoinfo_Pf_EBM=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EB, binning=binning_EBM, xrange=range_EB, rebin=rebin_EB)
+    histoinfo_Pf_EEP=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EEP, binning=binning_EEP, xrange=range_EEP, rebin=rebin_EEP)
+    histoinfo_Pf_EEM=makeHistoDiagnosis(outputdir=outputdir,inputfile=inputfile, inputdir=inputdirRing, inputhistoname=inputhistoname_EEM, binning=binning_EEM, xrange=range_EEM, rebin=rebin_EEM)
+
+    ############ noise vs ring - starting from rechits
+    graphs={}
+    graphs['EBP']=makeNoiseGraph(histoinfo=histoinfo_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
+    graphs['EBM']=makeNoiseGraph(histoinfo=histoinfo_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
+    graphs['EEP']=makeNoiseGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
+    graphs['EEM']=makeNoiseGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
+
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='i#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='iRing' )
+
+    ######### pfrechits in bins of ring
+    graphs={}
+    graphs['EBP']=makeNoiseGraph(histoinfo=histoinfo_Pf_EBP,binning=binning_EBP, region='EBP', marker=20, color=kBlue, whats=whats)
+    graphs['EBM']=makeNoiseGraph(histoinfo=histoinfo_Pf_EBM,binning=binning_EBM, region='EBM', marker=24, color=kMagenta, whats=whats)
+    graphs['EEP']=makeNoiseGraph(histoinfo=histoinfo_Pf_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
+    graphs['EEM']=makeNoiseGraph(histoinfo=histoinfo_Pf_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
+
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PFrecHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PFrecHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='#eta' )
+
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_PfThr_vsRing', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xtitle='#eta' )
+    makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_PfThr_vsRing', whats_to_plot=whats_to_plot_1, names_to_plot=names_to_plot_1, xtitle='#eta' )
+
+
+
+  ##############################
+  # Occupancy plots
+  ##############################
 
   if doBasicAnalysis:
     # get occupancy plots and beautify them
+
+    # rechits
     beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/recHits', histoname='h_recHits_EB_occupancy', xtitle='i#phi', ytitle='i#eta')
     beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/recHits', histoname='h_recHits_EEP_occupancy', xtitle='ix', ytitle='iy')
     beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/recHits', histoname='h_recHits_EEM_occupancy', xtitle='ix', ytitle='iy')
+    # PF rechits
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EB_occupancy', xtitle='i#phi', ytitle='i#eta')
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEP_occupancy', xtitle='ix', ytitle='iy')
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEM_occupancy', xtitle='ix', ytitle='iy')
+
+
+  ##############################
+  # Noise analysis at crystal level
+  ##############################
 
   if doPerCrystalAnalysis:
     # all detailed settings of this analysis can be found within the function definition
+
+    # rechits
     makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/recHits', histoname='h_recHits_EB_energy_3D', xtitle='i#phi', ytitle='i#eta', ztitle='RecHit Energy (GeV)')
     makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/recHits', histoname='h_recHits_EEP_energy_3D', xtitle='ix', ytitle='iy', ztitle='RecHit Energy (GeV)')
     makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/recHits', histoname='h_recHits_EEM_energy_3D', xtitle='ix', ytitle='iy', ztitle='RecHit Energy (GeV)')
+
+    # pfrechits
+    makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EB_energy_3D', xtitle='i#phi', ytitle='i#eta', ztitle='PF RecHit Energy (GeV)')
+    makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEP_energy_3D', xtitle='ix', ytitle='iy', ztitle='PF RecHit Energy (GeV)')
+    makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEM_energy_3D', xtitle='ix', ytitle='iy', ztitle='PF RecHit Energy (GeV)')
+

@@ -70,6 +70,7 @@
 #include <cmath>
 #include <fstream>
 #include <map>
+#include <tuple>
 
 using namespace cms ;
 using namespace edm ;
@@ -109,6 +110,18 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   scEtThrEE_                 = ps.getParameter<double>("scEtThrEE");
 
   naiveId_ = 0;
+
+  // binning of rechit and pf rechit energy plots
+  std::map<TString, std::tuple<int, float, float>> rH_e_bins;
+  std::get<0>(rH_e_bins["EB"]) = 200;
+  std::get<1>(rH_e_bins["EB"]) = 0.;
+  std::get<2>(rH_e_bins["EB"]) = 2.;
+  std::get<0>(rH_e_bins["EEP"]) = 1000;
+  std::get<1>(rH_e_bins["EEP"]) = 0.;
+  std::get<2>(rH_e_bins["EEP"]) = 10.;
+  std::get<0>(rH_e_bins["EEM"]) = 1000;
+  std::get<1>(rH_e_bins["EEM"]) = 0.;
+  std::get<2>(rH_e_bins["EEM"]) = 10.; 
 
   // configurations for plots in delta eta bins
   std::map<TString, Double_t> start_eta;
@@ -316,8 +329,6 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   // full eta distributions
   h_recHits_eta = recHitsDir.make<TH1D>("h_recHits_eta","h_recHits_eta",300,-3.,3.);
 
-  // 3D rechit distributions
-
   // energy of neighbours for maximal energy deposit in given eta bin
   h_recHits_EEP_neighbourEt_eta20 = recHitsDir.make<TH2D>("h_recHits_EEP_neighbourEt_eta20","h_recHits_EEP_neighbourEt_eta20",20,-10.,10.,20,-10.,10. );
   h_recHits_EEP_neighbourEt_eta24 = recHitsDir.make<TH2D>("h_recHits_EEP_neighbourEt_eta24","h_recHits_EEP_neighbourEt_eta24",20,-10.,10.,20,-10.,10. );
@@ -498,9 +509,9 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   for (TString region : regions){
     for (TString key : eta_keys[region]){
       TString histo_name = "h_recHits_" + region + "_energy_eta_" + key;
-      h_recHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
+      h_recHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,std::get<0>(rH_e_bins[region]),std::get<1>(rH_e_bins[region]),std::get<2>(rH_e_bins[region]));
       histo_name = "h_recHits_" + region + "_et_" + key;
-      h_recHits_et_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
+      h_recHits_et_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,std::get<0>(rH_e_bins[region]),std::get<1>(rH_e_bins[region]),std::get<2>(rH_e_bins[region]));
     }
   }
 
@@ -508,7 +519,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   for (TString region : regions){
     for (TString key : ring_keys[region]){
       TString histo_name = "h_recHits_" + region + "_energy_ring_" + key;
-      h_recHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
+      h_recHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,std::get<0>(rH_e_bins[region]),std::get<1>(rH_e_bins[region]),std::get<2>(rH_e_bins[region]));
     }
   }
 
@@ -516,7 +527,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   for (TString region : regions){
     for (TString key : eta_keys[region]){
       TString histo_name = "h_PFrecHits_" + region + "_energy_eta_" + key;
-      h_PFrecHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
+      h_PFrecHits_energy_etaBinned[region][key] = etaBinnedDir.make<TH1F>(histo_name,histo_name,std::get<0>(rH_e_bins[region]),std::get<1>(rH_e_bins[region]),std::get<2>(rH_e_bins[region]));
     }
   }
 
@@ -524,7 +535,7 @@ ECALNoiseStudy::ECALNoiseStudy(const edm::ParameterSet& ps)
   for (TString region : regions){
     for (TString key : ring_keys[region]){
       TString histo_name = "h_PFrecHits_" + region + "_energy_ring_" + key;
-      h_PFrecHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,1000,0,10);
+      h_PFrecHits_energy_ringBinned[region][key] = ringBinnedDir.make<TH1F>(histo_name,histo_name,std::get<0>(rH_e_bins[region]),std::get<1>(rH_e_bins[region]),std::get<2>(rH_e_bins[region]));
     }
   }
 
