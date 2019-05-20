@@ -78,7 +78,7 @@ edit in Cfg GT="105X_upgrade2018_realistic_v3"
 
 end-of-Run2 50K evts :
 ```
-cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV13.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_ULPFrecHits.root maxEvents=50000
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ULPFrecHits_ecalV13.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_ULPFrecHits.root maxEvents=50000
 
 ```
 end-of-Run3 50K evts :
