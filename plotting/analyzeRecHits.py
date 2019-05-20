@@ -164,6 +164,32 @@ def beautify2DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle):
   c.SaveAs('{}/{}.root'.format(outputdir,histo.GetName()))
   del c
 
+def beautify1DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle, xrange):
+  
+  gROOT.SetBatch(True)
+  gROOT.ProcessLine('.L /work/mratti/CMS_style/tdrstyle.C')
+  gROOT.ProcessLine('setTDRStyle()')
+
+  gStyle.SetOptStat('emMrRo')
+
+  f=TFile(inputfile, 'READ')
+  histo=f.Get('{}/{}'.format(inputdir,histoname))
+
+  c=TCanvas('c', 'c', 600,600)
+  histo.SetLineWidth(2)
+  histo.Draw('hist')
+  c.SetLogy()
+  histo.GetXaxis().SetTitle(xtitle)
+  histo.GetYaxis().SetTitle(ytitle)
+  if xrange!=None:
+    histo.GetXaxis().SetRangeUser(xrange[0], xrange[1])
+  c.SaveAs('{}/{}.png'.format(outputdir,histo.GetName()))
+  c.SaveAs('{}/{}.pdf'.format(outputdir,histo.GetName()))
+  c.SaveAs('{}/{}.C'.format(outputdir,histo.GetName()))
+  c.SaveAs('{}/{}.root'.format(outputdir,histo.GetName()))
+  del c
+
+
 def makeNoiseGraph(histoinfo,binning,region, marker, color, whats):
 
   g = {}
@@ -203,8 +229,8 @@ def makeNoisePlot(outputdir, allgraphs, groups_to_plot, namegroups_to_plot, suff
   mg.GetYaxis().SetTitle('Noise (GeV)')
 
   mg.GetXaxis().SetTitle(xtitle)
-  if 'EB' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 0.6)
-  elif 'EE' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 8)
+  if 'EB' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 1.0)
+  elif 'EE' in groups_to_plot[0]: mg.GetYaxis().SetRangeUser(0., 15.)
 
   leg.Draw('same')
   #c1.SetLogy()
@@ -231,15 +257,15 @@ def makeHistoDiagnosisFrom3D(outputdir, inputfile, inputdir, histoname, xtitle, 
 
   ranges = {}
   ranges['EB']={}
-  ranges['EB']['mean']=(0., 0.7)
+  ranges['EB']['mean']=(0., 0.4)
   ranges['EB']['rms']=(0.,0.4)
   #ranges['EB']['0.5']
   ranges['EEP']={}
-  ranges['EEP']['mean']=(0., 5.)
-  ranges['EEP']['rms']=(0.,2.)
+  ranges['EEP']['mean']=(0., 15.)
+  ranges['EEP']['rms']=(0.,15.)
   ranges['EEM']={}
-  ranges['EEM']['mean']=(0., 5.)
-  ranges['EEM']['rms']=(0.,2.)
+  ranges['EEM']['mean']=(0., 15.)
+  ranges['EEM']['rms']=(0.,15.)
 
   # first create the 2D histograms with the correct binning and naming
   for what in whats:
@@ -314,7 +340,7 @@ def makeHistoDiagnosisFrom3D(outputdir, inputfile, inputdir, histoname, xtitle, 
       for iY in range(1,histos2D[what].GetYaxis().GetNbins()+1):
         iRing = TMath.Sqrt((iX-50)*(iX-50) + (iY-50)*(iY-50)) - 11.
         rounded_iRing = round(iRing)
-        print iX, iY, rounded_iRing
+        #print iX, iY, rounded_iRing
         if rounded_iRing>0 and histos2D[what].GetBinContent(iX,iY)>0. and rounded_iRing<42:
           h_means_iRing[rounded_iRing].Fill(histos2D[what].GetBinContent(iX,iY)) 
         
@@ -322,13 +348,13 @@ def makeHistoDiagnosisFrom3D(outputdir, inputfile, inputdir, histoname, xtitle, 
       g[what].SetPoint(iRing,iRing,h_means_iRing[iRing].GetMean())
 
 
-    c1 = TCanvas()
+    c1 = TCanvas('c1', 'c1', 600,600)
     g[what].Draw('AP')
     name = 'NoiseVsRing_crystal_{}'.format(det)
-    c1.SaveAs('{}.pdf'.format(name))
-    c1.SaveAs('{}.png'.format(name))
-    c1.SaveAs('{}.C'.format(name))
-    c1.SaveAs('{}.root'.format(name))
+    c1.SaveAs('{}/{}.pdf'.format(outputdir,name))
+    c1.SaveAs('{}/{}.png'.format(outputdir,name))
+    c1.SaveAs('{}/{}.C'.format(outputdir,name))
+    c1.SaveAs('{}/{}.root'.format(outputdir,name))
 
   #return g
 
@@ -339,17 +365,20 @@ if __name__ == '__main__':
   gROOT.SetBatch(True)
   TH1.StatOverflows(kTRUE) # for this to work, this flag must be activated at fill time
 
-  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV12'
-  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV12'
-  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_ecalV12'
-  version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_ecalV12'
+  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_ecalV13'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_ecalV13'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_ULPFrecHits_ecalV13'
+  version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV13'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV13'
+  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV13'
 
   doEtaBinnedAnalysis = False
   doRingBinnedAnalysis = False
   doBasicAnalysis = False
-  doPerCrystalAnalysis = True
+  doPerCrystalAnalysis = False
+  doNoiseClusterAnalysis = True
 
-  inputfile = '../test/outputfiles/{v}_numEvent15000.root'.format(v=version)
+  inputfile = '../test/outputfiles/{v}_numEvent50000.root'.format(v=version)
   inputdir = 'ecalnoisestudy/etaBinnedQuantities'
   inputdirRing = 'ecalnoisestudy/ringBinnedQuantities'
   outputdir = 'plots/anaRechits_{v}'.format(v=version)
@@ -520,4 +549,30 @@ if __name__ == '__main__':
     makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EB_energy_3D', xtitle='i#phi', ytitle='i#eta', ztitle='PF RecHit Energy (GeV)')
     makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEP_energy_3D', xtitle='ix', ytitle='iy', ztitle='PF RecHit Energy (GeV)')
     makeHistoDiagnosisFrom3D(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEM_energy_3D', xtitle='ix', ytitle='iy', ztitle='PF RecHit Energy (GeV)')
+
+  #############################
+  # Noise at the level of the PF clusters
+  ############################
+  
+  if doNoiseClusterAnalysis:
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_size', xtitle='N PF clusters in EB', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_size', xtitle='N PF clusters in EE+', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_size', xtitle='N PF clusters in EE-', ytitle='Entries', xrange=None)    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_nXtals', xtitle='N x-tals per PF cluster in EB', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_nXtals', xtitle='N x-tals per PF cluster in EE+', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_nXtals', xtitle='N x-tals per PF cluster in EE-', ytitle='Entries', xrange=None)    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_energy', xtitle='PFCluster Energy in EB (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_energy', xtitle='PFCluster Energy in EE+ (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_energy', xtitle='PFCluster Energy in EE- (GeV)', ytitle='Entries', xrange=(0.,40.))    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_eta', xtitle='PFCluster #eta in EB ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_eta', xtitle='PFCluster #eta in EE+ ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_eta', xtitle='PFCluster #eta in EE- ', ytitle='Entries', xrange=None)    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_phi', xtitle='PFCluster #phi in EB ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_phi', xtitle='PFCluster #phi in EE+ ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_phi', xtitle='PFCluster #phi in EE- ', ytitle='Entries', xrange=None)    
 

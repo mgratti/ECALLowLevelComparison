@@ -230,6 +230,9 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_recHits_EEP_sumneighbourEt_eta24;
 
    // PF clusters ----------------------------------------------
+   TH2D *h_PFclusters_EvsEta;
+			TH2D *h_PFclusters_EtvsEta;
+
    TH1D *h_PFclusters_EB_size;
    TH1D *h_PFclusters_EB_nXtals;
    TH1D *h_PFclusters_EB_energy;
@@ -289,6 +292,35 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFclusters_genMatched_EEM_phi;
    TH1D *h_PFclusters_genMatched_EEM_eOverEtrue;
 
+   // noise clusters
+   TH2D *h_PFclusters_noise_EvsEta;
+   TH2D *h_PFclusters_noise_EtvsEta;
+
+   TH1D *h_PFclusters_noise_EB_size;
+   TH1D *h_PFclusters_noise_EB_nXtals;
+   TH1D *h_PFclusters_noise_EB_energy;
+   TH1D *h_PFclusters_noise_EB_et;
+   TH1D *h_PFclusters_noise_EB_eta;
+   TH1D *h_PFclusters_noise_EB_phi;
+   TH1D *h_PFclusters_noise_EB_eOverEtrue;
+
+   TH1D *h_PFclusters_noise_EEP_size;
+   TH1D *h_PFclusters_noise_EEP_nXtals;
+   TH1D *h_PFclusters_noise_EEP_energy;
+   TH1D *h_PFclusters_noise_EEP_et;
+   TH1D *h_PFclusters_noise_EEP_eta;
+   TH1D *h_PFclusters_noise_EEP_phi;
+   TH1D *h_PFclusters_noise_EEP_eOverEtrue;
+
+   TH1D *h_PFclusters_noise_EEM_size;
+   TH1D *h_PFclusters_noise_EEM_nXtals;
+   TH1D *h_PFclusters_noise_EEM_energy;
+   TH1D *h_PFclusters_noise_EEM_et;
+   TH1D *h_PFclusters_noise_EEM_eta;
+   TH1D *h_PFclusters_noise_EEM_phi;
+   TH1D *h_PFclusters_noise_EEM_eOverEtrue;
+
+
    // Super Clusters ----------------------------------------------
    // ... barrel
    TH1D *h_superClusters_EB_size;
@@ -296,7 +328,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters_EB_nBC;
    TH1D *h_superClusters_EB_energy;
    TH1D *h_superClusters_EB_rawEnergy;
-   TH1D *h_superClusters_EB_et;
+   TH1D *h_superClusters_EB_rawEt;
 
    // ... endcap
    TH1D *h_superClusters_EEP_size;
@@ -304,14 +336,14 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters_EEP_nBC;
    TH1D *h_superClusters_EEP_energy;
    TH1D *h_superClusters_EEP_rawEnergy;
-   TH1D *h_superClusters_EEP_et;
+   TH1D *h_superClusters_EEP_rawEt;
 
    TH1D *h_superClusters_EEM_size;
    TH1D *h_superClusters_EEM_nXtals;
    TH1D *h_superClusters_EEM_nBC;
    TH1D *h_superClusters_EEM_energy;
    TH1D *h_superClusters_EEM_rawEnergy;
-   TH1D *h_superClusters_EEM_et;
+   TH1D *h_superClusters_EEM_rawEt;
 
    TH1D *h_superClusters_eta;
    TH1D *h_superClusters_EB_eta;
@@ -335,11 +367,16 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters500_deltaR_gen_EEP;
    TH1D *h_superClusters500_deltaR_gen_EEM;
 
+			TH1D *h_superClusters1000_deltaR_gen;
+   TH1D *h_superClusters1000_deltaR_gen_EB;
+   TH1D *h_superClusters1000_deltaR_gen_EEP;
+   TH1D *h_superClusters1000_deltaR_gen_EEM;
+
    TH1D *h_superClusters_genMatched_EB_size;
    TH1D *h_superClusters_genMatched_EB_nXtals;
    TH1D *h_superClusters_genMatched_EB_energy;
    TH1D *h_superClusters_genMatched_EB_rawEnergy;
-   TH1D *h_superClusters_genMatched_EB_et;
+   TH1D *h_superClusters_genMatched_EB_rawEt;
    TH1D *h_superClusters_genMatched_EB_eta;
    TH1D *h_superClusters_genMatched_EB_phi;
    TH1D *h_superClusters_genMatched_EB_eOverEtrue;
@@ -348,7 +385,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters_genMatched_EEP_nXtals;
    TH1D *h_superClusters_genMatched_EEP_energy;
    TH1D *h_superClusters_genMatched_EEP_rawEnergy;
-   TH1D *h_superClusters_genMatched_EEP_et;
+   TH1D *h_superClusters_genMatched_EEP_rawEt;
    TH1D *h_superClusters_genMatched_EEP_eta;
    TH1D *h_superClusters_genMatched_EEP_phi;
    TH1D *h_superClusters_genMatched_EEP_eOverEtrue;
@@ -357,10 +394,17 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters_genMatched_EEM_nXtals;
    TH1D *h_superClusters_genMatched_EEM_energy;
    TH1D *h_superClusters_genMatched_EEM_rawEnergy;
-   TH1D *h_superClusters_genMatched_EEM_et;
+   TH1D *h_superClusters_genMatched_EEM_rawEt;
    TH1D *h_superClusters_genMatched_EEM_eta;
    TH1D *h_superClusters_genMatched_EEM_phi;
    TH1D *h_superClusters_genMatched_EEM_eOverEtrue;
+
+			// fake clusters
+			TH2D *h_superClusters_noise_rawEvsEta;
+			TH2D *h_superClusters_noise_rawEtvsEta;
+			TH1D *h_superClusters_noise_rawEnergy;
+			TH1D *h_superClusters_noise_rawEt;
+			TH1D *h_superClusters_noise_eta;
 
 
 };
