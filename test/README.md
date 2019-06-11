@@ -86,6 +86,15 @@ end-of-Run3 50K evts :
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV13.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_50K.root maxEvents=50000
 ```
 
+end-of-Run2: new seeding threshold x3 (21 May)
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_NewSeed3_ecalV13.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v40/NEVTS15000_seed3.0_GATHER1.0/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=15000
+```
+end-of-Run2: new seeding threshold x4 (21 May)
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_NewSeed4_ecalV13.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v40/NEVTS15000_seed4.0_GATHER1.0/SingleNuE10_GEN_SIM_DIGI_RECO.root maxEvents=15000
+```
+
 Samples with full readout:
 
 end-of-Run2 minimal pfrechit thresholds:
@@ -101,6 +110,22 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade201
 end-of-Run3:
 ```
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_ecalV13.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_FullReadout.root maxEvents=5000
+```
+
+Corrected alpha tag and added 550/fb conditions, full readout (5K evts)
+180/fb:
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_07_06_19_ecalV15.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_FullReadout_07_06_19.root
+```
+
+450/fb:
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_07_06_19_ecalV15.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_FullReadout_07_06_19.root
+```
+
+550/fb:
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade2018_realistic_v3_550ifb_FR_07_06_19_ecalV15.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_FullReadout_07_06_19_550ifb.root
 ```
 
 ## PFClusters
@@ -143,14 +168,32 @@ $PNFS/EcalGen/PROD_SeedingGathering_v7/  --> Run3 conditions, 50K evts, w   trac
 GT=105X_upgrade2018_realistic_v3_180ifb
 
 Double photon 180/fb:
+Nominal DeltaR (0.05)
 ```
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/DoublePhoton_180ifb_nominal_ecalV14.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v26/NEVTS150000_seed1.0_GATHER1.0/EGM_GEN_SIM_DIGI_RECO.root maxEvents=150000 anaName="DoublePhoton"
 ```
+DeltaR 0.04
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/DoublePhoton_180ifb_nominal_DR4_ecalV14.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v26/NEVTS150000_seed1.0_GATHER1.0/EGM_GEN_SIM_DIGI_RECO.root maxEvents=150000 anaName="DoublePhoton"
+```
+DeltaR 0.06
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/DoublePhoton_180ifb_nominal_DR6_ecalV14.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v26/NEVTS150000_seed1.0_GATHER1.0/EGM_GEN_SIM_DIGI_RECO.root maxEvents=150000 anaName="DoublePhoton"
+```
+Double photon 180/fb 3sigma:
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/DoublePhoton_180ifb_NewSeed3_ecalV14.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v50//NEVTS150000_seed3.0_GATHER1.0/EGM_GEN_SIM_DIGI_RECO.root maxEvents=150000 anaName="DoublePhoton"
+```
+Double Photon 180/fb 4sigma
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/DoublePhoton_180ifb_NewSeed3_ecalV14.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v50//NEVTS150000_seed3.0_GATHER1.0/EGM_GEN_SIM_DIGI_RECO.root maxEvents=150000 anaName="DoublePhoton"
+```
+
+
 Double photon 450/fb:
 ```
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/DoublePhoton_450ifb_nominal_ecalV14.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v25/NEVTS150000_seed1.0_GATHER1.0/EGM_GEN_SIM_DIGI_RECO.root maxEvents=150000 anaName="DoublePhoton"
 ```
-
 Double electron 180/fb:
 ```
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/DoubleElectron_180ifb_nominal_ecalV14.root inputFiles=/store/user/mratti/EcalGen/PROD_SeedingGathering_v27/NEVTS150000_seed1.0_GATHER1.0/EGM_GEN_SIM_DIGI_RECO.root maxEvents=150000 anaName="DoubleElectron"

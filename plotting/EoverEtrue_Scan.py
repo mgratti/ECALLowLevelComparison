@@ -6,10 +6,11 @@ import itertools
 import sys
 import os
 sys.path.append('/work/mratti/plotting/myplotting')
+sys.path.append('./')
 from spares import *
 import graphUtils as gU
 from array import *
-
+from analyzeRecHits import beautify2DPlot, beautify1DPlot
 
 thrs={}
 thrs['EB']={}
@@ -242,6 +243,7 @@ if __name__ == "__main__":
   parser.add_argument('--do2DmapsThrs', dest='do2DmapsThrs', help='do 2D maps for seeding and gathering thresholds', action='store_true', default=False)
   parser.add_argument('--do1DmapsThrs', dest='do1DmapsThrs', help='plot 2 figures of merit for different seeding and gathering thresholds', action='store_true', default=False)
   parser.add_argument('--do1DmapsEt', dest='do1DmapsEt', help='do eff/mean/scale vs et plots', action='store_true', default=False)
+  parser.add_argument('--doClusterAnalysis', dest='doClusterAnalysis', help='beautify 1D plot', action='store_true', default=False)
 
   options = parser.parse_args()
 
@@ -491,3 +493,38 @@ if __name__ == "__main__":
             histo2D.GetZaxis().SetRangeUser(0.3, 1.0)
           gU.make2DPlot(histo=histo2D, plotName='2D_{g}_Eta{eta}_Et{et}'.format(g=group,eta=eta,et=et), outputdir=outputdir, option='colz', option2='text')
           del histo2D # otherwise get a complain
+
+
+  if options.doClusterAnalysis:
+
+    inputfile = inputfile.format(a=anaName, s=1.0, g=1.0, n=150000, v=version)
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EB_size', xtitle='N PF clusters in EB', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEP_size', xtitle='N PF clusters in EE+', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEM_size', xtitle='N PF clusters in EE-', ytitle='Entries', xrange=None)    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EB_nXtals', xtitle='N x-tals per PF cluster in EB', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEP_nXtals', xtitle='N x-tals per PF cluster in EE+', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEM_nXtals', xtitle='N x-tals per PF cluster in EE-', ytitle='Entries', xrange=None)    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EB_energy', xtitle='PFCluster Energy in EB (GeV)', ytitle='Entries', xrange=(0.,5.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEP_energy', xtitle='PFCluster Energy in EE+ (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEM_energy', xtitle='PFCluster Energy in EE- (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EB_et', xtitle='PFCluster Et in EB (GeV)', ytitle='Entries', xrange=(0.,5.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEP_et', xtitle='PFCluster Et in EE+ (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEM_et', xtitle='PFCluster Et in EE- (GeV)', ytitle='Entries', xrange=(0.,40.))    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EB_eta', xtitle='PFCluster #eta in EB ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEP_eta', xtitle='PFCluster #eta in EE+ ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEM_eta', xtitle='PFCluster #eta in EE- ', ytitle='Entries', xrange=None)    
+
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EB_phi', xtitle='PFCluster #phi in EB ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEP_phi', xtitle='PFCluster #phi in EE+ ', ytitle='Entries', xrange=None)    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EEM_phi', xtitle='PFCluster #phi in EE- ', ytitle='Entries', xrange=None)    
+
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EvsEta', xtitle='PFCluster Energy (GeV)', ytitle='PFCluster #eta')
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_genMatched_EtvsEta', xtitle='PFCluster Et (GeV)', ytitle='PFCluster #eta')
+
+
+
+

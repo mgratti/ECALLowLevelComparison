@@ -50,40 +50,40 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 	 ~ECALNoiseStudy();
 
   private:
-	 virtual void beginJob() ;
-	 virtual void analyze(const edm::Event&, const edm::EventSetup&);
-	 virtual void endJob() ;
+   virtual void beginJob() ;
+   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void endJob() ;
 
-	 // ----------member data ---------------------------
+   // ----------member data ---------------------------
 
-	 edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
    edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollection_;
    edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EB_;
-	 edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EE_;
+   edm::EDGetTokenT<EcalRecHitCollection>                    recHitCollection_EE_;
    edm::EDGetTokenT<reco::PFRecHitCollection>                PFrecHitCollection_;
    edm::EDGetTokenT<reco::PFClusterCollection>               PFclusterCollection_;
-	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EB_;//reco::SuperClusterCollection
-	 edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EE_;
-	 edm::EDGetTokenT<reco::BeamSpot>                      	  beamSpot_ ;//reco::BeamSpot
+   edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EB_;//reco::SuperClusterCollection
+   edm::EDGetTokenT<reco::SuperClusterCollection>            superClusterCollection_EE_;
+   edm::EDGetTokenT<reco::BeamSpot>                      	  beamSpot_ ;//reco::BeamSpot
 
    bool SaveSrFlag_;
 
-	 double ethrEB_;
-	 double ethrEE_;
-	 double scEtThrEB_;
-	 double scEtThrEE_;
+   double ethrEB_;
+   double ethrEE_;
+   double scEtThrEB_;
+   double scEtThrEE_;
 
    std::string anaName_;
 
    // tree
    //TTree *outTree;
 
-	 // ------------- HISTOGRAMS ------------------------------------
+   // ------------- HISTOGRAMS ------------------------------------
 
    // General
    int naiveId_;
-	 TH1D *h_nPVs;
-	 TH1D *h_numberOfEvents;
+   TH1D *h_nPVs;
+   TH1D *h_numberOfEvents;
 
    // gen particles
    TH1D *h_genP_pt;
@@ -102,6 +102,16 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::vector<TH2D*> h_superClusters_genMatched_etaVsPhi;
    std::vector<TH2D*> h_recHits_etaVsPhi;
    std::vector<TH2D*> h_genP_etaVsPhi;
+
+   std::vector<TH2D*> h_PFrecHits_EB_ietaiphi;
+   std::vector<TH2D*> h_PFclusters_EB_ietaiphi;
+   std::vector<TH2D*> h_PFclusters_genMatched_EB_ietaiphi;
+   std::vector<TH2D*> h_PFrecHits_EEP_ixiy;
+   std::vector<TH2D*> h_PFclusters_EEP_ixiy;
+   std::vector<TH2D*> h_PFclusters_genMatched_EEP_ixiy;
+   std::vector<TH2D*> h_PFrecHits_EEM_ixiy;
+   std::vector<TH2D*> h_PFclusters_EEM_ixiy;
+   std::vector<TH2D*> h_PFclusters_genMatched_EEM_ixiy;
 
    // Rechits and PFrechit vs eta
    std::vector<TString> regions={"EB", "EEM", "EEP"};
@@ -367,7 +377,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters500_deltaR_gen_EEP;
    TH1D *h_superClusters500_deltaR_gen_EEM;
 
-			TH1D *h_superClusters1000_deltaR_gen;
+   TH1D *h_superClusters1000_deltaR_gen;
    TH1D *h_superClusters1000_deltaR_gen_EB;
    TH1D *h_superClusters1000_deltaR_gen_EEP;
    TH1D *h_superClusters1000_deltaR_gen_EEM;
@@ -399,12 +409,12 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_superClusters_genMatched_EEM_phi;
    TH1D *h_superClusters_genMatched_EEM_eOverEtrue;
 
-			// fake clusters
-			TH2D *h_superClusters_noise_rawEvsEta;
-			TH2D *h_superClusters_noise_rawEtvsEta;
-			TH1D *h_superClusters_noise_rawEnergy;
-			TH1D *h_superClusters_noise_rawEt;
-			TH1D *h_superClusters_noise_eta;
+   // fake clusters
+   TH2D *h_superClusters_noise_rawEvsEta;
+   TH2D *h_superClusters_noise_rawEtvsEta;
+   TH1D *h_superClusters_noise_rawEnergy;
+   TH1D *h_superClusters_noise_rawEt;
+   TH1D *h_superClusters_noise_eta;
 
 
 };

@@ -178,6 +178,7 @@ def beautify1DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle, xr
   c=TCanvas('c', 'c', 600,600)
   histo.SetLineWidth(2)
   histo.Draw('hist')
+  #histo.Rebin(4)
   c.SetLogy()
   histo.GetXaxis().SetTitle(xtitle)
   histo.GetYaxis().SetTitle(ytitle)
@@ -368,9 +369,15 @@ if __name__ == '__main__':
   #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_ecalV13'
   #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_ecalV13'
   #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_ULPFrecHits_ecalV13'
-  version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV13'
   #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ecalV13'
+  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_ecalV14'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_ULPFrecHits_ecalV14'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_ULPFrecHits_ecalV13'
   #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV13'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_NewSeed3_ecalV13'
+  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_NewSeed3_ecalV13'
+  version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_NewSeed4_ecalV13'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_NewSeed4_ecalV13'
 
   doEtaBinnedAnalysis = False
   doRingBinnedAnalysis = False
@@ -378,7 +385,7 @@ if __name__ == '__main__':
   doPerCrystalAnalysis = False
   doNoiseClusterAnalysis = True
 
-  inputfile = '../test/outputfiles/{v}_numEvent50000.root'.format(v=version)
+  inputfile = '../test/outputfiles/{v}_numEvent15000.root'.format(v=version)
   inputdir = 'ecalnoisestudy/etaBinnedQuantities'
   inputdirRing = 'ecalnoisestudy/ringBinnedQuantities'
   outputdir = 'plots/anaRechits_{v}'.format(v=version)
@@ -564,9 +571,12 @@ if __name__ == '__main__':
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_nXtals', xtitle='N x-tals per PF cluster in EE+', ytitle='Entries', xrange=None)    
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_nXtals', xtitle='N x-tals per PF cluster in EE-', ytitle='Entries', xrange=None)    
 
-    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_energy', xtitle='PFCluster Energy in EB (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_energy', xtitle='PFCluster Energy in EB (GeV)', ytitle='Entries', xrange=(0.,5.))    
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_energy', xtitle='PFCluster Energy in EE+ (GeV)', ytitle='Entries', xrange=(0.,40.))    
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_energy', xtitle='PFCluster Energy in EE- (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_et', xtitle='PFCluster Et in EB (GeV)', ytitle='Entries', xrange=(0.,5.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_et', xtitle='PFCluster Et in EE+ (GeV)', ytitle='Entries', xrange=(0.,40.))    
+    beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_et', xtitle='PFCluster Et in EE- (GeV)', ytitle='Entries', xrange=(0.,40.))    
 
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_eta', xtitle='PFCluster #eta in EB ', ytitle='Entries', xrange=None)    
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_eta', xtitle='PFCluster #eta in EE+ ', ytitle='Entries', xrange=None)    
@@ -575,4 +585,8 @@ if __name__ == '__main__':
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_phi', xtitle='PFCluster #phi in EB ', ytitle='Entries', xrange=None)    
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_phi', xtitle='PFCluster #phi in EE+ ', ytitle='Entries', xrange=None)    
     beautify1DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_phi', xtitle='PFCluster #phi in EE- ', ytitle='Entries', xrange=None)    
+
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EvsEta', xtitle='PFCluster Energy (GeV)', ytitle='PFCluster #eta')
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EtvsEta', xtitle='PFCluster Et (GeV)', ytitle='PFCluster #eta')
+
 
