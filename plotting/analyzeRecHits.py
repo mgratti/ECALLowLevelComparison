@@ -11,7 +11,7 @@ from spares import *
 from array import *
 
 from ROOT import TH1F, TGraph, TGraph2D, TCanvas, TLegend, TFile, TTree, gROOT, TF1, TLatex, gStyle, TH2D, gPad, TColor,TMultiGraph, TH1, TMath
-from ROOT import kRed, kBlue, kGray, kGreen, kPink, kYellow, kBlack, kWhite, kPink, kMagenta, kTRUE, kFALSE
+from ROOT import kRed, kBlue, kGray, kGreen, kPink, kYellow, kBlack, kWhite, kPink, kMagenta, kTRUE, kFALSE, Double
 import glob
 from array import *
 import re
@@ -144,12 +144,21 @@ def makeHistoDiagnosis(outputdir, inputfile, inputdir, inputhistoname, binning, 
   return histoinfo
 
 
-def beautify2DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle):
+def beautify2DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle, ztitle=''):
   #gROOT.SetBatch(True)
   gROOT.ProcessLine('.L /work/mratti/CMS_style/tdrstyle2D.C')
   gROOT.ProcessLine('setTDRStyle2D()')
+
   f=TFile(inputfile, 'READ')
-  histo=f.Get('{}/{}'.format(inputdir,histoname))
+  if not f.IsOpen(): raise RuntimeError('file not found')
+
+  if inputdir!=None:
+    histo=f.Get('{}/{}'.format(inputdir,histoname))
+  else:
+    histo=f.Get(histoname)
+
+  if not histo: raise RuntimeError('histo {} not found'.format(histoname))
+
   gStyle.SetOptStat(000000) # remove all stats
 
   c=TCanvas('c', 'c', 800, 500)
@@ -158,13 +167,14 @@ def beautify2DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle):
   c.SetLogz()
   histo.GetXaxis().SetTitle(xtitle)
   histo.GetYaxis().SetTitle(ytitle)
+  histo.GetZaxis().SetTitle(ztitle)
   c.SaveAs('{}/{}.png'.format(outputdir,histo.GetName()))
   c.SaveAs('{}/{}.pdf'.format(outputdir,histo.GetName()))
   c.SaveAs('{}/{}.C'.format(outputdir,histo.GetName()))
   c.SaveAs('{}/{}.root'.format(outputdir,histo.GetName()))
   del c
 
-def beautify1DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle, xrange):
+def beautify1DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle, xrange, rebin=0, log=1):
   
   gROOT.SetBatch(True)
   gROOT.ProcessLine('.L /work/mratti/CMS_style/tdrstyle.C')
@@ -173,13 +183,21 @@ def beautify1DPlot(outputdir, inputfile, inputdir, histoname, xtitle, ytitle, xr
   gStyle.SetOptStat('emMrRo')
 
   f=TFile(inputfile, 'READ')
-  histo=f.Get('{}/{}'.format(inputdir,histoname))
+  if not f.IsOpen(): raise RuntimeError('file not found')
+
+  if inputdir!=None:
+    histo=f.Get('{}/{}'.format(inputdir,histoname))
+  else:
+    histo=f.Get(histoname)
+
+  if not histo: raise RuntimeError('histo {} not found'.format(histoname))
 
   c=TCanvas('c', 'c', 600,600)
   histo.SetLineWidth(2)
   histo.Draw('hist')
+  if rebin!=0: histo.Rebin(rebin)
   #histo.Rebin(4)
-  c.SetLogy()
+  if log!=0: c.SetLogy()
   histo.GetXaxis().SetTitle(xtitle)
   histo.GetYaxis().SetTitle(ytitle)
   if xrange!=None:
@@ -208,6 +226,30 @@ def makeNoiseGraph(histoinfo,binning,region, marker, color, whats):
         #print what, histoinfo[key][what]
 
   return g
+
+def printGraphValues(graph, det):
+
+  if det != 'EBP' : raise RuntimeError('subdetector= %s is not currently supported' % det)
+  print 'Values of relevant graph for subdet=', det
+
+  list_to_print=[]
+
+  for i in range (0,graph.GetN()):
+    x=Double()
+    y=Double()
+    graph.GetPoint(i,x,y)
+    print i, x, y
+
+    if i == 0: continue
+
+    list_to_print.append(round(y, 4))
+    
+  if det=='EBP' and len(list_to_print) != 85: raise RuntimeError('wrong number of rings..')
+  
+  final_list = list_to_print[::-1] + list_to_print
+  print 'Symmetrized list with allegedly correct numbering of rings'
+  print final_list
+  print 'Size of symmetrized list is ', len(final_list)
 
 
 def makeNoisePlot(outputdir, allgraphs, groups_to_plot, namegroups_to_plot, suffix, whats_to_plot, names_to_plot, xtitle):
@@ -376,16 +418,21 @@ if __name__ == '__main__':
   #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_ecalV13'
   #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_NewSeed3_ecalV13'
   #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_NewSeed3_ecalV13'
-  version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_NewSeed4_ecalV13'
+  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_NewSeed4_ecalV13'
   #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_NewSeed4_ecalV13'
+  version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_FR_07_06_19_ecalV15'
+  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_450ifb_FR_07_06_19_ecalV15'
+  #version = 'SingleNu_Run3_105X_upgrade2018_realistic_v3_550ifb_FR_07_06_19_ecalV15'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_13_08_19_3sSeed_noPU_ecalV15'
+  #version = 'SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_13_08_19_3sSeed_wAutumn18PU_ecalV15'
 
   doEtaBinnedAnalysis = False
-  doRingBinnedAnalysis = False
+  doRingBinnedAnalysis = True
   doBasicAnalysis = False
   doPerCrystalAnalysis = False
-  doNoiseClusterAnalysis = True
+  doNoiseClusterAnalysis = False
 
-  inputfile = '../test/outputfiles/{v}_numEvent15000.root'.format(v=version)
+  inputfile = '../test/outputfiles/{v}_numEvent5000.root'.format(v=version)
   inputdir = 'ecalnoisestudy/etaBinnedQuantities'
   inputdirRing = 'ecalnoisestudy/ringBinnedQuantities'
   outputdir = 'plots/anaRechits_{v}'.format(v=version)
@@ -505,8 +552,13 @@ if __name__ == '__main__':
     graphs['EEP']=makeNoiseGraph(histoinfo=histoinfo_EEP,binning=binning_EEP, region='EEP', marker=20, color=kBlue, whats=whats)
     graphs['EEM']=makeNoiseGraph(histoinfo=histoinfo_EEM,binning=binning_EEM, region='EEM', marker=24, color=kMagenta, whats=whats)
 
+    # before plotting just print the values of the estimated noise -> 70% quantile of the distribution 
+    printGraphValues(graph=graphs['EBP'][0.7], det='EBP')
+    #printGraphValues(graph=graphs['EBM'][0.7], det='EBM')
+    
     makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EBP', 'EBM'], namegroups_to_plot=['EB+', 'EB-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='i#eta' )
     makeNoisePlot(outputdir=outputdir, allgraphs=graphs, groups_to_plot=['EEP', 'EEM'], namegroups_to_plot=['EE+', 'EE-'], suffix='_recHitEnergy_vsRing', whats_to_plot=whats_to_plot, names_to_plot=names_to_plot, xtitle='iRing' )
+
 
     ######### pfrechits in bins of ring
     graphs={}
@@ -538,6 +590,10 @@ if __name__ == '__main__':
     beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EB_occupancy', xtitle='i#phi', ytitle='i#eta')
     beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEP_occupancy', xtitle='ix', ytitle='iy')
     beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFrecHits', histoname='h_PFrecHits_EEM_occupancy', xtitle='ix', ytitle='iy')
+    # PF clusters
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EB_occupancy', xtitle='i#phi', ytitle='i#eta')
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEP_occupancy', xtitle='ix', ytitle='iy')
+    beautify2DPlot(outputdir=outputdir, inputfile=inputfile, inputdir='ecalnoisestudy/PFClusters', histoname='h_PFclusters_EEM_occupancy', xtitle='ix', ytitle='iy')
 
 
   ##############################

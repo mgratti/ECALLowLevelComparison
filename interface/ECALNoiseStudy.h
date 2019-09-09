@@ -106,12 +106,18 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    std::vector<TH2D*> h_PFrecHits_EB_ietaiphi;
    std::vector<TH2D*> h_PFclusters_EB_ietaiphi;
    std::vector<TH2D*> h_PFclusters_genMatched_EB_ietaiphi;
+   std::vector<TH2D*> h_PFclustersHits_EB_ietaiphi;
+   std::vector<TH2D*> h_PFclustersHits_genMatched_EB_ietaiphi;
    std::vector<TH2D*> h_PFrecHits_EEP_ixiy;
    std::vector<TH2D*> h_PFclusters_EEP_ixiy;
    std::vector<TH2D*> h_PFclusters_genMatched_EEP_ixiy;
+   std::vector<TH2D*> h_PFclustersHits_EEP_ixiy;
+   std::vector<TH2D*> h_PFclustersHits_genMatched_EEP_ixiy;
    std::vector<TH2D*> h_PFrecHits_EEM_ixiy;
    std::vector<TH2D*> h_PFclusters_EEM_ixiy;
    std::vector<TH2D*> h_PFclusters_genMatched_EEM_ixiy;
+   std::vector<TH2D*> h_PFclustersHits_EEM_ixiy;
+   std::vector<TH2D*> h_PFclustersHits_genMatched_EEM_ixiy;
 
    // Rechits and PFrechit vs eta
    std::vector<TString> regions={"EB", "EEM", "EEP"};
@@ -241,7 +247,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
 
    // PF clusters ----------------------------------------------
    TH2D *h_PFclusters_EvsEta;
-			TH2D *h_PFclusters_EtvsEta;
+   TH2D *h_PFclusters_EtvsEta;
 
    TH1D *h_PFclusters_EB_size;
    TH1D *h_PFclusters_EB_nXtals;
@@ -249,6 +255,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFclusters_EB_et;
    TH1D *h_PFclusters_EB_eta;
    TH1D *h_PFclusters_EB_phi;
+   TH2D *h_PFclusters_EB_occupancy;
 
    TH1D *h_PFclusters_EEP_size;
    TH1D *h_PFclusters_EEP_nXtals;
@@ -256,6 +263,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFclusters_EEP_et;
    TH1D *h_PFclusters_EEP_eta;
    TH1D *h_PFclusters_EEP_phi;
+   TH2D *h_PFclusters_EEP_occupancy;
 
    TH1D *h_PFclusters_EEM_size;
    TH1D *h_PFclusters_EEM_nXtals;
@@ -263,6 +271,7 @@ class ECALNoiseStudy : public edm::EDAnalyzer {
    TH1D *h_PFclusters_EEM_et;
    TH1D *h_PFclusters_EEM_eta;
    TH1D *h_PFclusters_EEM_phi;
+   TH2D *h_PFclusters_EEM_occupancy;
 
    TH1D *h_PFclusters_eta;
    TH1D *h_PFclusters_deltaR_gen;

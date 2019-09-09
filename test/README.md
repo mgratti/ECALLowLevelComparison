@@ -128,6 +128,16 @@ cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade201
 cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run3_105X_upgrade2018_realistic_v3_550ifb_FR_07_06_19_ecalV15.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run3Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_FullReadout_07_06_19_550ifb.root
 ```
 
+180/fb w/o vs w/ Autumn18 pile-up:
+```
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_13_08_19_3sSeed_noPU_ecalV15.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_13_08_19_3sSeed.root
+
+cmsRun ../python/Cfg_std.py outputFile=outputfiles/SingleNu_Run2_105X_upgrade2018_realistic_v3_180ifb_13_08_19_3sSeed_wAutumn18PU_ecalV15.root inputFiles=/store/user/mratti/EcalGen/GEN_SIM_DIGI/SingleNu/Run2Cond/105X_upgrade2018_realistic_v3/SingleNuE10_GEN_SIM_DIGI_RECO_13_08_19_3sSeed_wAutumn18PU.root
+
+provisionally inputfile is /scratch/mratti/SingleNuE10_GEN_SIM_DIGI_RECO.root
+
+```
+
 ## PFClusters
 
 ### double photon
